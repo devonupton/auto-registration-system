@@ -5,3 +5,6 @@ stop:
 
 commit:
 	git commit -a
+
+push:
+	git push
