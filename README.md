@@ -15,3 +15,21 @@ Setup:
 		commit file in the text editor before being able to commit).
 
 Commands:
+	git branch
+		List all the avaliable branches in this project
+		
+	git branch [branch-name]
+		Creates a new branch based on this name from the current directory
+		
+	git checkout [branch-name]
+		Loads all data from that branch and makes this your current workingspace
+		
+	git commit -a
+		Creates a commit for all the new changes in data in the branch 
+		
+	git add [filename]
+		Adds a file to tracked when commits are made
+		
+	git merge [branch/master name]
+		Merges the requested branch into the currently checked out branch
+		USEFUL TO AVOID CONFLICTS WHEN MERGING BEFORE MERGING INTO MASTER...
