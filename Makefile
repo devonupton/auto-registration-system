@@ -7,8 +7,9 @@ make:
 	#echo "Use 'make' setup to run setup."
 	#echo -e "This file is meant to be in the directory you want ./C291_project1 \nto appear."
 
-move:
-	mv ./Makefile ../
+move: 	copy
+copy:
+	cp ./Makefile ../
 
 setup:
 	git clone https://github.com/hreherch/C291_project1
