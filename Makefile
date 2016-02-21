@@ -18,5 +18,7 @@ remove:
 	echo "Resetting your workspace..."
 	rm -rf ./C291_project1
 
-recall: remove, setup
+recall: 
+	make remove
+	make setup
 	echo "Done."
