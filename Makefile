@@ -8,6 +8,8 @@ setup:
 	git clone https://github.com/hreherch/C291_project1
 
 recall:
-	rm -f *
+	rm -rf ../C291_project1
+	mkdir ../C291_project1
 	git clone https://github.com/hreherch/C291_project1 ../C291_project1
+	cd ..
 	
