@@ -6,3 +6,8 @@ make:
 
 setup:
 	git clone https://github.com/hreherch/C291_project1
+
+recall:
+	cd ..
+	rm -f -v C291_project1 
+	git clone https://github.com/hreherch/C291_project1
