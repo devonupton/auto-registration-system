@@ -3,11 +3,12 @@
 
 # This makefile is designed to be in the directory above C291_project1
 
-make:
-	# Use 'make setup' to run setup.
-	# This file is meant to be in the directory you want ./C291_project1 to appear.
+# Runs the setup file for your database.
+DB:
+	sqlplus hreherch @p1_setup.sql
 
 # copies the Makefile into the above directory.
+
 move: 	copy
 copy:
 	cp ./Makefile ../
@@ -19,7 +20,7 @@ setup:
 # Removes the repository from the working directory
 	# WARNING!! DO NOT USE UNLESS YOU ARE SURE YOU WILL NOT LOSE DATA!!
 remove:
-	echo "Resetting your workspace..."
+	# Resetting your workspace...
 	rm -rf ./C291_project1
 
 # Removes the repository from the working directory, but also begins to clone
@@ -28,4 +29,4 @@ remove:
 recall: 
 	make remove
 	make setup
-	echo "Done."
+	# Done.
