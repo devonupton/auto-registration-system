@@ -96,20 +96,22 @@ def menu( userCx ):
 		except:
 			getError()
 			continue
+def main():
+    welcome()
+    userCx = login()
 
+    menu( userCx )
 
-welcome()
-userCx = login()
+    try:
+        userCx.close()
+    except:
+        if userCx != "DEBUG":
+            print( "ERROR:\tuserCx.close() unsuccessful..." )
+        else:
+            print( "EXITING DEBUG MODE...".center( 80 ) )
+            call_exit()
 
-menu( userCx )
+    call_exit()
 
-try:
-	userCx.close()
-except:
-	if userCx != "DEBUG":
-		print( "ERROR:\tuserCx.close() unsuccessful..." )
-	else:
-		print( "EXITING DEBUG MODE...".center( 80 ) )
-		call_exit()
-
-call_exit()
+if __name__ == '__main__':
+    main()
