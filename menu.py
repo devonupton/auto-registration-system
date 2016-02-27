@@ -21,6 +21,7 @@ def welcome():
 
 # gets an Oracle login for use with the program.
 def login():
+    con = ''
     firstTime = False
     while True:
         try:
@@ -56,12 +57,21 @@ def login():
             print( "AND PASSWORD AND TRY AGAIN...\n" )
             continue
 
-    call_exit()
+    call_exit( con )
 
 # Exits Python. Only use if the user has requested it.
-def call_exit():
+def call_exit( userCx ):
     print()
     print( "EXITING...".center( 80 ) )
+    
+    try:
+        userCx.close()
+    except:
+        if userCx == "":
+            print( end="" )
+        elif userCx != "DEBUG":
+            print( "ERROR:\tuserCx.close() unsuccessful..." )
+    
     print( "THANK YOU. HAVE A NICE DAY.".center( 80 ) )
     print()
     exit()
@@ -81,6 +91,7 @@ def getError():
     print()
 
 def menu( userCx ):
+    print()
     print( "= " * 40 )
     print( "MAIN MENU".center( 80 ) )
     print( "( TYPE YOUR SELECTION )".center( 80 ) )
@@ -90,25 +101,26 @@ def menu( userCx ):
     while True:
         choice = input( "CHOICE: " ).strip()
 
+        # Check user's choice, run app, return/reload function to get title splash
         if len( choice ) == 0:
-            call_exit()
+            call_exit( userCx )
+            return
         elif choice == '1':
             app1.run( userCx )
+            return
         elif choice == '2':
             app2.run( userCx )
+            return
         elif choice == '3':
             app3.run( userCx )
+            return
         elif choice == '4':
             app4.run( userCx )
+            return
         elif choice == '5':
             app5.run( userCx )
+            return
         else:
-            getError()
-            continue
-
-        try:
-            choice = int( choice )
-        except:
             getError()
             continue
         
@@ -117,18 +129,9 @@ def main():
     welcome()
     userCx = login()
 
-    menu( userCx )
-
-    try:
-        userCx.close()
-    except:
-        if userCx != "DEBUG":
-            print( "ERROR:\tuserCx.close() unsuccessful..." )
-        else:
-            print( "EXITING DEBUG MODE...".center( 80 ) )
-            call_exit()
-
-    call_exit()
+    # loop menu title on return, user can only call call_exit in menu function.
+    while True:
+        menu( userCx )
 
 if __name__ == '__main__':
     main()
