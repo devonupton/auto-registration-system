@@ -2,13 +2,16 @@
 # appear before calling make.
 
 # This makefile is designed to be in the directory above C291_project1
+mainFile = "menu.py"
+
+run:
+	python3 $(mainFile)
 
 # Runs the setup file for your database.
 DB:
 	sqlplus hreherch @p1_setup.sql
 
 # copies the Makefile into the above directory.
-
 move: 	copy
 copy:
 	cp ./Makefile ../

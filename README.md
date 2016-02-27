@@ -31,3 +31,6 @@ git add [filename]
 git merge [branch/master name]
 >	Merges the requested branch into the currently checked out branch
 >	USEFUL TO AVOID CONFLICTS WHEN MERGING BEFORE MERGING INTO MASTER...
+
+git remote prune origin 
+> 	Removes old and stale branches (use --dry-run to prevent fuckups)
