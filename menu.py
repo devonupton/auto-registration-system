@@ -13,6 +13,7 @@ def welcome():
 	print( "=" * 80 ) 
 	print()
 
+# gets an Oracle login for use with the program.
 def login():
 	firstTime = False
 	while True:
@@ -20,20 +21,35 @@ def login():
 			if not firstTime:
 				print( "Leave the username blank if you wish to exit..." )
 				firstTime = True
+
 			user = input( "Oracle username: " )
 			if len( user ) == 0:
 				break
+
+			if user == "DEBUG":
+				return user
+
 			pw = getpass.getpass()
+
 			con_string = user + "/" + pw + "@gwynne.cs.ualberta.ca:1521/CRS"
 			con = cx_Oracle.connect( con_string )
 			if con == None:
+				# The connection failed, raise Error to loop again.
 				raise ValueError
-			con.autocommit = 1
+
+			print( "\nSuccessfully connected to:", con.dsn, end="\n\n" )
+
+			#con.autocommit = 1
+			# idk what the above does tbh...
+
+			# Return the connection
 			return con
+
 		except:
 			print( "\nERROR:\tPLEASE CHECK YOUR USERNAME", end=" " )
 			print( "AND PASSWORD AND TRY AGAIN...\n" )
 			continue
+
 	call_exit()
 
 # Exits Python. Only use if the user has requested it.
@@ -44,13 +60,56 @@ def call_exit():
 	print()
 	exit()
 
+def getOptions():
+	print()
+	print( "[ 1 ]: NEW VEHICLE REGISTRATION" )
+	print( "[ 2 ]: AUTO TRANSACTION" )
+	print( "[ 3 ]: DRIVER LICENCE REGISTRATION" )
+	print( "[ 4 ]: VIOLATION RECORDS" )
+	print( "[ 5 ]: SEARCH ENGINE" )
+	print( "[ ENTER ]: EXIT PROGRAM" )
+	print()
+
+def getError():
+	print( "ERROR:\tINVALID OPTION.")
+	print()
+
+def menu( userCx ):
+	print( "= " * 40 )
+	print( "MAIN MENU".center( 80 ) )
+	print( "( TYPE YOUR SELECTION )".center( 80 ) )
+	print( "= " * 40 )
+	getOptions()
+
+	while True:
+		choice = input( "CHOICE: " ).strip()
+
+		if len( choice ) == 0:
+			call_exit()
+
+		if len( choice ) > 1:
+			getError()
+			continue
+
+		try:
+			choice = int( choice )
+		except:
+			getError()
+			continue
+
+
 welcome()
 userCx = login()
 
-userCx.close()
+menu( userCx )
+
 try:
 	userCx.close()
 except:
-	print( "userCx.close() successful...")
+	if userCx != "DEBUG":
+		print( "ERROR:\tuserCx.close() unsuccessful..." )
+	else:
+		print( "EXITING DEBUG MODE...".center( 80 ) )
+		call_exit()
 
 call_exit()
