@@ -2,7 +2,8 @@
 # appear before calling make.
 
 # This makefile is designed to be in the directory above C291_project1
-mainFile = "menu.py"
+#mainFile = "menu.py"
+mainFile = "gui.py"
 
 run:
 	python3 $(mainFile)
