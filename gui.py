@@ -2,7 +2,14 @@
 from tkinter import *
 
 def app1_command():
-    print( "1 hate buttons" )
+    top = Toplevel()
+    top.title( "app1 TopLevel" )
+
+    msg = Message( top, text="This is app1!", padx=5, pady=5 )
+    msg.pack()
+
+    button = Button( top, text="Dismiss", command=top.destroy )
+    button.pack()
 
 def app2_command():
     print( "i ha2e buttons" )
