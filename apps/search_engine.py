@@ -4,11 +4,34 @@ from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
 
+# List the name, licence_no, addr, birthday, driving class,
+# driving_condition, and the expiring_data of a driver by entering either 
+# a licence_no or a given name. It shall display all the entries if a
+# duplicate name is given.
+def searchOne( userCx, strVar, isLicNo ):
+        if isLicNo:
+            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, " + \
+                        "DC.description, L.expiring_date " + \
+                        "FROM People P, drive_Licence L, driving_condition DC, restriction R " + \
+                        "WHERE P.sin = L.sin AND " + \
+                        "L.licence_no (+)= R.licence_no AND R.r_id (+)= DC.c_id"
+        else:
+            statement = "SELECT * FROM People"
+            
+        print( statement )
+        thisCursor = userCx.cursor()
+        
+        thisCursor.execute( statement )
+        rows = thisCursor.fetchall()
+        print( len(rows) )
+        for row in rows:
+            print( row )
+
 def run( userCx ):
     # prevents use of app if user hasn't logged in.
-    #if userCx == None:
-    #    tm.showerror( "Error", "You need to login before using this app.\nErr 0xa5-1" )
-    #    return
+    if userCx == None:
+        tm.showerror( "Error", "You need to login before using this app.\nErr 0xa5-1" )
+        return
     
     top = Tk()
     top.title( "app1 TopLevel" )
@@ -18,27 +41,23 @@ def run( userCx ):
     msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
     msg1.grid( row=0, sticky=N, columnspan=2 )
 
-    name_strVar = StringVar()
-    name_strVar.set( "Enter Name" )
-    name_entry = Entry( top, textvariable=name_strVar )
-    name_entry.grid( row=1, column=0, sticky=W )
+    #name_strVar = StringVar()
+    #name_strVar.set( "Enter Name" )
+    name_entry = Entry( top )
+    name_entry.grid( row=1, column=0, sticky=EW )
+    name_entry.insert( 0, "Enter a name...")
     
-    licNo_strVar = StringVar()
-    licNo_strVar.set( "Enter licence_no" )
-    licNo_entry = Entry( top, textvariable=licNo_strVar )
-    licNo_entry.grid( row=1, column=1, sticky=E )
-
-    def searchOne( userCx, strVar, isLicNo ):
-        if isLicNo:
-            print( "LicNo:", strVar.get() )
-        else:
-            print( "Name:", strVar.get() )
+    #licNo_strVar = StringVar()
+    licNo_entry = Entry( top )
+    #licNo_strVar.set( "Enter licence_no" )
+    licNo_entry.grid( row=1, column=1, sticky=EW )
+    licNo_entry.insert( 0, "Enter a licence_no..." )
     
-    searchName_button = Button( top, text="Search By Name", command=lambda: searchOne( userCx, name_strVar, False ) )
-    searchName_button.grid( row=2, column=0, sticky=W )
+    searchName_button = Button( top, text="Search By Name", command=lambda: searchOne( userCx, name_entry.get(), False ) )
+    searchName_button.grid( row=2, column=0, sticky=EW )
     
-    searchLicNo_button = Button( top, text="Search By licence_no", command=lambda: searchOne( userCx, LicNo_strVar, True ) )
-    searchLicNo_button.grid( row=2, column=1, sticky=E )
+    searchLicNo_button = Button( top, text="Search By licence_no", command=lambda: searchOne( userCx, licNo_entry.get(), True ) )
+    searchLicNo_button.grid( row=2, column=1, sticky=EW )
 
     mainloop()
     
