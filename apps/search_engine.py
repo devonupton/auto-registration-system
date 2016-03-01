@@ -26,15 +26,20 @@ def searchOne( userCx, strVar, isLicNo ):
                         "FROM People P, drive_Licence L "+\
                         "WHERE P.sin = L.sin " + "AND P.name = " + "'" + strVar + "'"
             
-        print( statement )
+        #print( statement )
         
+        # Set up the cursor from the connection.
         thisCursor = userCx.cursor()
+        
+        # try to execute the requested statement
         try:
             thisCursor.execute( statement )
         except:
+            # NEED TO INCLUDE HELP FOR DETERMINING ERRORS IN THE SQL STATEMENT
             tm.showerror( "Invalid Input", "There is a problem with your search, please try again.\nErr 0xa5-3" )
             return
-            
+         
+        
         rows = thisCursor.fetchall()
         print( len(rows) )
         for row in rows:
