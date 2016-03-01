@@ -16,19 +16,18 @@ def searchOne( userCx, strVar, isLicNo ):
             return
             
         if isLicNo:
-            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date, " +\
-                        "(SELECT DC.description " +\
-                        "FROM driving_condition DC, restriction R " +\
-                        "WHERE R.r_id = DC.c_id AND L.licence_no = R.licence_no ) AS condtions "+\
+            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
                         "FROM People P, drive_Licence L "+\
-                        "WHERE P.sin = L.sin"
+                        "WHERE P.sin = L.sin " + "AND L.licence_no = " + "'" + strVar + "'"
         else:
             statement = "SELECT * FROM People"
             
         print( statement )
         thisCursor = userCx.cursor()
-        
-        thisCursor.execute( statement )
+        try:
+            thisCursor.execute( statement )
+        except:
+            tm.showerror( "Invalid Input", "There is a problem with your search option, please try again." )
         rows = thisCursor.fetchall()
         print( len(rows) )
         for row in rows:
@@ -41,7 +40,7 @@ def run( userCx ):
         return
     
     top = Tk()
-    top.title( "app1 TopLevel" )
+    top.title( "app5: Search Engine" )
 
     # LIST1 ====================================================================
     info1 = "entering either a licence_no or a given name."
