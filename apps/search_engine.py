@@ -1,41 +1,47 @@
 ''' Search Engine Application '''
-# SEARCH ENGINE
-# probably need to import this to app1 but I'm laz.
+
+from tkinter import *
+import tkinter.messagebox as tm
+import cx_Oracle
+
 def run( userCx ):
+    # prevents use of app if user hasn't logged in.
+    #if userCx == None:
+    #    tm.showerror( "Error", "You need to login before using this app.\nErr 0xa5-1" )
+    #    return
+    
     top = Tk()
     top.title( "app1 TopLevel" )
 
-    # msg = Message( top, text="This is app1!", padx=5, pady=5 )
-    # msg.pack()
-
-    # strVar1 = StringVar()
-    # entry1 = Entry( top, textvariable=strVar1 )
-    # entry1.pack()
-
-    # def getText1():
-    #     print( strVar1.get() )
-
-    # strVar1.set( "enter words here" )
-
-    # buttonGet1 = Button( top, text="Dismiss", command=getText1 )
-    # buttonGet1.pack()
-
     # LIST1 ====================================================================
     info1 = "entering either a licence_no or a given name."
-    msg1 = Message( top, text=info1, padx=5, pady=5 )
-    msg1.pack()
+    msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
+    msg1.grid( row=0, sticky=N, columnspan=2 )
 
-    strVar1 = StringVar()
-    strVar1.set( "Name or licence_no" )
-    entry1 = Entry( top, textvariable=strVar1 )
-    entry1.pack()
+    name_strVar = StringVar()
+    name_strVar.set( "Enter Name" )
+    name_entry = Entry( top, textvariable=name_strVar )
+    name_entry.grid( row=1, column=0, sticky=W )
+    
+    licNo_strVar = StringVar()
+    licNo_strVar.set( "Enter licence_no" )
+    licNo_entry = Entry( top, textvariable=licNo_strVar )
+    licNo_entry.grid( row=1, column=1, sticky=E )
 
-    def list1( userCx ):
-        print( strVar1.get() )
+    def searchOne( userCx, strVar, isLicNo ):
+        if isLicNo:
+            print( "LicNo:", strVar.get() )
+        else:
+            print( "Name:", strVar.get() )
+    
+    searchName_button = Button( top, text="Search By Name", command=lambda: searchOne( userCx, name_strVar, False ) )
+    searchName_button.grid( row=2, column=0, sticky=W )
+    
+    searchLicNo_button = Button( top, text="Search By licence_no", command=lambda: searchOne( userCx, LicNo_strVar, True ) )
+    searchLicNo_button.grid( row=2, column=1, sticky=E )
 
-    button1 = Button( top, text="Search Drivers", command=lambda: list1( userCx ) )
-    button1.pack()
-
+    mainloop()
+    
     # LIST2 ====================================================================
     info2 = "drive licence_no or sin of a person  is entered."
     msg2 = Message( top, text=info2, padx=5, pady=5 )
