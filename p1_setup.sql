@@ -290,10 +290,10 @@ INSERT INTO owner VALUES ( '00-12345kb', 'q6-popsuv3', 'y' );
 INSERT INTO driving_condition VALUES ( 0, 'Requires glasses to drive.' );
 INSERT INTO driving_condition VALUES ( 1, 'Requires glare glasses to drive.' );
 
-INSERT INTO restriction VALUES ( '10-buysin04', 0 );
+INSERT INTO restriction VALUES ( 'ln-0010b04', 0 );
 
 -- add glasses and glare restriction for Bennett
-INSERT INTO restriction VALUES ( '01-12345bh', 0 );
-INSERT INTO restriction VALUES ( '01-12345bh', 1 );
+INSERT INTO restriction VALUES ( 'ln-0002bh', 0 );
+INSERT INTO restriction VALUES ( 'ln-0002bh', 1 );
 
 COMMIT;
