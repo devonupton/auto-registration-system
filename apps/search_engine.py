@@ -9,6 +9,12 @@ import cx_Oracle
 # a licence_no or a given name. It shall display all the entries if a
 # duplicate name is given.
 def searchOne( userCx, strVar, isLicNo ):
+        if len( strVar ) < 1:
+            type = "licence_no" if isLicNo else "Name"
+            tm.showerror( "Invalid Input", "You need to specifiy a " +\
+                          type + " to search!\nErr 0xa5-2" )
+            return
+            
         if isLicNo:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, " + \
                         "DC.description, L.expiring_date " + \
