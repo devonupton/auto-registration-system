@@ -9,25 +9,32 @@ import cx_Oracle
 # a licence_no or a given name. It shall display all the entries if a
 # duplicate name is given.
 def searchOne( userCx, strVar, isLicNo ):
+        # Check if user input is empty
         if len( strVar ) < 1:
             type = "licence_no" if isLicNo else "Name"
             tm.showerror( "Invalid Input", "You need to specifiy a " +\
                           type + " to search!\nErr 0xa5-2" )
             return
             
+        # Set up query depending on the choice.
         if isLicNo:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
                         "FROM People P, drive_Licence L "+\
                         "WHERE P.sin = L.sin " + "AND L.licence_no = " + "'" + strVar + "'"
         else:
-            statement = "SELECT * FROM People"
+            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
+                        "FROM People P, drive_Licence L "+\
+                        "WHERE P.sin = L.sin " + "AND P.name = " + "'" + strVar + "'"
             
         print( statement )
+        
         thisCursor = userCx.cursor()
         try:
             thisCursor.execute( statement )
         except:
-            tm.showerror( "Invalid Input", "There is a problem with your search option, please try again." )
+            tm.showerror( "Invalid Input", "There is a problem with your search, please try again.\nErr 0xa5-3" )
+            return
+            
         rows = thisCursor.fetchall()
         print( len(rows) )
         for row in rows:
