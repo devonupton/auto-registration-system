@@ -3,6 +3,7 @@
 from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
+import apps.tableWidget as tW
 
 # List the name, licence_no, addr, birthday, driving class,
 # driving_condition, and the expiring_data of a driver by entering either 
@@ -14,24 +15,74 @@ def searchOne( userCx, strVar, isLicNo ):
             tm.showerror( "Invalid Input", "You need to specifiy a " +\
                           type + " to search!\nErr 0xa5-2" )
             return
-            
+           
+        # build the SQL statement based on if it's a LicNo or a Name
         if isLicNo:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
                         "FROM People P, drive_Licence L "+\
-                        "WHERE P.sin = L.sin " + "AND L.licence_no = " + "'" + strVar + "'"
+                        "WHERE P.sin = L.sin " + "AND LOWER(L.licence_no) = " + "'" + strVar.lower() + "'"
         else:
-            statement = "SELECT * FROM People"
+            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
+                        "FROM People P, drive_Licence L "+\
+                        "WHERE P.sin = L.sin " + "AND LOWER(P.name) = " + "'" + strVar.lower() + "'"
             
-        print( statement )
+        #print( statement )
+        
         thisCursor = userCx.cursor()
         try:
             thisCursor.execute( statement )
         except:
             tm.showerror( "Invalid Input", "There is a problem with your search option, please try again." )
+            
         rows = thisCursor.fetchall()
-        print( len(rows) )
-        for row in rows:
-            print( row )
+    
+        # build the tableSpace for tableWidget =================================
+        numRows = len( rows )
+        numCols = len( thisCursor.description )
+        
+        # get the header elements
+        headerList = []
+        for object in thisCursor.description:
+            headerList.append( object[0] )
+        # append the extra search for conditions
+        headerList.append( "CONDITION(S)" )
+        
+        # start the tableSpace with the header row
+        tableRows = [headerList]
+        
+        # loop through all the rows returned by fetchall
+        for x in range( numRows ):
+            tempRow = []
+            for entry in rows[x]:
+                # for every entry in each row, append it to the temporary row
+                tempRow.append( entry )
+            # When a temporary row is complete, search for the conditions on that result  
+            statement = "SELECT DC.description " +\
+                         "FROM restriction R, driving_condition DC " +\
+                        "WHERE R.r_id = DC.c_id AND LOWER(R.licence_no) = '" + tempRow[1].strip().lower() + "'"
+            thisCursor.execute( statement )  
+            conditions = thisCursor.fetchall()
+            if len( rows ) == 0:
+                # if no conditions found for the licence, append N/A value
+                tempRow.append( "N/A" )
+            else:
+                # if conditions found, append them the final element of tempRow
+                condStr = ""
+                #print( conditions )
+                for object in conditions:
+                    condStr += object[0] + "\n"
+                # take all but the last newline character of the condStr
+                tempRow.append( condStr[ 0: len(condStr)-1 ] )
+                    
+            tableRows.append( tempRow )
+                        
+        # create the search title for the frame
+        title = "licence_no" if isLicNo else "Name"
+        title += " search on " + strVar
+        
+        #print( tableRows )
+        
+        tW.buildCxTable( tableRows, title )
 
 def run( userCx ):
     # prevents use of app if user hasn't logged in.
