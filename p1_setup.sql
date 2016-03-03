@@ -296,4 +296,7 @@ INSERT INTO restriction VALUES ( 'ln-0010b04', 0 );
 INSERT INTO restriction VALUES ( 'ln-0002bh', 0 );
 INSERT INTO restriction VALUES ( 'ln-0002bh', 1 );
 
+-- test if multiple people break the system
+INSERT INTO people VALUES ( '02-multisin', 'Bennett Hreherchuk', 150, 172, 'blue', 'brown', 'Sylvan Lake', 'm', '14-DEC-1995' );
+
 COMMIT;
