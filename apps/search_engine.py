@@ -17,6 +17,10 @@ def searchOne( userCx, strVar, isLicNo ):
                           type + " to search!\nErr 0xa5-2" )
             return
            
+        # create the search title for the frame
+        title = "licence_no" if isLicNo else "Name"
+        title += " search on '" + strVar.lower() + "'"
+        
         # build the SQL statement based on if it's a LicNo or a Name
         if isLicNo:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
@@ -39,6 +43,11 @@ def searchOne( userCx, strVar, isLicNo ):
             return
          
         rows = thisCursor.fetchall()
+        
+        if len( rows ) == 0:
+            infoMsg = title + " produced no results!"
+            tm.showinfo( "No results!", infoMsg )
+            return
     
         # build the tableSpace for tableWidget =================================
         numRows = len( rows )
@@ -88,10 +97,6 @@ def searchOne( userCx, strVar, isLicNo ):
                 tempRow.append( condStr[ 0: len(condStr)-1 ] )
                     
             tableRows.append( tempRow )
-                        
-        # create the search title for the frame
-        title = "licence_no" if isLicNo else "Name"
-        title += " search on " + strVar
         
         #print( tableRows )
         
