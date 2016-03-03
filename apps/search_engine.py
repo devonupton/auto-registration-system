@@ -10,6 +10,7 @@ import apps.tableWidget as tW
 # a licence_no or a given name. It shall display all the entries if a
 # duplicate name is given.
 def searchOne( userCx, strVar, isLicNo ):
+        # Check if user input is empty
         if len( strVar ) < 1:
             type = "licence_no" if isLicNo else "Name"
             tm.showerror( "Invalid Input", "You need to specifiy a " +\
@@ -27,13 +28,16 @@ def searchOne( userCx, strVar, isLicNo ):
                         "WHERE LOWER(P.name) = " + "'" + strVar.lower() + "'"
             
         #print( statement )
-        
         thisCursor = userCx.cursor()
+        
+        # try to execute the requested statement
         try:
             thisCursor.execute( statement )
         except:
-            tm.showerror( "Invalid Input", "There is a problem with your search option, please try again." )
-            
+            # NEED TO INCLUDE HELP FOR DETERMINING ERRORS IN THE SQL STATEMENT
+            tm.showerror( "Invalid Input", "There is a problem with your search, please try again.\nErr 0xa5-3" )
+            return
+         
         rows = thisCursor.fetchall()
     
         # build the tableSpace for tableWidget =================================
