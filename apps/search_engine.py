@@ -5,6 +5,35 @@ import tkinter.messagebox as tm
 import cx_Oracle
 import apps.tableWidget as tW
 
+global_lastType = None
+global_lastString = None
+
+#===============================================================================
+# Function: checkLastSearch
+#===============================================================================
+# searchOne 11, 12
+# searchTwo 21, 22
+# searchThree 3
+def checkLastSearch( searchType, strVar ):
+    strVar = strVar.lower()
+    global global_lastType
+    global global_lastString
+
+    if (searchType == global_lastType) and (strVar == global_lastString):
+        yesnoMsg = "Your most recent search was '" + strVar + "' do you wish to search this again?"
+        if tm.askyesno( "Double Search", yesnoMsg ):
+            return True
+        else:
+            return False
+
+    global_lastType = searchType
+    global_lastString = strVar
+    return True
+
+
+#===============================================================================
+# Function: searchone
+#===============================================================================
 # List the name, licence_no, addr, birthday, driving class,
 # driving_condition, and the expiring_data of a driver by entering either 
 # a licence_no or a given name. It shall display all the entries if a
@@ -17,6 +46,10 @@ def searchOne( userCx, strVar, isLicNo ):
                           type + " to search!\nErr 0xa5-2" )
             return
            
+        searchType = 11 if isLicNo else 12   
+        if not checkLastSearch( searchType, strVar ):
+            return
+
         # create the search title for the frame
         title = "licence_no" if isLicNo else "Name"
         title += " search on '" + strVar.lower() + "'"
@@ -101,7 +134,17 @@ def searchOne( userCx, strVar, isLicNo ):
         #print( tableRows )
         
         tW.buildCxTable( tableRows, title )
+#===============================================================================
+# Function: searchTwo
+#===============================================================================
+# List all violation records received by a person if  the drive licence_no or 
+# sin of a person  is entered.
+def searchTwo():
 
+
+#===============================================================================
+# Function: searchThree
+#===============================================================================
 # Print out the vehicle_history, including 
     # the number of times that a vehicle has been changed hand, 
     # the average price, 
@@ -112,12 +155,25 @@ def searchThree( userCx, vinVar ):
             tm.showerror( "Invalid Input", "You need to specifiy a " +\
                           "VIN" + " to search!\nErr 0xa5-4" )
             return
+
+    if not checkLastSearch( 3, vinVar ):
+        return
     
     vinVar = vinVar.lower().strip()
+    
+    thisCursor = userCx.cursor()
+
+    # Check if vehicle is in DB system
+    statement = "SELECT * FROM vehicle WHERE LOWER( serial_no ) = '" + vinVar + "'"
+    thisCursor.execute( statement )
+    rows = thisCursor.fetchall()
+    if len( rows ) == 0:
+        errMsg = "'" + vinVar + "' was not found in the data base.\nErr 0xa5-5"
+        tm.showerror( "Invalid Search", errMsg )
+        return
             
     # get violation count
-    statement = "SELECT COUNT( * ) FROM ticket WHERE LOWER(vehicle_id) = '" + vinVar + "'"
-    thisCursor = userCx.cursor()
+    statement = "SELECT COUNT( * ) FROM ticket WHERE LOWER( vehicle_id ) = '" + vinVar + "'"
     thisCursor.execute( statement )
     rows = thisCursor.fetchall()
     numViolations = rows[0][0]
@@ -129,10 +185,16 @@ def searchThree( userCx, vinVar ):
     avgPrice = rows[0][0]
     numSales = rows[0][1]
     
-    print( "numVio =", numViolations )
-    print( "avgPrice=", avgPrice )
-    print( "numSales=", numSales )
+    title = "History For VIN=" + vinVar 
+    headerList = [ 'VIN', 'VIOLATIONS', 'AVG SALE PRICE', 'SALES' ]
+    valueList = [ vinVar, str( numViolations ), str( avgPrice ), str( numSales ) ]
+
+    tW.buildCxTable( [headerList, valueList], title )
     
+
+#===============================================================================
+# Function: run
+#===============================================================================
 def run( userCx ):
     # prevents use of app if user hasn't logged in.
     if userCx == None:

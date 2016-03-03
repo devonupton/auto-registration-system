@@ -173,7 +173,7 @@ INSERT INTO vehicle VALUES ( 'q5-vin007', 'AUDI', 'lemon', 2013, 'cyan', 202 );
 INSERT INTO people VALUES ( '00-12345kb', 'Kieter Balisnomo', 175, 125, 'brown', 'black', 'Edmonton', 'm', '21-JAN-1997');
 INSERT INTO drive_licence VALUES ( 'ln-0001kb', '00-12345kb', 'nondriving', NULL, NULL, NULL );
 INSERT INTO vehicle VALUES ( 'q1-trivialtest2', 'AUDI', 'sexbomb', 2009, 'black', 101 );
-INSERT INTO auto_sale VALUES ( 18, '05-12345tsm', '00-12345kb', 'q1-trivialtest2', '21-JUL-2011', 1950 );
+INSERT INTO auto_sale VALUES ( 18, '05-12345tsm', '00-12345kb', 'q1-trivialtest2', '21-JUL-2011', 1950.5 );
 INSERT INTO owner VALUES ( '00-12345kb', 'q1-trivialtest2', 'y' );
 
 INSERT INTO people VALUES ( '01-12345bh', 'Bennett Hreherchuk', 180, 172, 'blue', 'brown', 'Deadmonton', 'm', '14-DEC-1995');
@@ -276,7 +276,7 @@ INSERT INTO owner VALUES ( '09-buysin03', 'q5-vin008', 'y' );
 
 INSERT INTO people VALUES ( '10-buysin04', 'Devon Upton', 125, 170, 'blue', 'blonde', 'Calgary', 'm', '18-SEP-1995');
 INSERT INTO drive_licence VALUES ( 'ln-0010b04', '10-buysin04', 'nondriving', NULL, NULL, NULL );
-INSERT INTO auto_sale VALUES ( 6, '05-12345tsm', '10-buysin04', 'q5-vin005', '21-NOV-2010', 3400 );
+INSERT INTO auto_sale VALUES ( 6, '05-12345tsm', '10-buysin04', 'q5-vin005', '21-NOV-2010', 3400.5 );
 INSERT INTO owner VALUES ( '10-buysin04', 'q5-vin005', 'y' ); 
 INSERT INTO owner VALUES ( '10-buysin04', 'q1-trivialtest', 'n' );
 
@@ -306,5 +306,7 @@ INSERT INTO drive_licence VALUES ( 'ln-maxnalong', '123456789012345', 'driving',
 INSERT INTO restriction VALUES ( 'ln-maxnalong', 0 );
 INSERT INTO restriction VALUES ( 'ln-maxnalong', 1 );
 INSERT INTO restriction VALUES ( 'ln-maxnalong', 2 );
+
+
 
 COMMIT;
