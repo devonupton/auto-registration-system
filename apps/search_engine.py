@@ -102,6 +102,37 @@ def searchOne( userCx, strVar, isLicNo ):
         
         tW.buildCxTable( tableRows, title )
 
+# Print out the vehicle_history, including 
+    # the number of times that a vehicle has been changed hand, 
+    # the average price, 
+    # and the number of violations it has been involved 
+# by entering the vehicle's serial number. 
+def searchThree( userCx, vinVar ):
+    if len( vinVar ) < 1:
+            tm.showerror( "Invalid Input", "You need to specifiy a " +\
+                          "VIN" + " to search!\nErr 0xa5-4" )
+            return
+    
+    vinVar = vinVar.lower().strip()
+            
+    # get violation count
+    statement = "SELECT COUNT( * ) FROM ticket WHERE LOWER(vehicle_id) = '" + vinVar + "'"
+    thisCursor = userCx.cursor()
+    thisCursor.execute( statement )
+    rows = thisCursor.fetchall()
+    numViolations = rows[0][0]
+    
+    # get avg( sale ) and count( sale )
+    statement = "SELECT AVG( price ), COUNT( * ) FROM auto_sale WHERE LOWER( vehicle_id ) = '" + vinVar + "'"
+    thisCursor.execute( statement )
+    rows = thisCursor.fetchall()
+    avgPrice = rows[0][0]
+    numSales = rows[0][1]
+    
+    print( "numVio =", numViolations )
+    print( "avgPrice=", avgPrice )
+    print( "numSales=", numSales )
+    
 def run( userCx ):
     # prevents use of app if user hasn't logged in.
     if userCx == None:
@@ -150,25 +181,18 @@ def run( userCx ):
     
     search2LicNo_button = Button( top, text="Search By licence_no", command=lambda: searchTwo( userCx, lic_entry.get(), True ) )
     search2LicNo_button.grid( row=5, column=1, sticky=EW )
-    
-    mainloop()
 
     # LIST3 ====================================================================
     info3 = "entering the vehicle's serial number."
-    msg3 = Message( top, text=info3, padx=5, pady=5 )
-    msg3.pack()
+    msg3 = Message( top, text=info3, padx=5, pady=5, width=200 )
+    msg3.grid( row=6, sticky=N, columnspan=2 )
 
-    strVar3 = StringVar()
-    strVar3.set( "Enter a VIN" )
-    entry3 = Entry( top, textvariable=strVar3 )
-    entry3.pack()
+    vin_entry = Entry( top )
+    vin_entry.grid( row=7, columnspan=2, sticky=EW )
+    vin_entry.insert( 0, "Enter a VIN here" )
 
-    # Perform the search for 
-    def list3():
-        print( strVar3.get() )
-
-    button3 = Button( top, text="Search Vehicle History", command=list3 )
-    button3.pack()
+    searchVIN_button = Button( top, text="Search By VIN", command=lambda: searchThree( userCx, vin_entry.get() ) )
+    searchVIN_button.grid( row=8, columnspan=2, sticky=EW )
 
     #mainloop
     mainloop()
