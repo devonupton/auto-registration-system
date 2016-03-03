@@ -19,12 +19,12 @@ def searchOne( userCx, strVar, isLicNo ):
         # build the SQL statement based on if it's a LicNo or a Name
         if isLicNo:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
-                        "FROM People P, drive_Licence L "+\
-                        "WHERE P.sin = L.sin " + "AND LOWER(L.licence_no) = " + "'" + strVar.lower() + "'"
+                        "FROM People P LEFT JOIN drive_Licence L ON P.sin = L.sin "+\
+                        "WHERE LOWER(L.licence_no) = " + "'" + strVar.lower() + "'"
         else:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
-                        "FROM People P, drive_Licence L "+\
-                        "WHERE P.sin = L.sin " + "AND LOWER(P.name) = " + "'" + strVar.lower() + "'"
+                        "FROM People P LEFT JOIN drive_Licence L ON P.sin = L.sin "+\
+                        "WHERE LOWER(P.name) = " + "'" + strVar.lower() + "'"
             
         #print( statement )
         
@@ -55,8 +55,17 @@ def searchOne( userCx, strVar, isLicNo ):
             tempRow = []
             for entry in rows[x]:
                 # for every entry in each row, append it to the temporary row
-                tempRow.append( entry )
-            # When a temporary row is complete, search for the conditions on that result  
+                if entry == None:
+                    # if entry is a NoneType, apply this value instead
+                    tempRow.append( "N/A" )
+                else:
+                    tempRow.append( entry )
+            # When a temporary row is complete, search for the conditions on that result
+            # Because of the LEFT JOIN, some licence may be NoneType
+            if tempRow[1] == "N/A":
+                tempRow.append( "N/A" )
+                tableRows.append( tempRow )
+                continue;
             statement = "SELECT DC.description " +\
                          "FROM restriction R, driving_condition DC " +\
                         "WHERE R.r_id = DC.c_id AND LOWER(R.licence_no) = '" + tempRow[1].strip().lower() + "'"
