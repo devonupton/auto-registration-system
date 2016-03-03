@@ -289,6 +289,7 @@ INSERT INTO owner VALUES ( '00-12345kb', 'q6-popsuv3', 'y' );
 -- add glasses restriction for Devon
 INSERT INTO driving_condition VALUES ( 0, 'Requires glasses to drive.' );
 INSERT INTO driving_condition VALUES ( 1, 'Requires glare glasses to drive.' );
+INSERT INTO driving_condition VALUES ( 2, 'ALBERTA DEMERIT RECOVERY CONDITION. Required to drive with an authourized adult at all times.' );
 
 INSERT INTO restriction VALUES ( 'ln-0010b04', 0 );
 
@@ -298,5 +299,12 @@ INSERT INTO restriction VALUES ( 'ln-0002bh', 1 );
 
 -- test if multiple people break the system
 INSERT INTO people VALUES ( '02-multisin', 'Bennett Hreherchuk', 150, 172, 'blue', 'brown', 'Sylvan Lake', 'm', '14-DEC-1995' );
+
+-- test some long values
+INSERT INTO people VALUES ( '123456789012345', 'SuperMax-LongName withtheLongestName', 150, 190, 'burgandy', 'burgandy', '0118999-8119991197253 street Edmonton', 'm', '14-DEC-1996' );
+INSERT INTO drive_licence VALUES ( 'ln-maxnalong', '123456789012345', 'driving', NULL, '10-DEC-2016', '15-OCT-2017'  );
+INSERT INTO restriction VALUES ( 'ln-maxnalong', 0 );
+INSERT INTO restriction VALUES ( 'ln-maxnalong', 1 );
+INSERT INTO restriction VALUES ( 'ln-maxnalong', 2 );
 
 COMMIT;

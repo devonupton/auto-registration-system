@@ -116,41 +116,42 @@ def run( userCx ):
     msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
     msg1.grid( row=0, sticky=N, columnspan=2 )
 
-    #name_strVar = StringVar()
-    #name_strVar.set( "Enter Name" )
     name_entry = Entry( top )
     name_entry.grid( row=1, column=0, sticky=EW )
-    name_entry.insert( 0, "Enter a name...")
+    name_entry.insert( 0, "Enter a name here")
     
-    #licNo_strVar = StringVar()
     licNo_entry = Entry( top )
-    #licNo_strVar.set( "Enter licence_no" )
     licNo_entry.grid( row=1, column=1, sticky=EW )
-    licNo_entry.insert( 0, "Enter a licence_no..." )
+    licNo_entry.insert( 0, "Enter a licence_no here" )
     
-    searchName_button = Button( top, text="Search By Name", command=lambda: searchOne( userCx, name_entry.get(), False ) )
-    searchName_button.grid( row=2, column=0, sticky=EW )
+    search1Name_button = Button( top, text="Search By Name", command=lambda: searchOne( userCx, name_entry.get(), False ) )
+    search1Name_button.grid( row=2, column=0, sticky=EW )
     
-    searchLicNo_button = Button( top, text="Search By licence_no", command=lambda: searchOne( userCx, licNo_entry.get(), True ) )
-    searchLicNo_button.grid( row=2, column=1, sticky=EW )
+    search1LicNo_button = Button( top, text="Search By licence_no", command=lambda: searchOne( userCx, licNo_entry.get(), True ) )
+    search1LicNo_button.grid( row=2, column=1, sticky=EW )
 
-    mainloop()
     
     # LIST2 ====================================================================
     info2 = "drive licence_no or sin of a person  is entered."
-    msg2 = Message( top, text=info2, padx=5, pady=5 )
-    msg2.pack()
+    msg2 = Message( top, text=info2, padx=5, pady=5, width=200 )
+    msg2.grid( row=3, sticky=N, columnspan=2 )
 
-    strVar2 = StringVar()
-    strVar2.set( "Licence_no or SIN" )
-    entry2 = Entry( top, textvariable=strVar2 )
-    entry2.pack()
+    sin_entry = Entry( top )
+    sin_entry.grid( row=4, column=0, sticky=EW )
+    sin_entry.insert( 0, "Enter a SIN here" )
+    
+    # NOTICE THE NAME... I SUCK AT NAMING HELP
+    lic_entry = Entry( top )
+    lic_entry.grid( row=4, column=1, sticky=EW )
+    lic_entry.insert( 0, "Enter a licence_no here" )
 
-    def list2():
-        print( strVar2.get() )
-
-    button2 = Button( top, text="Search Violations", command=list2 )
-    button2.pack()
+    search2Name_button = Button( top, text="Search By SIN", command=lambda: searchTwo( userCx, sin_entry.get(), False ) )
+    search2Name_button.grid( row=5, column=0, sticky=EW )
+    
+    search2LicNo_button = Button( top, text="Search By licence_no", command=lambda: searchTwo( userCx, lic_entry.get(), True ) )
+    search2LicNo_button.grid( row=5, column=1, sticky=EW )
+    
+    mainloop()
 
     # LIST3 ====================================================================
     info3 = "entering the vehicle's serial number."
