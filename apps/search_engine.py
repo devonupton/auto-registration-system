@@ -1,5 +1,11 @@
 ''' Search Engine Application '''
 
+# NOTES TO SELF ################################################################
+    # need to make a consistent error message scheme 
+        # check "no result!" error (showinfo?)
+        # check "invalid entry" error (showerror?)
+################################################################################
+
 from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
@@ -39,6 +45,8 @@ def checkLastSearch( searchType, strVar ):
 # a licence_no or a given name. It shall display all the entries if a
 # duplicate name is given.
 def searchOne( userCx, strVar, isLicNo ):
+        strVar = strVar.lower().strip()
+
         # Check if user input is empty
         if len( strVar ) < 1:
             type = "licence_no" if isLicNo else "Name"
@@ -139,7 +147,43 @@ def searchOne( userCx, strVar, isLicNo ):
 #===============================================================================
 # List all violation records received by a person if  the drive licence_no or 
 # sin of a person  is entered.
-def searchTwo():
+def searchTwo( userCx, strVar, isLicNo ):
+    strVar = strVar.strip().lower()
+
+    # Check if user input is empty
+    if len( strVar ) < 1:
+        type = "licence_no" if isLicNo else "Name"
+        tm.showerror( "Invalid Input", "You need to specifiy a " +\
+                       type + " to search!\nErr 0xa5-7" )
+        return
+
+    searchType = 21 if isLicNo else 22   
+    if not checkLastSearch( searchType, strVar ):
+        return
+
+    searchType = "licence_no=" if isLicNo else "SIN="
+    title = "Violation Search on " + searchType + strVar
+
+    thisCursor = userCx.cursor()
+
+    # Translate the LicNo into a sin
+    if isLicNo:
+        statement = "SELECT P.sin FROM drive_Licence L, People P " +\
+        "WHERE P.sin = L.sin AND LOWER( L.licence_no ) ='" + strVar + "'"
+
+        thisCursor.execute( statement )
+        rows = thisCursor.fetchall()
+        if len( rows ) == 0:
+            errMsg = "The licence_no '" + strVar + "' was not found.\nErr 0xa5-6"
+            tm.showerror( "No result!", errMsg )
+            return
+
+        strVar = rows[0][0]
+        strVar = strVar.lower()
+
+    # search for tickets on the SIN (strVar)
+    
+
 
 
 #===============================================================================
@@ -151,6 +195,8 @@ def searchTwo():
     # and the number of violations it has been involved 
 # by entering the vehicle's serial number. 
 def searchThree( userCx, vinVar ):
+    vinVar = vinVar.lower().strip()
+
     if len( vinVar ) < 1:
             tm.showerror( "Invalid Input", "You need to specifiy a " +\
                           "VIN" + " to search!\nErr 0xa5-4" )
@@ -158,8 +204,6 @@ def searchThree( userCx, vinVar ):
 
     if not checkLastSearch( 3, vinVar ):
         return
-    
-    vinVar = vinVar.lower().strip()
     
     thisCursor = userCx.cursor()
 
