@@ -162,7 +162,7 @@ def searchTwo( userCx, strVar, isLicNo ):
         return
 
     searchType = "licence_no=" if isLicNo else "SIN="
-    title = "Violation Search on " + searchType + strVar
+    title = "Violation Search on " + searchType + "'" + strVar + "'"
 
     thisCursor = userCx.cursor()
 
@@ -179,12 +179,37 @@ def searchTwo( userCx, strVar, isLicNo ):
             return
 
         strVar = rows[0][0]
-        strVar = strVar.lower()
+        strVar = strVar.strip().lower()
 
     # search for tickets on the SIN (strVar)
-    
+    statement = "SELECT violator_no AS violatior_SIN, ticket_no, vehicle_id, office_no AS officer_ID, vdate, place, TT.vtype, TT.fine, descriptions " +\
+                "FROM ticket, ticket_type TT " +\
+                "WHERE ticket.vtype = TT.vtype AND LOWER( violator_no ) = '" + strVar + "'"
 
+    thisCursor.execute( statement )
+    rows = thisCursor.fetchall()
+    #print( rows )
 
+    if len( rows ) == 0:
+        infoMsg = title + " produced no results!"
+        tm.showinfo( "No Results", infoMsg )
+        return
+
+    headerList = []
+    for object in thisCursor.description:
+        headerList.append( object[0] )
+
+    tableRows = [headerList]
+    for x in range( len( rows ) ):
+        tempRow = []
+        for entry in rows[x]:
+            if entry == None:
+                tempRow.append( "N/A" )
+            else:
+                tempRow.append( entry )
+        tableRows.append( tempRow )
+
+    tW.buildCxTable( tableRows, title )
 
 #===============================================================================
 # Function: searchThree
