@@ -58,7 +58,7 @@ class App1( Toplevel ):
         sin_label = Label( self, text="sin" )
         self.sin_entry = Entry( self )
         new_person_button = Button( self, text="Add new Person", \
-                                    command=lambda: NewPerson( self.userCx, self.sin_entry ) )
+                                    command=lambda: NewPerson( self, self.sin_entry ) )
 
         #Add widgets to frame
         msg2.grid( row=0, column=2, sticky=N, columnspan=2 )

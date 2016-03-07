@@ -7,12 +7,17 @@ import tkinter.messagebox as tm
 import cx_Oracle
 import datetime
 
+#Run this app by calling NewPerson( parent_window, return_entry )
+#parent_window: the window that owns the button that calls this app
+#return_entry: An entry field from parent window that will be automatically
+#              filled with "sin" once this application finishes
+
 class NewPerson( Toplevel ):
-    def __init__( self, userCx, return_entry=None ):
-        Toplevel.__init__( self )
+    def __init__( self, parent, return_entry=None ):
+        Toplevel.__init__( self, parent )
         self.title( "New Persons Application" )
 
-        self.userCx = userCx
+        self.userCx = parent.userCx
         self.return_entry = return_entry #Used to return the sin back to the previous window
 
         #Create widgets
@@ -42,7 +47,7 @@ class NewPerson( Toplevel ):
         gender_label = Label( self, text="Gender" )
         self.gender_entry = Entry( self )
 
-        birthday_label = Label( self, text="Birthday (DD-MMM-YYYY)" )
+        birthday_label = Label( self, text="Birthday" )
         self.birthday_entry = Entry( self )
 
         #Add widgets to frame
@@ -72,12 +77,12 @@ class NewPerson( Toplevel ):
         gender_label.grid( row=4, column=2, sticky=E )
         self.gender_entry.grid( row=4, column=3 )
 
-        birthday_label.grid( row=9, sticky=E, columnspan=3 )
-        self.birthday_entry.grid( row=9, column=3 )
+        birthday_label.grid( row=5, sticky=E )
+        self.birthday_entry.grid( row=5, column=1 )
 
         #Add submit button
         submit_button = Button( self, text="Submit", command=lambda: self.submit_form() )
-        submit_button.grid( row=9, sticky=W )
+        submit_button.grid( row=5, column=3, sticky=W )
 
     def submit_form( self ):
 
@@ -92,6 +97,9 @@ class NewPerson( Toplevel ):
                          "birthday":  self.birthday_entry.get() }
 
         if not self.validate_input():
+            return
+
+        if not tm.askyesno( "Submit Confirmation", "Are you sure you want to submit?" ):
             return
 
         #Send information to Oracle Database
