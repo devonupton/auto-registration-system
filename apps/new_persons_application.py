@@ -9,14 +9,15 @@ import datetime
 
 #Run this app by calling NewPerson( parent_window, return_entry )
 #parent_window: the window that owns the button that calls this app
-#return_entry: An entry field from parent window that will be automatically
-#              filled with "sin" once this application finishes
+#return_entry: An function from parent window that will be automatically
+#              called with "sin" once this application finishes
 
 class NewPerson( Toplevel ):
     def __init__( self, parent, return_entry=None ):
         Toplevel.__init__( self, parent )
         self.title( "New Persons Application" )
 
+        self.parent = parent
         self.userCx = parent.userCx
         self.return_entry = return_entry #Used to return the sin back to the previous window
 
@@ -124,8 +125,8 @@ class NewPerson( Toplevel ):
 
         #Return sin back to previous window
         if self.return_entry:
-            self.return_entry.delete( 0, END )
-            self.return_entry.insert( 0, self.sin_entry.get() )
+            return_entry = self.return_entry
+            return_entry( self.entries["sin"] )
 
         #Success message
         successInfo = self.name_entry.get() + " has been added to the database"
