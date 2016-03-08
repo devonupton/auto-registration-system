@@ -78,8 +78,8 @@ class NewPerson( Toplevel ):
         gender_label.grid( row=4, column=2, sticky=E )
         self.gender_entry.grid( row=4, column=3 )
 
-        birthday_label.grid( row=5, sticky=E )
-        self.birthday_entry.grid( row=5, column=1 )
+        birthday_label.grid( row=5, sticky=N+E )
+        self.birthday_entry.grid( row=5, column=1, sticky=N )
 
         #Add submit button
         submit_button = Button( self, text="Submit", command=lambda: self.submit_form() )

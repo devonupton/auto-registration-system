@@ -140,7 +140,7 @@ def searchOne( userCx, strVar, isLicNo ):
             tableRows.append( tempRow )
         
         #print( tableRows )
-        cursor.close()
+        thisCursor.close()
         
         tW.buildCxTable( tableRows, title )
 #===============================================================================
@@ -210,7 +210,7 @@ def searchTwo( userCx, strVar, isLicNo ):
                 tempRow.append( entry )
         tableRows.append( tempRow )
 
-    cursor.close()
+    thisCursor.close()
     tW.buildCxTable( tableRows, title )
 
 #===============================================================================
@@ -260,7 +260,7 @@ def searchThree( userCx, vinVar ):
     headerList = [ 'VIN', 'VIOLATIONS', 'AVG SALE PRICE', 'SALES' ]
     valueList = [ vinVar, str( numViolations ), str( avgPrice ), str( numSales ) ]
 
-    cursor.close()
+    thisCursor.close()
     tW.buildCxTable( [headerList, valueList], title )
     
 
