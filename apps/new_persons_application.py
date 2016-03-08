@@ -85,6 +85,7 @@ class NewPerson( Toplevel ):
         submit_button = Button( self, text="Submit", command=lambda: self.submit_form() )
         submit_button.grid( row=5, column=3, sticky=W )
 
+    #Attempt to submit data to the database
     def submit_form( self ):
 
         self.entries = { "sin":       self.sin_entry.get(),
@@ -94,7 +95,7 @@ class NewPerson( Toplevel ):
                          "eyecolor":  self.eyecolor_entry.get(),
                          "haircolor": self.haircolor_entry.get(),
                          "address":   self.address_entry.get(),
-                         "gender":    self.gender_entry.get()[0].lower(),
+                         "gender":    self.gender_entry.get(),
                          "birthday":  self.birthday_entry.get() }
 
         if not self.validate_input():
@@ -105,11 +106,11 @@ class NewPerson( Toplevel ):
 
         #Send information to Oracle Database
         statement = "INSERT INTO people \
-                     VALUES (:sin, :name, :height, :weight, :eyecolor, \
-                             :haircolor, :address, :gender, :birthday )"
+                     VALUES ( :sin, :name, :height, :weight, :eyecolor, \
+                              :haircolor, :address, :gender, :birthday )"
         cursor = self.userCx.cursor()
         try:
-            query = cursor.execute( statement, self.entries )
+            cursor.execute( statement, self.entries )
             cursor.close()
             self.userCx.commit()
 
@@ -117,9 +118,9 @@ class NewPerson( Toplevel ):
         except cx_Oracle.DatabaseError as exc:
             error, = exc.args
             if error.code == 1:
-                tm.showerror( "Submit Failure", "SIN is already taken\nErr 0xNPA-10" )
+                tm.showerror( "Submit Failure", "sin '" + self.entries["sin"] + "' is already in the database\nErr 0xNPA-10" )
             else:
-                tm.showerror( "Submit Failure", "Unknown error has occured\nErr 0xNPA-11" )
+                tm.showerror( "Submit Failure", error.message + "\nErr 0xNPA-11" )
             return
                 
 
@@ -138,10 +139,10 @@ class NewPerson( Toplevel ):
         error_type = "Input Error"
 
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            tm.showerror( error_type, "Invalid Sin: Length must be between 1 and 15\nErr 0xNPA-1")
+            tm.showerror( error_type, "Invalid Sin: Length must be between 1 and 15\nErr 0xNPA-1" )
             return
         if self.entries["name"] == '' or len( self.entries["name"] ) > 40:
-            tm.showerror( error_type, "Invalid Name: Length must be between 1 and 40\nErr 0xNPA-2")
+            tm.showerror( error_type, "Invalid Name: Length must be between 1 and 40\nErr 0xNPA-2" )
             return
         try:
             self.entries["height"] = float( self.entries["height"] )
@@ -159,21 +160,22 @@ class NewPerson( Toplevel ):
             return
 
         if self.entries["eyecolor"] == '' or len( self.entries["eyecolor"] ) > 10:
-            tm.showerror( error_type, "Invalid Eyecolor: Character length must between 1 and 10\nErr 0xNPA-5")
+            tm.showerror( error_type, "Invalid Eyecolor: Character length must between 1 and 10\nErr 0xNPA-5" )
             return
         if self.entries["haircolor"] == '' or len( self.entries["haircolor"] ) > 10:
-            tm.showerror( error_type, "Invalid Haircolor: Character length must between 1 and 10\nErr 0xNPA-6")
+            tm.showerror( error_type, "Invalid Haircolor: Character length must between 1 and 10\nErr 0xNPA-6" )
             return
         if self.entries["address"] == '' or len( self.entries["address"] ) > 50:
-            tm.showerror( error_type, "Invalid Address: Character length must between 1 and 50\nErr 0xNPA-7")
+            tm.showerror( error_type, "Invalid Address: Character length must between 1 and 50\nErr 0xNPA-7" )
             return
-        if self.entries["gender"] not in ( "m", "f" ):
+        if self.entries["gender"] == '' or self.entries["gender"][0].lower() not in ('m', 'f'):
             tm.showerror( error_type, "Invalid Gender: Enter either 'm' or 'f'\nErr 0xNPA-8" )
             return
+        self.entries["gender"] = self.entries["gender"][0].lower()
         try:
             datetime.datetime.strptime( self.entries["birthday"], "%d-%b-%Y" )
         except:
-            tm.showerror( error_type, "Invalid Birthday: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xNPA-9")
+            tm.showerror( error_type, "Invalid Birthday: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xNPA-9" )
             return
 
         #No errors detected!
