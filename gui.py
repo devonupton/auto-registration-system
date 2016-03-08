@@ -66,90 +66,77 @@ def disconnect():
 
     exit()
 
-# NEW VEHICLE REGISTRATION
-def app1_command():
-    print( "1 ha1e buttonz" )
+def main():
+    # MAIN =========================================================================
+    # could probably make this an object, but I want functionalitiy :/
+    top = Tk()
+    top.wm_title( "ARS v0228" )
+    top.resizable( width=FALSE, height=FALSE )
+    top.geometry( '{}x{}'.format( 250, 365) )
 
-# AUTO TRANSATCTION
-def app2_command():
-    print( "i ha2e buttons" )
+    top.protocol( 'WM_DELETE_WINDOW', disconnect )
 
-# DRIVER LICENCE REGISTRATION
-def app3_command():
-    print( "i hat3 buttons" )
+    # App1 =========================================================================
+    info1 = "New Vehicle Registration:"
+    msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
+    msg1.pack()
 
-# VIOLATION RECORD 
-def app4_command():
-    print( "4 hate buttons" )
+    top.app1_button = Button( top, padx=5, pady=5, width=50 )
+    top.app1_button["text"] = "goto"
+    top.app1_button["command"] = lambda: app1.run( global_userCx )
+    top.app1_button.pack( side="top" )
 
+    # App2 =========================================================================
+    info2 = "Auto Transaction:"
+    msg2 = Message( top, text=info2, padx=5, pady=5, width=200 )
+    msg2.pack()
 
-# MAIN =========================================================================
-# could probably make this an object, but I want functionalitiy :/
-top = Tk()
-top.wm_title( "ARS v0228" )
-top.resizable( width=FALSE, height=FALSE )
-top.geometry( '{}x{}'.format( 250, 365) )
+    top.app2_button = Button( top, padx=5, pady=5, width=50 )
+    top.app2_button["text"] = "goto"
+    top.app2_button["command"] = lambda: app2.run( global_userCx )
+    top.app2_button.pack( side="top" )
 
-top.protocol( 'WM_DELETE_WINDOW', disconnect )
+    # App3 =========================================================================
+    info3 = "Driver Licence Registration:"
+    msg3 = Message( top, text=info3, padx=5, pady=5, width=200 )
+    msg3.pack()
 
-# App1 =========================================================================
-info1 = "New Vehicle Registration:"
-msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
-msg1.pack()
+    top.app3_button = Button( top, padx=5, pady=5, width=50 )
+    top.app3_button["text"] = "goto"
+    top.app3_button["command"] = lambda: app3.run( global_userCx )
+    top.app3_button.pack( side="top" )
 
-top.app1_button = Button( top, padx=5, pady=5, width=50 )
-top.app1_button["text"] = "goto"
-top.app1_button["command"] = app1_command
-top.app1_button.pack( side="top" )
+    # App4 =========================================================================
+    info4 = "Violation Record:"
+    msg4 = Message( top, text=info4, padx=5, pady=5, width=200 )
+    msg4.pack()
 
-# App2 =========================================================================
-info2 = "Auto Transaction:"
-msg2 = Message( top, text=info2, padx=5, pady=5, width=200 )
-msg2.pack()
+    top.app4_button = Button( top, padx=5, pady=5, width=50 )
+    top.app4_button["text"] = "goto"
+    top.app4_button["command"] = lambda: app4.run( global_userCx )
+    top.app4_button.pack( side="top" )
 
-top.app2_button = Button( top, padx=5, pady=5, width=50 )
-top.app2_button["text"] = "goto"
-top.app2_button["command"] = app2_command
-top.app2_button.pack( side="top" )
+    # App5 =========================================================================
+    info5 = "Search Engine:"
+    msg5 = Message( top, text=info5, padx=5, pady=5, width=200 )
+    msg5.pack()
 
-# App3 =========================================================================
-info3 = "Driver Licence Registration:"
-msg3 = Message( top, text=info3, padx=5, pady=5, width=200 )
-msg3.pack()
+    top.app5_button = Button( top, padx=5, pady=5, width=50 )
+    top.app5_button["text"] = "goto"
+    top.app5_button["command"] = lambda: app5.run( global_userCx )
+    top.app5_button.pack( side="top" )
 
-top.app3_button = Button( top, padx=5, pady=5, width=50 )
-top.app3_button["text"] = "goto"
-top.app3_button["command"] = app3_command
-top.app3_button.pack( side="top" )
+    # Login ===========================================================
+    info6 = ""
+    msg6 = Message( top, text=info6, padx=5, pady=5, width=200 )
+    msg6.pack()
 
-# App4 =========================================================================
-info4 = "Violation Record:"
-msg4 = Message( top, text=info4, padx=5, pady=5, width=200 )
-msg4.pack()
+    top.app6_button = Button( top, padx=5, pady=5, width=50 )
+    top.app6_button["text"] = "login"
+    top.app6_button["command"] = login
+    top.app6_button.pack( side="top" )
 
-top.app4_button = Button( top, padx=5, pady=5, width=50 )
-top.app4_button["text"] = "goto"
-top.app4_button["command"] = app4_command
-top.app4_button.pack( side="top" )
+    top.mainloop()
 
-# App5 =========================================================================
-info5 = "Search Engine:"
-msg5 = Message( top, text=info5, padx=5, pady=5, width=200 )
-msg5.pack()
-
-top.app5_button = Button( top, padx=5, pady=5, width=50 )
-top.app5_button["text"] = "goto"
-top.app5_button["command"] = lambda x: app5.run( global_userCx )
-top.app5_button.pack( side="top" )
-
-# Login ===========================================================
-info6 = ""
-msg6 = Message( top, text=info6, padx=5, pady=5, width=200 )
-msg6.pack()
-
-top.app6_button = Button( top, padx=5, pady=5, width=50 )
-top.app6_button["text"] = "login"
-top.app6_button["command"] = login
-top.app6_button.pack( side="top" )
-
-top.mainloop()
+if __name__ == "__main__":
+    main()
