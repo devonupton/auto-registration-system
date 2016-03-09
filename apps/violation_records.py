@@ -53,7 +53,7 @@ class app4( Toplevel ):
         self.officerNo_entry.grid( column=1, row=2 )
         
         # v_type label/entry, and search button
-        vType_label = Label( self, text="vType No:" )
+        vType_label = Label( self, text="vType:" )
         vType_label.grid( column=0, row=3, sticky=E )
         self.vType_entry = Entry( self )
         self.vType_entry.grid( column=1, row=3 )
@@ -96,30 +96,63 @@ class app4( Toplevel ):
         
         #mainloop()
     
+    # Opens an editable text window for the ticket description
     def addTextWidget( self ):
         if self.descOpen:
-            print( "close extendWindow" )
+            # Ask user to confirm data loss for closing description
+            if len( self.descBox.get( 1.0, END ).strip() ) > 0:
+                askMsg = "If you close the description you will lose what has been written. " +\
+                         "Are you sure you want to close?"
+                if not tm.askyesno( "Data Loss Confirmation", askMsg ):
+                    return
+            
             self.descButton.configure( text="Open Description >>>" )
             self.descOpen = False
             
             self.descBox.destroy()
             
         else:
-            print( "open extendWindow" )
+            #print( "open extendWindow" )
             self.descButton.configure( text="<<< Close Description" )
             self.descOpen = True
-            
-            self.descBox = Text( self, relief=SUNKEN )
-            self.descBox.grid( column=0, row=7, columnspan=6, sticky=EW )
+         
+            self.descBox = Text( self, relief=SUNKEN, width=70, height=20 )
+            self.descBox.grid( column=0, row=7, columnspan=5, sticky=NSEW )
             
         return
         
+    def autofill( self, value ):
+        if self.violator_entry.get() == "":
+            self.violator_entry.insert( 0, value )
+            infoMsg = "The new SIN was inserted into the violator SIN section." 
+            tm.showinfo( "SIN saved", infoMsg )
+        else:
+            self.violator_entry.insert( END, " <<" + value + ">>" )
+            errMsg = "There was information in the entry already. The new SIN was placed in the entry with '<<' and '>>' surrounding it\nErr 0xA5-02"
+            tm.showerror( "SIN saved", errMsg )
+            
+        
+#===============================================================================
+# Function: findViolationTypes
+#===============================================================================
+# Builds a table of violation types for the user to see and use.
 def findViolationTypes( userCx ):
-    askMsg = "Do you wish to bring up a table of the possible violation types and their type_ids?"
+    askMsg = "Do you wish to bring up a table of the possible violation types and their fines?"
     if not tm.askyesno( "vType Help", askMsg ):
         return
-    print( "search!" )
+    
+    cursor = userCx.cursor()
+    
+    statement = "SELECT UNIQUE * FROM ticket_type"
+    cursor.execute( statement )
+    
+    rows = cursor.fetchall()
+    if len( rows ) == 0:
+        tm.showerror( "No Violation Types!", "There are no violation types in the database.\nErr 0xA5-01" )
+        
+    tW.buildSuperTable( cursor.description, rows, "Violation Types" )
+    
+    cursor.close()
     
 def run( connection ):
     app4( connection )
-    pass
