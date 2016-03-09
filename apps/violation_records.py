@@ -75,8 +75,8 @@ class app4( Toplevel ):
         
         # Add Description Button ( extends window to add text? )
         self.descOpen = False
-        self.descButton = Button( self, text="Open Description >>>", command=lambda: self.addTextWidget() )
-        self.descButton.grid( column=0, row=6, columnspan=2, sticky=EW )
+        self.descButton = Button( self, text="Add Description >>", command=lambda: self.addTextWidget() )
+        self.descButton.grid( column=1, row=6, sticky=EW )
         
         # violator_id label/entry
         violator_label = Label( self, text="Violator SIN:" )
@@ -106,14 +106,14 @@ class app4( Toplevel ):
                 if not tm.askyesno( "Data Loss Confirmation", askMsg ):
                     return
             
-            self.descButton.configure( text="Open Description >>>" )
+            self.descButton.configure( text="Add Description >>" )
             self.descOpen = False
             
             self.descBox.destroy()
             
         else:
             #print( "open extendWindow" )
-            self.descButton.configure( text="<<< Close Description" )
+            self.descButton.configure( text="<< Close Description" )
             self.descOpen = True
          
             self.descBox = Text( self, relief=SUNKEN, width=70, height=20 )
