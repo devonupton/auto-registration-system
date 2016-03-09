@@ -24,6 +24,7 @@ from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
 import apps.tableWidget as tW
+import apps.new_persons_application as newPA
     
 class app4( Toplevel ):
     def __init__( self, userCx ):
@@ -84,6 +85,10 @@ class app4( Toplevel ):
         self.violator_entry = Entry( self )
         self.violator_entry.grid( column=4, row=1 )
         
+        # add new person button (?)
+        newPerson_button = Button( self, padx=0, pady=0, text="?", command=lambda: self.handleNewPerson() )
+        newPerson_button.grid( column=5, row=1, sticky=EW )
+        
         # vehicle_id label/entry
         vin_label = Label( self, text="VIN:" )
         vin_label.grid( column=3, row=2, sticky=E )
@@ -91,9 +96,10 @@ class app4( Toplevel ):
         self.vin_entry.grid( column=4, row=2 )
         
         # submit violation button
+        submit_button = Button( self, text="Submit Record", command=lambda: self.submitViolation() )
+        submit_button.grid( column=4, row=6, sticky=EW )
         
-        # add new person button (?)
-        
+
         #mainloop()
     
     # Opens an editable text window for the ticket description
@@ -130,12 +136,28 @@ class app4( Toplevel ):
             self.violator_entry.insert( END, " <<" + value + ">>" )
             errMsg = "There was information in the entry already. The new SIN was placed in the entry with '<<' and '>>' surrounding it\nErr 0xA5-02"
             tm.showerror( "SIN saved", errMsg )
-            
+  
+    def handleNewPerson( self ):
+        askMsg = "Would you like to register a person that is not in the system for use here?"
+        if not tm.askyesno( "Add New Person?", askMsg ):
+            return
         
-#===============================================================================
-# Function: findViolationTypes
-#===============================================================================
-# Builds a table of violation types for the user to see and use.
+        newPA.NewPerson( self, self.autofill )
+        
+    def submitViolation( self ):
+        askMsg = "Please check all your entries and make sure they are correct before continuing."
+        if not tm.askokcancel( "Are You Sure?", askMsg ):
+            return
+        
+        askMsg = "Are you sure you want to submit the violation with no description?"
+        if not self.descOpen:
+            if not tm.askokcancel( "No Description?", askMsg ):
+                self.addTextWidget()
+                return
+        elif len( self.descBox.get( 1.0, END ).strip() ) == 0:
+            if not tm.askokcancel( "No Description?", askMsg ):
+                return
+        
 def findViolationTypes( userCx ):
     askMsg = "Do you wish to bring up a table of the possible violation types and their fines?"
     if not tm.askyesno( "vType Help", askMsg ):
