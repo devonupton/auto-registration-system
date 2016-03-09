@@ -11,75 +11,62 @@ class App1( Toplevel ):
         self.title( "App1: New Vehicle Registration Application" )
         self.userCx = userCx
 
-        #Create all the widgets for vehicle info
+        #Create and add widgets for vehicle info
         msg1 = Message( self, text="Vehicle Information", padx=5, pady=5, width=200 )
+        msg1.grid( row=0, sticky=N, columnspan=2 )
 
         vehicle_id_label= Label( self, text="Vehicle_id" )
         self.vehicle_id_entry = Entry( self )
-
-        maker_label = Label( self, text="Maker" )
-        self.maker_entry = Entry( self )
-
-        model_label = Label( self, text="Model" )
-        self.model_entry = Entry( self )
-
-        year_label = Label( self, text="Year" )
-        self.year_entry = Entry( self )
-
-        color_label = Label( self, text="Color" )
-        self.color_entry = Entry( self )
-
-        type_id_label = Label( self, text="Type_id" )
-        self.type_id_entry = Entry( self )
-
-        #Add widgets to frame
-        msg1.grid( row=0, sticky=N, columnspan=2 )
-
         vehicle_id_label.grid( row=1, sticky=E )
         self.vehicle_id_entry.grid( row=1, column=1 )
 
+        maker_label = Label( self, text="Maker" )
+        self.maker_entry = Entry( self )
         maker_label.grid( row=2, sticky=E )
         self.maker_entry.grid( row=2, column=1 )
-        
+
+        model_label = Label( self, text="Model" )
+        self.model_entry = Entry( self )
         model_label.grid( row=3, sticky=E )
         self.model_entry.grid( row=3, column=1 )
 
+        year_label = Label( self, text="Year" )
+        self.year_entry = Entry( self )
         year_label.grid( row=4, sticky=E )
         self.year_entry.grid( row=4, column=1 )
 
+        color_label = Label( self, text="Color" )
+        self.color_entry = Entry( self )
         color_label.grid( row=5, sticky=E )
         self.color_entry.grid( row=5, column=1 )
 
+        type_id_label = Label( self, text="Type_id" )
+        self.type_id_entry = Entry( self )
         type_id_label.grid( row=6, sticky=E )
         self.type_id_entry.grid( row=6, column=1 )
 
-        #Create all the widgets for personal info
+        #Create and add widgets for Personal info
         msg2 = Message( self, text="Personal Information", padx=5, pady=5, width=200 )
+        msg2.grid( row=0, column=2, sticky=N, columnspan=2 )
 
         primary_owner_id_label = Label( self, text="Primary Owner_id" )
         self.primary_owner_id_entry = Entry( self )
-
-        owner_id_label = Label( self, text="Other Owner_id's" )
-        owner_id_label2 = Label( self, text="(comma separated list of sin #'s)" )
-        self.owner_id_entry = Entry( self )
-
-        new_person_button = Button( self, text="Add new Person", \
-                                    command=lambda: NewPerson( self, self.autofill ) )
-
-        #Add widgets to frame
-        msg2.grid( row=0, column=2, sticky=N, columnspan=2 )
-
         primary_owner_id_label.grid( row=1, column=2, sticky=E )
         self.primary_owner_id_entry.grid( row=1, column=3 )
 
+        owner_id_label = Label( self, text="Other Owner_id's" )
+        self.owner_id_entry = Entry( self )
         owner_id_label.grid( row=2, column=2, sticky=E )
         self.owner_id_entry.grid( row=2, column=3 )
 
+        owner_id_label2 = Label( self, text="(comma separated list of sin #'s)" )
         owner_id_label2.grid( row=3, column=2, columnspan=2, )
 
+        #Buttons
+        new_person_button = Button( self, text="Add new Person", \
+                                    command=lambda: NewPerson( self, self.autofill ) )
         new_person_button.grid( row=3, column=2, rowspan=3, columnspan=2, )
 
-        #Submit button
         submit_button = Button( self, text="Submit", command=lambda: self.submit_form() )
         submit_button.grid( row=5, column=2, rowspan=2, columnspan=2, )
 
@@ -125,13 +112,13 @@ class App1( Toplevel ):
         error_type = "Submit Failure"
 
         #Create savepoint here
-        cursor.execute( "SAVEPOINT GameOver" )
+        cursor.execute( "SAVEPOINT App1Save" )
 
         #Try to insert Vehicle
         try:
             cursor.execute( vehicle_statement, self.entries )
         except cx_Oracle.DatabaseError as exc:
-            cursor.execute( "ROLLBACK to GameOver" ) 
+            cursor.execute( "ROLLBACK to App1Save" ) 
             cursor.close()
             error, = exc.args
             if error.code == 1: #Vehicle must already exist
@@ -148,7 +135,7 @@ class App1( Toplevel ):
         try:
             cursor.execute( primary_owner_statement, a=self.primary_owner_id, b=self.entries["vehicle_id"] )
         except cx_Oracle.DatabaseError as exc:
-            cursor.execute("ROLLBACK to GameOver" )
+            cursor.execute("ROLLBACK to App1Save" )
             cursor.close()
             error, = exc.args
             if error.code == 2291: #Owner_id does not exist
@@ -164,7 +151,7 @@ class App1( Toplevel ):
             try:
                 cursor.execute( secondary_owner_statement, a=owner_id, b=self.entries["vehicle_id"] )
             except cx_Oracle.DatabaseError as exc:
-                cursor.execute("ROLLBACK to GameOver" )
+                cursor.execute("ROLLBACK to App1Save" )
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
