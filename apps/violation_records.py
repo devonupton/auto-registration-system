@@ -23,18 +23,103 @@
 from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
-
-def run(connection):
-    # check login soon
-    # poop
-    pass
+import apps.tableWidget as tW
     
 class app4( Toplevel ):
     def __init__( self, userCx ):
-        TopLevel.__init__( self ) # might need to consider parent?
+        Toplevel.__init__( self ) # might need to consider parent?
         self.title( "App5: Violation Insertion" )
         
         self.userCx = userCx
         
-        # build window
+        # building the app window =======================================================
+        # [col0 col1 - ticket info] [col2 - extra] [col3, col4 - violator info] [col5 - extra]
+        # Information headers
+        ticketHeader = Label( self, text="Ticket Info" )
+        ticketHeader.grid( column=0, row=0, columnspan=2 )
+        violatorHeader = Label( self, text="Violator Info" )
+        violatorHeader.grid( column=3, row=0, columnspan=2 )
+        
+        # ticketNo label/entry
+        ticketNo_label = Label( self, text="Ticket No:" )
+        ticketNo_label.grid( column=0, row=1, sticky=E )
+        self.ticketNo_entry = Entry( self )
+        self.ticketNo_entry.grid( row=1, column=1 )
+        
+        # officerNo label/entry
+        officerNo_label = Label( self, text="Officer No:" )
+        officerNo_label.grid( column=0, row=2, sticky=E )
+        self.officerNo_entry = Entry( self )
+        self.officerNo_entry.grid( column=1, row=2 )
+        
+        # v_type label/entry, and search button
+        vType_label = Label( self, text="vType No:" )
+        vType_label.grid( column=0, row=3, sticky=E )
+        self.vType_entry = Entry( self )
+        self.vType_entry.grid( column=1, row=3 )
+        
+        vTypeHelp_button = Button( self, text="?", command=lambda: findViolationTypes( self.userCx ), padx=0, pady=0 )
+        vTypeHelp_button.grid( column=2, row=3 )
+        
+        # v_date label/entry
+        vDate_label = Label( self, text="Date Issued:" )
+        vDate_label.grid( column=0, row=4, sticky=E )
+        self.vDate_entry = Entry( self )
+        self.vDate_entry.grid( column=1, row=4 )
+        
+        # location label/entry
+        loc_label = Label( self, text="Location:" )
+        loc_label.grid( column=0, row=5, sticky=E )
+        self.loc_entry = Entry( self )
+        self.loc_entry.grid( column=1, row=5 )
+        
+        # Add Description Button ( extends window to add text? )
+        self.descOpen = False
+        self.descButton = Button( self, text="Open Description >>>", command=lambda: self.addTextWidget() )
+        self.descButton.grid( column=0, row=6, columnspan=2, sticky=EW )
+        
+        # violator_id label/entry
+        violator_label = Label( self, text="Violator SIN:" )
+        violator_label.grid( column=3, row=1, sticky=E )
+        self.violator_entry = Entry( self )
+        self.violator_entry.grid( column=4, row=1 )
+        
+        # vehicle_id label/entry
+        vin_label = Label( self, text="VIN:" )
+        vin_label.grid( column=3, row=2, sticky=E )
+        self.vin_entry = Entry( self )
+        self.vin_entry.grid( column=4, row=2 )
+        
+        # submit violation button
+        
+        # add new person button (?)
+        
+        #mainloop()
+    
+    def addTextWidget( self ):
+        if self.descOpen:
+            print( "close extendWindow" )
+            self.descButton.configure( text="Open Description >>>" )
+            self.descOpen = False
+            
+            self.descBox.destroy()
+            
+        else:
+            print( "open extendWindow" )
+            self.descButton.configure( text="<<< Close Description" )
+            self.descOpen = True
+            
+            self.descBox = Text( self, relief=SUNKEN )
+            self.descBox.grid( column=0, row=7, columnspan=6, sticky=EW )
+            
         return
+        
+def findViolationTypes( userCx ):
+    askMsg = "Do you wish to bring up a table of the possible violation types and their type_ids?"
+    if not tm.askyesno( "vType Help", askMsg ):
+        return
+    print( "search!" )
+    
+def run( connection ):
+    app4( connection )
+    pass
