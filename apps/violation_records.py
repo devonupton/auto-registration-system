@@ -28,16 +28,16 @@ import apps.tableWidget as tW
 class app4( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self ) # might need to consider parent?
-        self.title( "App5: Violation Insertion" )
+        self.title( "App5: Violation Records Application" )
         
         self.userCx = userCx
         
         # building the app window =======================================================
         # [col0 col1 - ticket info] [col2 - extra] [col3, col4 - violator info] [col5 - extra]
         # Information headers
-        ticketHeader = Label( self, text="Ticket Info" )
+        ticketHeader = Message( self, text="Ticket Information", padx=5, pady=5, width=200 )
         ticketHeader.grid( column=0, row=0, columnspan=2 )
-        violatorHeader = Label( self, text="Violator Info" )
+        violatorHeader = Message( self, text="Violator Information", padx=5, pady=5, width=200 )
         violatorHeader.grid( column=3, row=0, columnspan=2 )
         
         # ticketNo label/entry
