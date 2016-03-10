@@ -134,7 +134,7 @@ class app4( Toplevel ):
             tm.showinfo( "SIN saved", infoMsg )
         else:
             self.violator_entry.insert( END, " <<" + value + ">>" )
-            errMsg = "There was information in the entry already. The new SIN was placed in the entry with '<<' and '>>' surrounding it\nErr 0xA5-02"
+            errMsg = "There was information in the entry already. The new SIN was placed in the entry with '<<' and '>>' surrounding it\nErr 0xA4-02"
             tm.showerror( "SIN saved", errMsg )
   
     def handleNewPerson( self ):
@@ -144,19 +144,73 @@ class app4( Toplevel ):
         
         newPA.NewPerson( self, self.autofill )
         
-    def submitViolation( self ):
-        askMsg = "Please check all your entries and make sure they are correct before continuing."
-        if not tm.askokcancel( "Are You Sure?", askMsg ):
-            return
-        
         askMsg = "Are you sure you want to submit the violation with no description?"
         if not self.descOpen:
             if not tm.askokcancel( "No Description?", askMsg ):
                 self.addTextWidget()
                 return
+            else:
+                getDesc = ""
         elif len( self.descBox.get( 1.0, END ).strip() ) == 0:
             if not tm.askokcancel( "No Description?", askMsg ):
                 return
+            else:
+                getDesc = ""
+        else:
+            getDesc = self.descBox.get( 1.0, END ).strip()
+        
+    def submitViolation( self ):
+        self.entries = { "ticketNo":    self.ticketNo_entry.get(),
+                         "violatorNo":  self.violator_entry.get(),
+                         "vehicle_id":  self.vin_entry.get(),
+                         "officerNo":   self.officerNo_entry.get(),
+                         "vtype":       self.vType_entry.get(),
+                         "vdate":       self.vDate_entry.get(),
+                         "place":       self.loc_entry.get(),
+                         "desc":        getDesc}
+    
+        if not self.validateEntries():
+            return
+    
+        askMsg = "Please check all your entries and make sure they are correct before continuing."
+        if not tm.askokcancel( "Are You Sure?", askMsg ):
+            return
+                
+            
+        # SQL Magic
+        
+    def validateEntries( self ):
+        # ticketNo validation
+        try:
+            self.entries["ticketNo"] = int( self.entries["ticketNo"] )
+            if not ( -2147483648 <= self.entries["ticketNo"] < 2147483648 ):
+                raise
+        except:
+            tm.showerror( error_type, "Invalid ticketNo: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xA4-03" )
+            return False
+            
+        # violator_no validation
+        if self.entries["violatorNo"] == '' or len( self.entries["violatorNo"] ) > 15:
+            errMsg = "Violator No must not be blank and no longer than 15 characters.\nErr 0xA4-04"
+            tm.showerror( "Violator SIN Error", errMsg )
+            return False
+            
+        # vehicle_id validation
+        if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
+            errMsg = "VIN must not be blank and no longer than 15 characters.\nErr 0xA4-05"
+            tm.showerror( "VIN Error", errMsg )
+            return False
+            
+        # officerNo validation
+        if self.entries["officerNo"] == '' or len( self.entries["officerNo"] ) > 15:
+            errMsg = "Officer No must not be blank and no longer than 15 characters.\nErr 0xA4-06"
+            tm.showerror( "Officer No Error", errMsg )
+            return False
+            
+        # YOU WERE HERE :>
+        
+            
+        
         
 def findViolationTypes( userCx ):
     askMsg = "Do you wish to bring up a table of the possible violation types and their fines?"
@@ -170,7 +224,7 @@ def findViolationTypes( userCx ):
     
     rows = cursor.fetchall()
     if len( rows ) == 0:
-        tm.showerror( "No Violation Types!", "There are no violation types in the database.\nErr 0xA5-01" )
+        tm.showerror( "No Violation Types!", "There are no violation types in the database.\nErr 0xA4-01" )
         
     tW.buildSuperTable( cursor.description, rows, "Violation Types" )
     
