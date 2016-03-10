@@ -179,13 +179,13 @@ class App1( Toplevel ):
         error_type = "Input Error"
         
         if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
-            tm.showerror( error_type, "Invalid Vehicle_id: Length must be between 1 and 15\nError 0xa1-2" )
+            tm.showerror( error_type, "Invalid Vehicle_id: Length must be between 1 and 15\nErr 0xa1-2" )
             return
         if self.entries["maker"] == '' or len( self.entries["maker"] ) > 20:
-            tm.showerror( error_type, "Invalid Maker: Length must be between 1 and 20\nError 0xa1-3" )
+            tm.showerror( error_type, "Invalid Maker: Length must be between 1 and 20\nErr 0xa1-3" )
             return
         if self.entries["model"] == '' or len( self.entries["model"] ) > 20:
-            tm.showerror( error_type, "Invalid Model: Length must be between 1 and 20\nError 0xa1-4" )
+            tm.showerror( error_type, "Invalid Model: Length must be between 1 and 20\nErr 0xa1-4" )
             return
         try:
             self.entries["year"] = int( self.entries["year"] )
@@ -195,7 +195,7 @@ class App1( Toplevel ):
             tm.showerror( error_type, "Invalid Year: Must be an integer between 0 and 9999\nErr 0xa1-5" )
             return
         if self.entries["color"] == '' or len( self.entries["color"] ) > 10:
-            tm.showerror( error_type, "Invalid Color: Length must be between 1 and 10\nError 0xa1-6" )
+            tm.showerror( error_type, "Invalid Color: Length must be between 1 and 10\nErr 0xa1-6" )
             return
         try:
             self.entries["type_id"] = int( self.entries["type_id"] )

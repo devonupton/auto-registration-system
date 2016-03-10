@@ -118,9 +118,9 @@ class NewPerson( Toplevel ):
         except cx_Oracle.DatabaseError as exc:
             error, = exc.args
             if error.code == 1:
-                tm.showerror( "Submit Failure", "sin '" + self.entries["sin"] + "' is already in the database\nErr 0xNPA-10" )
+                tm.showerror( "Submit Failure", "sin '" + self.entries["sin"] + "' is already in the database\nErr 0xs1-10" )
             else:
-                tm.showerror( "Submit Failure", error.message + "\nErr 0xNPA-11" )
+                tm.showerror( "Submit Failure", error.message + "\nErr 0xs1-11" )
             return
                 
 
@@ -139,43 +139,43 @@ class NewPerson( Toplevel ):
         error_type = "Input Error"
 
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            tm.showerror( error_type, "Invalid Sin: Length must be between 1 and 15\nErr 0xNPA-1" )
+            tm.showerror( error_type, "Invalid Sin: Length must be between 1 and 15\nErr 0xs1-1" )
             return
         if self.entries["name"] == '' or len( self.entries["name"] ) > 40:
-            tm.showerror( error_type, "Invalid Name: Length must be between 1 and 40\nErr 0xNPA-2" )
+            tm.showerror( error_type, "Invalid Name: Length must be between 1 and 40\nErr 0xs1-2" )
             return
         try:
             self.entries["height"] = float( self.entries["height"] )
             if not ( 0 <= self.entries["height"] < 1000 ):
                 raise
         except:
-            tm.showerror( error_type, "Invalid Height: Must be a number between 0 and 999\nErr 0xNPA-3" )
+            tm.showerror( error_type, "Invalid Height: Must be a number between 0 and 999\nErr 0xs1-3" )
             return
         try:
             self.entries["weight"] = float( self.entries["weight"] )
             if not ( 0 <= self.entries["weight"] < 1000 ):
                 raise
         except:
-            tm.showerror( error_type, "Invalid Weight: Must be a number between 0 and 999\nErr 0xNPA-4" )
+            tm.showerror( error_type, "Invalid Weight: Must be a number between 0 and 999\nErr 0xs1-4" )
             return
 
         if self.entries["eyecolor"] == '' or len( self.entries["eyecolor"] ) > 10:
-            tm.showerror( error_type, "Invalid Eyecolor: Character length must between 1 and 10\nErr 0xNPA-5" )
+            tm.showerror( error_type, "Invalid Eyecolor: Character length must between 1 and 10\nErr 0xs1-5" )
             return
         if self.entries["haircolor"] == '' or len( self.entries["haircolor"] ) > 10:
-            tm.showerror( error_type, "Invalid Haircolor: Character length must between 1 and 10\nErr 0xNPA-6" )
+            tm.showerror( error_type, "Invalid Haircolor: Character length must between 1 and 10\nErr 0xs1-6" )
             return
         if self.entries["address"] == '' or len( self.entries["address"] ) > 50:
-            tm.showerror( error_type, "Invalid Address: Character length must between 1 and 50\nErr 0xNPA-7" )
+            tm.showerror( error_type, "Invalid Address: Character length must between 1 and 50\nErr 0xs1-7" )
             return
         if self.entries["gender"] == '' or self.entries["gender"][0].lower() not in ('m', 'f'):
-            tm.showerror( error_type, "Invalid Gender: Enter either 'm' or 'f'\nErr 0xNPA-8" )
+            tm.showerror( error_type, "Invalid Gender: Enter either 'm' or 'f'\nErr 0xs1-8" )
             return
         self.entries["gender"] = self.entries["gender"][0].lower()
         try:
             datetime.datetime.strptime( self.entries["birthday"], "%d-%b-%Y" )
         except:
-            tm.showerror( error_type, "Invalid Birthday: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xNPA-9" )
+            tm.showerror( error_type, "Invalid Birthday: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xs1-9" )
             return
 
         #No errors detected!
