@@ -81,8 +81,8 @@ def main():
     msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
     msg1.pack()
 
-    top.app1_button = Button( top, padx=5, pady=5, width=50 )
-    top.app1_button["text"] = "goto"
+    top.app1_button = Button( top, padx=5, pady=5, width=25 )
+    top.app1_button["text"] = "Open"
     top.app1_button["command"] = lambda: app1.run( global_userCx )
     top.app1_button.pack( side="top" )
 
@@ -91,8 +91,8 @@ def main():
     msg2 = Message( top, text=info2, padx=5, pady=5, width=200 )
     msg2.pack()
 
-    top.app2_button = Button( top, padx=5, pady=5, width=50 )
-    top.app2_button["text"] = "goto"
+    top.app2_button = Button( top, padx=5, pady=5, width=25 )
+    top.app2_button["text"] = "Open"
     top.app2_button["command"] = lambda: app2.run( global_userCx )
     top.app2_button.pack( side="top" )
 
@@ -101,8 +101,8 @@ def main():
     msg3 = Message( top, text=info3, padx=5, pady=5, width=200 )
     msg3.pack()
 
-    top.app3_button = Button( top, padx=5, pady=5, width=50 )
-    top.app3_button["text"] = "goto"
+    top.app3_button = Button( top, padx=5, pady=5, width=25 )
+    top.app3_button["text"] = "Open"
     top.app3_button["command"] = lambda: app3.run( global_userCx )
     top.app3_button.pack( side="top" )
 
@@ -111,8 +111,8 @@ def main():
     msg4 = Message( top, text=info4, padx=5, pady=5, width=200 )
     msg4.pack()
 
-    top.app4_button = Button( top, padx=5, pady=5, width=50 )
-    top.app4_button["text"] = "goto"
+    top.app4_button = Button( top, padx=5, pady=5, width=25 )
+    top.app4_button["text"] = "Open"
     top.app4_button["command"] = lambda: app4.run( global_userCx )
     top.app4_button.pack( side="top" )
 
@@ -121,18 +121,18 @@ def main():
     msg5 = Message( top, text=info5, padx=5, pady=5, width=200 )
     msg5.pack()
 
-    top.app5_button = Button( top, padx=5, pady=5, width=50 )
-    top.app5_button["text"] = "goto"
+    top.app5_button = Button( top, padx=5, pady=5, width=25 )
+    top.app5_button["text"] = "Open"
     top.app5_button["command"] = lambda: app5.run( global_userCx )
     top.app5_button.pack( side="top" )
 
     # Login ===========================================================
-    info6 = ""
+    info6 = "-"*50
     msg6 = Message( top, text=info6, padx=5, pady=5, width=200 )
     msg6.pack()
 
-    top.app6_button = Button( top, padx=5, pady=5, width=50 )
-    top.app6_button["text"] = "login"
+    top.app6_button = Button( top, padx=5, pady=5, width=25 )
+    top.app6_button["text"] = "Login"
     top.app6_button["command"] = login
     top.app6_button.pack( side="top" )
 
