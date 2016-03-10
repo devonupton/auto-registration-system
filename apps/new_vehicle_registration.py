@@ -8,7 +8,7 @@ from apps.new_persons_application import NewPerson
 class App1( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self )
-        self.title( "App1: New Vehicle Registration Application" )
+        self.title( "New Vehicle Registration Application" )
         self.userCx = userCx
 
         #Create and add widgets for vehicle info
@@ -123,12 +123,12 @@ class App1( Toplevel ):
             error, = exc.args
             if error.code == 1: #Vehicle must already exist
                 tm.showerror( error_type, "vehicle_id '" + \
-                    self.entries["vehicle_id"] + "' is already in the database\nErr 0xa1-8" )
+                    self.entries["vehicle_id"] + "' is already in the database\nErr 0xa1-9" )
             elif error.code == 2291: #type_id does not exist
                 tm.showerror( error_type, "type_id '" + \
-                    str( self.entries["type_id"] ) + "' does not exist\nErr 0xa1-9" )
+                    str( self.entries["type_id"] ) + "' does not exist\nErr 0xa1-10" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa1-10" )
+                tm.showerror( error_type, error.message + "\nErr 0xa1-11" )
             return
 
         #Try to insert Primary Owner
@@ -139,11 +139,11 @@ class App1( Toplevel ):
             cursor.close()
             error, = exc.args
             if error.code == 2291: #Owner_id does not exist
-                tm.showerror( error_type, "owner_id '" + self.primary_owner_id + "' does not exist\nErr 0xa1-11" )
+                tm.showerror( error_type, "owner_id '" + self.primary_owner_id + "' does not exist\nErr 0xa1-12" )
             elif error.code == 1400: #Primary_owner_id was empty string (read as NULL)
-                tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa1-12" )
+                tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa1-13" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa1-13" )
+                tm.showerror( error_type, error.message + "\nErr 0xa1-14" )
             return
 
         #Try to insert other owners
@@ -155,11 +155,11 @@ class App1( Toplevel ):
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' entered more than once\nErr 0xa1-14" )
+                    tm.showerror( error_type, "owner_id '" + owner_id + "' entered more than once\nErr 0xa1-15" )
                 elif error.code == 2291: #Owner_id does not exist
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' does not exist\nErr 0xa1-15" )
+                    tm.showerror( error_type, "owner_id '" + owner_id + "' does not exist\nErr 0xa1-16" )
                 else: #Unknown error
-                    tm.showerror( error_type, error.message + "\nErr 0xa1-16" )
+                    tm.showerror( error_type, error.message + "\nErr 0xa1-17" )
                 return
 
         #SQL statements executed successfully
@@ -206,6 +206,10 @@ class App1( Toplevel ):
             return
         if self.owner_id_list == ['']:
             self.owner_id_list = []
+        for owner_id in self.owner_id_list + [self.primary_owner_id]:
+            if len( owner_id ) > 15:
+                tm.showerror( error_type, "Invalid Owner_id '" + owner_id + "': Length must be between 1 and 15\nErr 0xa1-8" )
+                return
 
         #No errors encountered
         return True
