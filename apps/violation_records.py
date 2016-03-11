@@ -30,8 +30,9 @@ import time
 class app4( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self ) # might need to consider parent?
-        self.title( "Violation Records Application haahahahahahahahahahahaha" )
-        
+
+        self.title( "Violation Records Application" )
+ 
         self.userCx = userCx
         
         # building the app window =======================================================
