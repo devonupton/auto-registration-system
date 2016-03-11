@@ -136,7 +136,7 @@ class app4( Toplevel ):
             tm.showinfo( "SIN saved", infoMsg )
         else:
             self.violator_entry.insert( END, " <<" + value + ">>" )
-            errMsg = "There was information in the entry already. The new SIN was placed in the entry with '<<' and '>>' surrounding it\nErr 0xA4-02"
+            errMsg = "There was information in the entry already. The new SIN was placed in the entry with '<<' and '>>' surrounding it\nErr 0xa4-02"
             tm.showerror( "SIN saved", errMsg )
   
     def handleNewPerson( self ):
@@ -181,13 +181,27 @@ class app4( Toplevel ):
                 
         cursor = self.userCx.cursor()
         
+        statement = "INSERT INTO ticket ( :ticketNo, :violatiorNo, :vehicle_id, :officerNo, :vtype, :vdate, :place, :desc )"
+        
+        cursor.execute( "SAVEPOINT Violation" )
+        
+        try:
+            cursor.execute( statement, self.entries )
+        except cx_Oracle.DatabaseError as exc:
+            cursor.execute( "ROLLBACK to Violation" ) 
+            cursor.close()
+            error, = exc.args
+            for err in error:
+                print( err )
+            return
+            
         cursor.close()
         
         
     def validateEntries( self ):
         # ticketNo validation
         if self.entries["ticketNo"] == '':
-            errMsg = "The ticket number cannot be blank.\nErr 0xA4-08"
+            errMsg = "The ticket number cannot be blank.\nErr 0xa4-08"
             tm.showerror( "Ticket Number Error", errMsg )
             return False
         try:
@@ -195,39 +209,71 @@ class app4( Toplevel ):
             if not ( -2147483648 <= self.entries["ticketNo"] < 2147483648 ):
                 raise
         except:
-            tm.showerror( "Ticket Number Error", "Invalid ticketNo: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xA4-03" )
+            tm.showerror( "Ticket Number Error", "Invalid ticketNo: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa4-03" )
             return False
             
         # violator_no validation
         if self.entries["violatorNo"] == '' or len( self.entries["violatorNo"] ) > 15:
-            errMsg = "Violator No must not be blank and no longer than 15 characters.\nErr 0xA4-04"
+            errMsg = "Violator No must not be blank and no longer than 15 characters.\nErr 0xa4-04"
             tm.showerror( "Violator SIN Error", errMsg )
             return False
             
         # vehicle_id validation
         if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
-            errMsg = "VIN must not be blank and no longer than 15 characters.\nErr 0xA4-05"
+            errMsg = "VIN must not be blank and no longer than 15 characters.\nErr 0xa4-05"
             tm.showerror( "VIN Error", errMsg )
             return False
             
         # officerNo validation
         if self.entries["officerNo"] == '' or len( self.entries["officerNo"] ) > 15:
-            errMsg = "Officer No must not be blank and no longer than 15 characters.\nErr 0xA4-06"
+            errMsg = "Officer No must not be blank and no longer than 15 characters.\nErr 0xa4-06"
             tm.showerror( "Officer No Error", errMsg )
+            return False
+            
+        # Officer should not be Violator
+        if self.entries["officerNo"] == self.entries["violatorNo"]:
+            errMsg = "The issuer of the ticket cannot be the violator.\nErr 0xa4-12"
+            tm.showerror( "Officer/Violator Conflict", errMsg )
             return False
             
         # vType validation
         if self.entries["vtype"] == '' or len( self.entries["vtype"] ) > 10:
-            errMsg = "vDate must not be blank and no longer than 10 characters.\nErr 0xA4-07"
-            tm.showerror( "vDate Error", errMsg )
+            errMsg = "vType must not be blank and no longer than 10 characters.\nErr 0xa4-07"
+            tm.showerror( "vType Error", errMsg )
             return False
             
-        # vDate validation
-        try:
-            time.strptime( self.entries["vdate"], "%d-%b-%Y %H:%M" )
-        except:
-            errMsg = "Date must be for the format DD-MMM-YYYY HH:MM\nEx: 14-OCT-2016 14:25\nErr 0xA4-09"
+        # vDate validation (allow for two date types)
+        temp = self.entries["vdate"].split()
+        askMsg = "Your vDate does not include time, do you wish to continue?"
+        if not tm.askokcancel( "No HH:MM Specified", askMSg ):
+            return False
+            
+        if len( temp ) == 1:
+            try:
+                # Strip only DD-MMM-YYYY
+                ticketTime = time.strptime( self.entries["vdate"], "%d-%b-%Y" )
+            except:
+                errMsg = "Date must be of the format DD-MMM-YYYY HH:MM\nEx: 14-OCT-2016 14:25\nErr 0xa4-14"
+                tm.showerror( "Invalid Date entry", errMsg )
+                return False
+        elif len( temp ) == 2:
+            try:
+                # Strip DD-MMM-YYYY and HH:MM
+                ticketTime = time.strptime( self.entries["vdate"], "%d-%b-%Y %H:%M" )
+            except:
+                errMsg = "Date must be of the format DD-MMM-YYYY HH:MM\nEx: 14-OCT-2016 14:25\nErr 0xa4-15"
+                tm.showerror( "Invalid Date entry", errMsg )
+                return False
+        else:
+            errMsg = "Date must be of the format DD-MMM-YYYY HH:MM\nEx: 14-OCT-2016 14:25\nErr 0xa4-09"
             tm.showerror( "Invalid Date entry", errMsg )
+            return False 
+            
+        # vDate should not be in the future
+        now = time.time()
+        if now < time.mktime( ticketTime ):
+            errMsg = "Tickets cannot be issued in advance. Please ensure the correct time.\nErr 0xa4-13"
+            tm.showerror( "Ticket Date in Future", errMsg )
             return False
             
         # Place validation
@@ -236,11 +282,18 @@ class app4( Toplevel ):
             if not tm.askyesno( "No location?", askMsg ):
                 return False
         elif len( self.entries["place"] ) > 20:
-            errMsg = "The location entry must be less than 20 characters.\nErr 0xA4-10"
+            errMsg = "The location entry must be less than 20 characters.\nErr 0xa4-10"
             tm.showerror( "Location Length Error", errMsg )
             return False
             
+        # Description Validation
+        if len( self.entries["desc"] ) > 1024:
+            errMsg = "The description cannot be longer than 1024 characters.\nErr 0xa4-11"
+            tm.showerror( "Description Too Long", errMsg )
+            return False 
+            
         return True
+        
         
 def findViolationTypes( userCx ):
     askMsg = "Do you wish to bring up a table of the possible violation types and their fines?"
@@ -254,7 +307,7 @@ def findViolationTypes( userCx ):
     
     rows = cursor.fetchall()
     if len( rows ) == 0:
-        tm.showerror( "No Violation Types!", "There are no violation types in the database.\nErr 0xA4-01" )
+        tm.showerror( "No Violation Types!", "There are no violation types in the database.\nErr 0xa4-01" )
         
     tW.buildSuperTable( cursor.description, rows, "Violation Types" )
     
