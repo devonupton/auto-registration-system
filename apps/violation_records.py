@@ -244,9 +244,10 @@ class app4( Toplevel ):
             
         # vDate validation (allow for two date types)
         temp = self.entries["vdate"].split()
-        askMsg = "Your vDate does not include time, do you wish to continue?"
-        if not tm.askokcancel( "No HH:MM Specified", askMSg ):
-            return False
+        askMsg = "Your vDate does not include hours and minutes, do you wish to continue?"
+        if len( temp ) == 1:
+            if not tm.askokcancel( "No HH:MM Specified", askMsg ):
+                return False
             
         if len( temp ) == 1:
             try:
