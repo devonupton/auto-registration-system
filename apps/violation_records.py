@@ -30,7 +30,7 @@ import time
 class app4( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self ) # might need to consider parent?
-        self.title( "App5: Violation Records Application" )
+        self.title( "Violation Records Application haahahahahahahahahahahaha" )
         
         self.userCx = userCx
         
