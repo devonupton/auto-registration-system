@@ -111,17 +111,18 @@ class NewPerson( Toplevel ):
             else:
                 tm.showerror( "Submit Failure", error.message + "\nErr 0xs1-12" )
             return
-                
 
+        #Success message
+        successInfo = self.name_entry.get() + " has been added to the database"
+        tm.showinfo( "Success!", successInfo )  
+                
         #Return sin back to previous window
         if self.return_entry:
             return_entry = self.return_entry
             return_entry( self.entries["sin"] )
 
-        #Success message
-        successInfo = self.name_entry.get() + " has been added to the database"
-        tm.showinfo( "Success!", successInfo )  
         self.destroy()
+
 
     #Type checking
     def validate_input( self ):
