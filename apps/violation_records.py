@@ -25,6 +25,7 @@ import tkinter.messagebox as tm
 import cx_Oracle
 import apps.tableWidget as tW
 import apps.new_persons_application as newPA
+import time
     
 class app4( Toplevel ):
     def __init__( self, userCx ):
@@ -67,6 +68,7 @@ class app4( Toplevel ):
         vDate_label.grid( column=0, row=4, sticky=E )
         self.vDate_entry = Entry( self )
         self.vDate_entry.grid( column=1, row=4 )
+        self.vDate_entry.insert( 0, "DD-MMM-YYYY HH:MM" )
         
         # location label/entry
         loc_label = Label( self, text="Location:" )
@@ -143,7 +145,9 @@ class app4( Toplevel ):
             return
         
         newPA.NewPerson( self, self.autofill )
+       
         
+    def submitViolation( self ):
         askMsg = "Are you sure you want to submit the violation with no description?"
         if not self.descOpen:
             if not tm.askokcancel( "No Description?", askMsg ):
@@ -158,16 +162,15 @@ class app4( Toplevel ):
                 getDesc = ""
         else:
             getDesc = self.descBox.get( 1.0, END ).strip()
-        
-    def submitViolation( self ):
-        self.entries = { "ticketNo":    self.ticketNo_entry.get(),
-                         "violatorNo":  self.violator_entry.get(),
-                         "vehicle_id":  self.vin_entry.get(),
-                         "officerNo":   self.officerNo_entry.get(),
-                         "vtype":       self.vType_entry.get(),
-                         "vdate":       self.vDate_entry.get(),
-                         "place":       self.loc_entry.get(),
-                         "desc":        getDesc}
+    
+        self.entries = { "ticketNo":    self.ticketNo_entry.get().strip(),
+                         "violatorNo":  self.violator_entry.get().strip(),
+                         "vehicle_id":  self.vin_entry.get().strip(),
+                         "officerNo":   self.officerNo_entry.get().strip(),
+                         "vtype":       self.vType_entry.get().strip(),
+                         "vdate":       self.vDate_entry.get().strip(),
+                         "place":       self.loc_entry.get().strip(),
+                         "desc":        getDesc.strip()}
     
         if not self.validateEntries():
             return
@@ -176,17 +179,23 @@ class app4( Toplevel ):
         if not tm.askokcancel( "Are You Sure?", askMsg ):
             return
                 
-            
-        # SQL Magic
+        cursor = self.userCx.cursor()
+        
+        cursor.close()
+        
         
     def validateEntries( self ):
         # ticketNo validation
+        if self.entries["ticketNo"] == '':
+            errMsg = "The ticket number cannot be blank.\nErr 0xA4-08"
+            tm.showerror( "Ticket Number Error", errMsg )
+            return False
         try:
             self.entries["ticketNo"] = int( self.entries["ticketNo"] )
             if not ( -2147483648 <= self.entries["ticketNo"] < 2147483648 ):
                 raise
         except:
-            tm.showerror( error_type, "Invalid ticketNo: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xA4-03" )
+            tm.showerror( "Ticket Number Error", "Invalid ticketNo: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xA4-03" )
             return False
             
         # violator_no validation
@@ -207,10 +216,31 @@ class app4( Toplevel ):
             tm.showerror( "Officer No Error", errMsg )
             return False
             
-        # YOU WERE HERE :>
-        
+        # vType validation
+        if self.entries["vtype"] == '' or len( self.entries["vtype"] ) > 10:
+            errMsg = "vDate must not be blank and no longer than 10 characters.\nErr 0xA4-07"
+            tm.showerror( "vDate Error", errMsg )
+            return False
             
-        
+        # vDate validation
+        try:
+            time.strptime( self.entries["vdate"], "%d-%b-%Y %H:%M" )
+        except:
+            errMsg = "Date must be for the format DD-MMM-YYYY HH:MM\nEx: 14-OCT-2016 14:25\nErr 0xA4-09"
+            tm.showerror( "Invalid Date entry", errMsg )
+            return False
+            
+        # Place validation
+        if self.entries["place"] == '':
+            askMsg = "Are you sure you want the location to be NULL?"
+            if not tm.askyesno( "No location?", askMsg ):
+                return False
+        elif len( self.entries["place"] ) > 20:
+            errMsg = "The location entry must be less than 20 characters.\nErr 0xA4-10"
+            tm.showerror( "Location Length Error", errMsg )
+            return False
+            
+        return True
         
 def findViolationTypes( userCx ):
     askMsg = "Do you wish to bring up a table of the possible violation types and their fines?"
