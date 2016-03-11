@@ -5,7 +5,7 @@
 from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
-import datetime
+from datetime import datetime
 
 #Run this app by calling NewPerson( parent_window, return_entry )
 #parent_window: the window that owns the button that calls this app
@@ -21,63 +21,52 @@ class NewPerson( Toplevel ):
         self.userCx = parent.userCx
         self.return_entry = return_entry #Used to return the sin back to the previous window
 
-        #Create widgets
+        #Create and add widgets
         msg1 = Message( self, text="Personal Information", padx=5, pady=5, width=200 )
+        msg1.grid( row=0, sticky=N, columnspan=4 )
 
         sin_label = Label( self, text="Sin" )
         self.sin_entry = Entry( self )
-
-        name_label = Label( self, text="Name" )
-        self.name_entry = Entry( self )
-
-        height_label = Label( self, text="Height" )
-        self.height_entry = Entry( self )
-
-        weight_label = Label( self, text="Weight" )
-        self.weight_entry = Entry( self )
-
-        eyecolor_label = Label( self, text="Eyecolor" )
-        self.eyecolor_entry = Entry( self )
-
-        haircolor_label = Label( self, text="Haircolor" )
-        self.haircolor_entry = Entry( self )
-
-        address_label = Label( self, text="Address" )
-        self.address_entry = Entry( self )
-
-        gender_label = Label( self, text="Gender" )
-        self.gender_entry = Entry( self )
-
-        birthday_label = Label( self, text="Birthday" )
-        self.birthday_entry = Entry( self )
-
-        #Add widgets to frame
-        msg1.grid( row=0, sticky=N, columnspan=4 )
-
         sin_label.grid( row=1, sticky=E )
         self.sin_entry.grid( row=1, column=1 )
 
+        name_label = Label( self, text="Name" )
+        self.name_entry = Entry( self )
         name_label.grid( row=1, column=2, sticky=E )
         self.name_entry.grid( row=1, column=3 )
 
+        height_label = Label( self, text="Height" )
+        self.height_entry = Entry( self )
         height_label.grid( row=2, sticky=E )
         self.height_entry.grid( row=2, column=1 )
 
+        weight_label = Label( self, text="Weight" )
+        self.weight_entry = Entry( self )
         weight_label.grid( row=2, column=2, sticky=E )
         self.weight_entry.grid( row=2, column=3 )
 
+        eyecolor_label = Label( self, text="Eyecolor" )
+        self.eyecolor_entry = Entry( self )
         eyecolor_label.grid( row=3, sticky=E )
         self.eyecolor_entry.grid( row=3, column=1 )
 
+        haircolor_label = Label( self, text="Haircolor" )
+        self.haircolor_entry = Entry( self )
         haircolor_label.grid( row=3, column=2, sticky=E )
         self.haircolor_entry.grid( row=3, column=3 )
 
+        address_label = Label( self, text="Address" )
+        self.address_entry = Entry( self )
         address_label.grid( row=4, sticky=E )
         self.address_entry.grid( row=4, column=1 )
-        
+
+        gender_label = Label( self, text="Gender" )
+        self.gender_entry = Entry( self )
         gender_label.grid( row=4, column=2, sticky=E )
         self.gender_entry.grid( row=4, column=3 )
 
+        birthday_label = Label( self, text="Birthday" )
+        self.birthday_entry = Entry( self )
         birthday_label.grid( row=5, sticky=N+E )
         self.birthday_entry.grid( row=5, column=1, sticky=N )
 
@@ -118,9 +107,9 @@ class NewPerson( Toplevel ):
         except cx_Oracle.DatabaseError as exc:
             error, = exc.args
             if error.code == 1:
-                tm.showerror( "Submit Failure", "sin '" + self.entries["sin"] + "' is already in the database\nErr 0xs1-10" )
+                tm.showerror( "Submit Failure", "sin '" + self.entries["sin"] + "' is already in the database\nErr 0xs1-11" )
             else:
-                tm.showerror( "Submit Failure", error.message + "\nErr 0xs1-11" )
+                tm.showerror( "Submit Failure", error.message + "\nErr 0xs1-12" )
             return
                 
 
@@ -173,9 +162,12 @@ class NewPerson( Toplevel ):
             return
         self.entries["gender"] = self.entries["gender"][0].lower()
         try:
-            datetime.datetime.strptime( self.entries["birthday"], "%d-%b-%Y" )
+            date = datetime.strptime( self.entries["birthday"], "%d-%b-%Y" )
         except:
             tm.showerror( error_type, "Invalid Birthday: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xs1-9" )
+            return
+        if date >= datetime.now():
+            tm.showerror( error_type, "Invalid Birthday: Time travellers are not allowed\nErr 0xs1-10" )
             return
 
         #No errors detected!
