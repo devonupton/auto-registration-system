@@ -11,7 +11,7 @@ class tableWidget( Frame ):
         self.cols = numCols
         self.root = Tk()
         self.root.title( t )
-        self.root.configure( background="black" )
+        self.root.configure( background="dark grey" )
         
         self.table = []
         
@@ -78,6 +78,9 @@ class tableWidget( Frame ):
     def showTable( self ):
         mainloop()
 
+#===============================================================================
+# Function: buildCxTable
+#===============================================================================
 # builds a tableSpace into tkinter (a list of all the things)
 def buildCxTable( tableSpace, title ):
     numRow = len( tableSpace ) - 1
@@ -90,4 +93,41 @@ def buildCxTable( tableSpace, title ):
         userTable.changeRow( y, tableSpace[y + 1] )
           
     userTable.showTable()
+         
+#===============================================================================
+# Function: getHeaderList
+#===============================================================================        
+# expected use: getHeaderList( cursor.description )
+# returns the headerList for use with createTableSpace
+def getHeaderList( objectSet ):
+    temp = []
+    for column in objectSet:
+        temp.append( column[0] )
+    return temp
+    
+#===============================================================================
+# Function: createTableSpace
+#===============================================================================
+# creates a tableSpace for use with buildCxTable
+def createTableSpace( headerList, rows ):
+    if len( rows ) == 0:
+        return None
+    tableSpace = [headerList]
+    for x in range( len(rows) ):
+        tempRow = []
+        for entry in rows[x]:
+            if entry == None:
+                tempRow.append( "N/A" )
+            else:
+                tempRow.append( entry )
+        tableSpace.append( tempRow )
+    return tableSpace
                 
+#===============================================================================
+# Function: buildSuperTable
+#===============================================================================
+# builds a table before your eyes
+def buildSuperTable( desc, rows, title ):
+    if len( rows ) == 0:
+        return None
+    buildCxTable( createTableSpace(  getHeaderList( desc ), rows ), title )
