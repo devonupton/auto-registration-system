@@ -4,21 +4,6 @@
     # This component is used by a police officer to issue a traffic ticket and record 
     # the violation. You may assume that all the information about ticket_type has been 
     # loaded in the initial database.
-
-#CREATE TABLE ticket (
-#  ticket_no     int,
-#  violator_no   CHAR(15),  
-#  vehicle_id    CHAR(15),
-#  office_no     CHAR(15),
-#  vtype        char(10),
-#  vdate        date,
-#  place        varchar(20),
-#  descriptions varchar(1024),
-#  PRIMARY KEY (ticket_no),
-#  FOREIGN KEY (vtype) REFERENCES ticket_type,
-#  FOREIGN KEY (violator_no) REFERENCES people ON DELETE CASCADE,
-#  FOREIGN KEY (vehicle_id)  REFERENCES vehicle,
-#  FOREIGN KEY (office_no) REFERENCES people ON DELETE CASCADE
     
 from tkinter import *
 import tkinter.messagebox as tm
@@ -91,10 +76,6 @@ class app4( Toplevel ):
         self.violator_entry = Entry( self )
         self.violator_entry.grid( column=4, row=1 )
         
-        # add new person button (?)
-        #newPerson_button = Button( self, padx=0, pady=0, text="?", command=lambda: self.handleNewPerson() )
-        #newPerson_button.grid( column=5, row=1, sticky=EW )
-        
         # vehicle_id label/entry
         vin_label = Label( self, text="VIN:" )
         vin_label.grid( column=3, row=2, sticky=E )
@@ -109,10 +90,14 @@ class app4( Toplevel ):
         #mainloop()
     
     def setSystime( self ):
+        askMsg = "Would you like to fill vDate with the current system time?"
+        if not tm.askyesno( "Autofill vDate?", askMsg ):
+            return
+    
         self.vDate_entry.delete( 0, END )
         self.vDate_entry.insert( 0, time.strftime( "%d-%b-%Y %H:%M:%S", time.localtime() ) )
     
-    # Opens an editable text window for the ticket description
+    # Opens an editable Text window for the ticket description
     def addTextWidget( self ):
         if self.descOpen:
             # Ask user to confirm data loss for closing description
@@ -136,17 +121,6 @@ class app4( Toplevel ):
             self.descBox.grid( column=0, row=7, columnspan=5, sticky=NSEW )
             
         return
-            
-    # fills the violator_entry with the SIN of a newly registered person
-    def autofill( self, value ):
-        if self.violator_entry.get() == "":
-            self.violator_entry.insert( 0, value )
-            infoMsg = "The new SIN was inserted into the violator SIN section." 
-            tm.showinfo( "SIN saved", infoMsg )
-        else:
-            self.violator_entry.insert( END, " <<" + value + ">>" )
-            errMsg = "There was information in the entry already. The new SIN was placed in the entry with '<<' and '>>' surrounding it\nErr 0xa4-15"
-            tm.showerror( "SIN saved", errMsg )
   
     # Asks the user if they would like to add a new person to the database, if yes opens the app for it
     def handleNewPerson( self ):
@@ -158,6 +132,7 @@ class app4( Toplevel ):
        
     # Major function for submitting a violation
     def submitViolation( self ):
+        # Checks that user wants to submit with or without a description.
         askMsg = "Are you sure you want to submit the violation with no description?"
         if not self.descOpen:
             if not tm.askokcancel( "No Description?", askMsg ):
@@ -169,10 +144,11 @@ class app4( Toplevel ):
             if not tm.askokcancel( "No Description?", askMsg ):
                 return
             else:
-                getDesc = ""
+                getDesc = None
         else:
             getDesc = self.descBox.get( 1.0, END ).strip()
     
+        # create the entry dictionary for the statement
         self.entries = { "ticketNo":    self.ticketNo_entry.get().strip(),
                          "violatorNo":  self.violator_entry.get().strip(),
                          "vehicle_id":  self.vin_entry.get().strip(),
@@ -180,7 +156,7 @@ class app4( Toplevel ):
                          "vtype":       self.vType_entry.get().strip(),
                          "vdate":       self.vDate_entry.get().strip(),
                          "place":       self.loc_entry.get().strip(),
-                         "descr":        getDesc.strip()}
+                         "descr":       getDesc.strip()                     }
     
         if not self.validateEntries():
             return
@@ -190,9 +166,9 @@ class app4( Toplevel ):
             return
                 
         cursor = self.userCx.cursor()
-        
+       
         statement = "INSERT INTO ticket VALUES ( :ticketNo, :violatorNo, :vehicle_id, :officerNo, :vtype, TO_DATE( :vdate, 'dd-Mon-yyyy hh24:mi:ss' ), :place, :descr )"
-        
+    
         cursor.execute( "SAVEPOINT Violation" )
         
         try:
@@ -250,7 +226,7 @@ class app4( Toplevel ):
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "'" + self.entries["violatorNo"] + "' is not in the database. Please double check the violatorNo and try again.\nErr 0xa4-19"
+            errMsg = "The violator '" + self.entries["violatorNo"] + "' is not in the database. Please double check the violatorNo and try again.\nErr 0xa4-19"
             tm.showerror( "Invalid violatorNo", errMsg )
             return
             
@@ -266,7 +242,7 @@ class app4( Toplevel ):
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "'" + self.entries["officerNo"] + "' is not in the database. Please double check the officerNo and try again.\nErr 0xa4-20"
+            errMsg = "The officer '" + self.entries["officerNo"] + "' is not in the database. Please double check the officerNo and try again.\nErr 0xa4-20"
             tm.showerror( "Invalid officerNo", errMsg )
             returnh
         
@@ -282,7 +258,7 @@ class app4( Toplevel ):
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "'" + self.entries["vehicle_id"] + "' is not in the database. Please double check the VIN and try again.\nErr 0xa4-22"
+            errMsg = "The VIN '" + self.entries["vehicle_id"] + "' is not in the database. Please double check the VIN and try again.\nErr 0xa4-22"
             tm.showerror( "Invalid VIN", errMsg )
             return
             
@@ -387,7 +363,7 @@ class app4( Toplevel ):
             
         return True
         
-        
+# Returns a super table to violation types for the user
 def findViolationTypes( userCx ):
     askMsg = "Do you wish to bring up a table of the possible violation types and their fines?"
     if not tm.askyesno( "vType Help", askMsg ):
