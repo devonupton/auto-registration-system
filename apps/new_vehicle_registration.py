@@ -228,8 +228,8 @@ class App1( Toplevel ):
             self.owner_id_list = []
         #owner_id validation
         for owner_id in self.owner_id_list + [self.primary_owner_id]:
-            if len( owner_id ) > 15:
-                msg = "Invalid Owner_id '" + owner_id + "': Must not be longer than 15 characters\nErr 0xa1-8"
+            if owner_id == '' or len( owner_id ) > 15:
+                msg = "Invalid Owner_id '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa1-8"
                 tm.showerror( error_type, msg )
                 return
 

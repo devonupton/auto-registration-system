@@ -37,10 +37,10 @@ class App2( Toplevel ):
         self.sale_date_entry.grid( row=4, column=1 )
         self.sale_date_entry.insert( 0, datetime.now().strftime( "%d-%b-%Y" ) )
 
-        sale_price_label = Label( self, text="Sale Price" )
-        self.sale_price_entry = Entry( self )
-        sale_price_label.grid( row=5, sticky=E )
-        self.sale_price_entry.grid( row=5, column=1 )
+        price_label = Label( self, text="Price ($)" )
+        self.price_entry = Entry( self )
+        price_label.grid( row=5, sticky=E )
+        self.price_entry.grid( row=5, column=1 )
 
         row_expander = Label( self, text="" ) #Create an extra blank row
         row_expander.grid( row=6 )
@@ -87,7 +87,7 @@ class App2( Toplevel ):
         self.transaction_id = self.transaction_id_entry.get()
         self.vehicle_id = self.vehicle_id_entry.get()
         self.sale_date = self.sale_date_entry.get()
-        self.sale_price = self.sale_price_entry.get()
+        self.price = self.price_entry.get()
         self.buyer_id = self.buyer_id_entry.get()
         self.owner_id_list = self.owner_list_entry.get().split( "," )
         for element in range(len(self.owner_id_list)):
@@ -108,9 +108,9 @@ class App2( Toplevel ):
         #####################################################
 
         #Make sure seller is primary owner of the vehicle
-        statement1 = "SELECT owner_id FROM owner \
+        statement = "SELECT owner_id FROM owner \
                      WHERE owner_id=:a and vehicle_id=:b and is_primary_owner='y'" 
-        cursor.execute( statement1, a=self.seller_id.ljust(15), b=self.vehicle_id.ljust(15) )
+        cursor.execute( statement, a=self.seller_id.ljust(15), b=self.vehicle_id.ljust(15) )
         if len( cursor.fetchall() ) == 0: #Not in system
 
             #Check if sin exists
@@ -119,6 +119,7 @@ class App2( Toplevel ):
                 cursor.execute( test1, a=self.seller_id.ljust(15) )
             except: #Unknown error
                 tm.showerror( error_type, "Unexpected Error\nErr 0xa2-11" )
+                return
 
             if len( cursor.fetchall() ) == 0:
                 tm.showerror( error_type, "Seller_id '" + self.seller_id + "' does not exist\nErr 0xa2-12" )
@@ -131,6 +132,7 @@ class App2( Toplevel ):
                 cursor.execute( test2, a=self.vehicle_id.ljust(15) )
             except: #Unknown error
                 tm.showerror( error_type, "Unexpected Error\nErr 0xa2-13" )
+                return
 
             if len( cursor.fetchall() ) == 0:
                 tm.showerror( error_type, "Vehicle_id '" + self.vehicle_id + "' does not exist\nErr 0xa2-14" )
@@ -148,14 +150,14 @@ class App2( Toplevel ):
         sale_statement = "INSERT INTO auto_sale VALUES( :a, :b, :c, :d, :e, :f )"
         try:
             cursor.execute( sale_statement, a=self.transaction_id, b=self.seller_id, \
-                            c=self.buyer_id, d=self.vehicle_id, e=self.sale_date, f=self.sale_price )
+                            c=self.buyer_id, d=self.vehicle_id, e=self.sale_date, f=self.price )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute( "ROLLBACK to App2Save" )
             cursor.close()
             error, = exc.args
             if error.code == 1: #Transaction_id already exists
                 tm.showerror( error_type, "Transaction_id '" + \
-                    self.transaction_id + "' is already in the database\nErr 0xa2-16" )
+                    str(self.transaction_id) + "' is already in the database\nErr 0xa2-16" )
             elif error.code == 2291: #Seller and vehicle already verified -> Buyer does not exist
                 tm.showerror( error_type, "Buyer_id '" + \
                     self.buyer_id + "' does not exist\nErr 0xa2-17" )
@@ -206,9 +208,9 @@ class App2( Toplevel ):
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' entered more than once\nErr 0xa2-23" )
+                    tm.showerror( error_type, "Owner_id '" + owner_id + "' entered more than once\nErr 0xa2-23" )
                 elif error.code == 2291: #Owner_id does not exist
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' does not exist\nErr 0xa2-24" )
+                    tm.showerror( error_type, "Owner_id '" + owner_id + "' does not exist\nErr 0xa2-24" )
                 else: #Unknown error
                     tm.showerror( error_type, error.message + "\nErr 0xa2-25" )
                 return
@@ -232,7 +234,7 @@ class App2( Toplevel ):
 
         #seller_id validation 
         if self.seller_id == '' or len( self.seller_id ) > 15:
-            msg = "Invalid Seller_id: Length must be between 1 and 15\nErr 0xa2-2"
+            msg = "Invalid Seller_id: Must not be blank or longer than 15 character\nErr 0xa2-2"
             tm.showerror( error_type, msg )
             return
 
@@ -248,7 +250,7 @@ class App2( Toplevel ):
 
         #vehicle_id validation
         if self.vehicle_id == '' or len( self.vehicle_id ) > 15:
-            msg = "Invalid Vehicle_id: Length must be between 1 and 15\nErr 0xa2-4"
+            msg = "Invalid Vehicle_id: Must not be blank or longer than 15 characters\nErr 0xa2-4"
             tm.showerror( error_type, msg )
             return
 
@@ -267,19 +269,19 @@ class App2( Toplevel ):
             if not tm.askyesno( "Input Confirmation", "The sale date is listed as before today. Is that correct?" ):
                 return
 
-        #sale_price validation
+        #price validation
         try:
-            self.sale_price = float( self.sale_price )
-            if not ( 0 <= self.sale_price < 10000000 ):
+            self.price = float( self.price )
+            if not ( 0 <= self.price < 10000000 ):
                 raise
         except:
-            msg = "Invalid Sale Price: Must be a number between 0 and 9999999\nErr 0xa2-7"
+            msg = "Invalid Price: Must be a number between 0 and 9999999\nErr 0xa2-7"
             tm.showerror( error_type, msg )
             return
 
         #buyer_id validation
         if self.buyer_id == '' or len( self.buyer_id ) > 15:
-            msg = "Invalid Buyer_id: Length must be between 1 and 15\nErr 0xa2-8"
+            msg = "Invalid Buyer_id: Must not be blank or longer than 15 characters\nErr 0xa2-8"
             tm.showerror( error_type, msg )
             return
 
@@ -293,8 +295,8 @@ class App2( Toplevel ):
             self.owner_id_list = []
         #owner_id validation
         for owner_id in self.owner_id_list:
-            if len( owner_id ) > 15:
-                msg = "Invalid Owner_id '" + owner_id + "': Length must be between 1 and 15\nErr 0xa2-10"
+            if owner_id == '' or len( owner_id ) > 15:
+                msg = "Invalid Owner_id '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa2-10"
                 tm.showerror( error_type, msg )
                 return
 
