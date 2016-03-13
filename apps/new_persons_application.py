@@ -130,11 +130,11 @@ class NewPerson( Toplevel ):
         error_type = "Input Error"
 
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            msg = "Invalid Sin: Length must be between 1 and 15\nErr 0xs1-1"
+            msg = "Invalid Sin: Must not be blank or longer than 15 characters\nErr 0xs1-1"
             tm.showerror( error_type, msg )
             return
         if self.entries["name"] == '' or len( self.entries["name"] ) > 40:
-            msg = "Invalid Name: Length must be between 1 and 40\nErr 0xs1-2"
+            msg = "Invalid Name: Must not be blank or longer than 40 characters\nErr 0xs1-2"
             tm.showerror( error_type, msg )
             return
         try:
@@ -155,15 +155,15 @@ class NewPerson( Toplevel ):
             return
 
         if self.entries["eyecolor"] == '' or len( self.entries["eyecolor"] ) > 10:
-            msg = "Invalid Eyecolor: Character length must between 1 and 10\nErr 0xs1-5"
+            msg = "Invalid Eyecolor: Must not be blank or longer than 10 characters\nErr 0xs1-5"
             tm.showerror( error_type, msg )
             return
         if self.entries["haircolor"] == '' or len( self.entries["haircolor"] ) > 10:
-            msg = "Invalid Haircolor: Character length must between 1 and 10\nErr 0xs1-6"
+            msg = "Invalid Haircolor: Must not be blank or longer than 10 characters\nErr 0xs1-6"
             tm.showerror( error_type, msg )
             return
         if self.entries["address"] == '' or len( self.entries["address"] ) > 50:
-            msg = "Invalid Address: Character length must between 1 and 50\nErr 0xs1-7"
+            msg = "Invalid Address: Must not be blank or longer than 50 characters\nErr 0xs1-7"
             tm.showerror( error_type, msg )
             return
         if self.entries["gender"] == '' or self.entries["gender"][0].lower() not in ('m', 'f'):
