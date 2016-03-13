@@ -110,35 +110,35 @@ class App2( Toplevel ):
         #Make sure seller is primary owner of the vehicle
         statement1 = "SELECT owner_id FROM owner \
                      WHERE owner_id=:a and vehicle_id=:b and is_primary_owner='y'" 
-        cursor.execute( statement1, a=self.seller_id, b=self.vehicle_id )
+        cursor.execute( statement1, a=self.seller_id.ljust(15), b=self.vehicle_id.ljust(15) )
         if len( cursor.fetchall() ) == 0: #Not in system
 
             #Check if sin exists
             test1 = "SELECT sin FROM people WHERE sin=:a"
             try:
-                cursor.execute( test1, a=self.seller_id )
+                cursor.execute( test1, a=self.seller_id.ljust(15) )
             except: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa2-10" )
+                tm.showerror( error_type, "Unexpected Error\nErr 0xa2-11" )
 
             if len( cursor.fetchall() ) == 0:
-                tm.showerror( error_type, "Seller_id '" + self.seller_id + "' does not exist\nErr 0xa2-11" )
+                tm.showerror( error_type, "Seller_id '" + self.seller_id + "' does not exist\nErr 0xa2-12" )
                 cursor.close()
                 return
 
             #Check if vehicle_id exists
             test2 = "SELECT serial_no FROM vehicle WHERE serial_no=:a"
             try:
-                cursor.execute( test2, a=self.vehicle_id )
+                cursor.execute( test2, a=self.vehicle_id.ljust(15) )
             except: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa2-12" )
+                tm.showerror( error_type, "Unexpected Error\nErr 0xa2-13" )
 
             if len( cursor.fetchall() ) == 0:
-                tm.showerror( error_type, "Vehicle_id '" + self.vehicle_id + "' does not exist\nErr 0xa2-13" )
+                tm.showerror( error_type, "Vehicle_id '" + self.vehicle_id + "' does not exist\nErr 0xa2-14" )
 
             #Else, seller not prmiary owner
             else:
-                tm.showerror( error_type, "The seller does not have permission to sell this vehicle\n \
-                                           The seller must be the Primary Owner\nErr 0xa2-14" )
+                tm.showerror( error_type, "The seller does not have permission to sell this vehicle:\
+                                           Must be Primary Owner\nErr 0xa2-15" )
             cursor.close()
             return
 
@@ -148,32 +148,32 @@ class App2( Toplevel ):
         sale_statement = "INSERT INTO auto_sale VALUES( :a, :b, :c, :d, :e, :f )"
         try:
             cursor.execute( sale_statement, a=self.transaction_id, b=self.seller_id, \
-                            c=self.buyer_id, d=vehicle_id, e=self.sale_date, f=self.sale_price )
+                            c=self.buyer_id, d=self.vehicle_id, e=self.sale_date, f=self.sale_price )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute( "ROLLBACK to App2Save" )
             cursor.close()
             error, = exc.args
             if error.code == 1: #Transaction_id already exists
                 tm.showerror( error_type, "Transaction_id '" + \
-                    self.transaction_id + "' is already in the database\nErr 0xa2-15" )
+                    self.transaction_id + "' is already in the database\nErr 0xa2-16" )
             elif error.code == 2291: #Seller and vehicle already verified -> Buyer does not exist
                 tm.showerror( error_type, "Buyer_id '" + \
-                    self.buyer_id + "' is already in the database\nErr 0xa2-16" )
+                    self.buyer_id + "' does not exist\nErr 0xa2-17" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa2-17" )
+                tm.showerror( error_type, error.message + "\nErr 0xa2-18" )
             return
                 
         #####################################################
 
-        #Drop old owners
+        #Delete old owners
         try:
-            cursor.execute( "DROP FROM owner WHERE vehicle_id=:a", a=self.vehicle_id )
+            cursor.execute( "DELETE FROM owner WHERE vehicle_id=:a", a=self.vehicle_id.ljust(15) )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute( "ROLLBACK to App2Save" )
             cursor.close()
             error, = exc.args
             #Unknown error
-            tm.showerror( error_type, error.message + "\nErr 0xa2-18" )
+            tm.showerror( error_type, error.message + "\nErr 0xa2-19" )
             return
 
         #####################################################
@@ -187,11 +187,11 @@ class App2( Toplevel ):
             cursor.close()
             error, = exc.args
             if error.code == 2291: #Owner_id does not exist
-                tm.showerror( error_type, "owner_id '" + self.seller_id + "' does not exist\nErr 0xa2-19" )
+                tm.showerror( error_type, "owner_id '" + self.seller_id + "' does not exist\nErr 0xa2-20" )
             elif error.code == 1400: #Primary_owner_id was empty string (read as NULL)
-                tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa2-20" )
+                tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa2-21" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa2-21" )
+                tm.showerror( error_type, error.message + "\nErr 0xa2-22" )
             return
 
         #####################################################
@@ -206,11 +206,11 @@ class App2( Toplevel ):
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' entered more than once\nErr 0xa2-22" )
+                    tm.showerror( error_type, "owner_id '" + owner_id + "' entered more than once\nErr 0xa2-23" )
                 elif error.code == 2291: #Owner_id does not exist
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' does not exist\nErr 0xa2-23" )
+                    tm.showerror( error_type, "owner_id '" + owner_id + "' does not exist\nErr 0xa2-24" )
                 else: #Unknown error
-                    tm.showerror( error_type, error.message + "\nErr 0xa2-24" )
+                    tm.showerror( error_type, error.message + "\nErr 0xa2-25" )
                 return
 
         #####################################################
@@ -220,7 +220,7 @@ class App2( Toplevel ):
         self.userCx.commit()
 
         #Success message
-        successInfo = "Vehicle '" + self.vehicle_id + "' has been sold" + \
+        successInfo = "Vehicle '" + self.vehicle_id + "' has been sold\n" + \
                       "New Primary owner_id: " + self.buyer_id + "\n" + \
                       "Other new owner_id's: " + ", ".join(self.owner_id_list)
         tm.showinfo( "Success!", successInfo )  
@@ -283,12 +283,18 @@ class App2( Toplevel ):
             tm.showerror( error_type, msg )
             return
 
+        #buyer != seller
+        if self.buyer_id == self.seller_id:
+            msg = "Invalid Buyer_id: The seller cannot sell to themself\nErr 0xa2-9"
+            tm.showerror( error_type, msg )
+            return
+
         if self.owner_id_list == ['']:
             self.owner_id_list = []
         #owner_id validation
         for owner_id in self.owner_id_list:
             if len( owner_id ) > 15:
-                msg = "Invalid Owner_id '" + owner_id + "': Length must be between 1 and 15\nErr 0xa2-9"
+                msg = "Invalid Owner_id '" + owner_id + "': Length must be between 1 and 15\nErr 0xa2-10"
                 tm.showerror( error_type, msg )
                 return
 
