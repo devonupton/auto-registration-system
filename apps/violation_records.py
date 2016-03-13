@@ -304,7 +304,7 @@ class app4( Toplevel ):
                 ticketTime = time.strptime( self.entries["vdate"], "%d-%b-%Y" )
                 self.entries["vdate"] += " 00:00:00"
             except:
-                errMsg = "Date must be of the format DD-MMM-YYYY HH:MM\nEx: 14-OCT-2016 14:25\nErr 0xa4-06"
+                errMsg = "Date must be of the format DD-MMM-YYYY at least.\nEx: 14-OCT-2016\nErr 0xa4-06"
                 tm.showerror( "Invalid Date entry", errMsg )
                 return False
         elif len( temp ) == 2:
@@ -312,11 +312,11 @@ class app4( Toplevel ):
                 # Strip DD-MMM-YYYY and HH:MM:SS
                 ticketTime = time.strptime( self.entries["vdate"], "%d-%b-%Y %H:%M:%S" )
             except:
-                errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\nEx: 14-OCT-2016 14:25\nErr 0xa4-07"
+                errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\nEx: 14-OCT-2016 14:25:00\nErr 0xa4-07"
                 tm.showerror( "Invalid Date entry", errMsg )
                 return False
         else:
-            errMsg = "Date must be of the format DD-MMM-YYYY HH:MM\nEx: 14-OCT-2016 14:25\nErr 0xa4-08"
+            errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\nEx: 14-OCT-2016 14:25:00\nErr 0xa4-08"
             tm.showerror( "Invalid Date entry", errMsg )
             return False 
             
