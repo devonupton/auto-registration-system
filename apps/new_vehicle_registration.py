@@ -10,6 +10,7 @@ class App1( Toplevel ):
         Toplevel.__init__( self )
         self.title( "New Vehicle Registration Application" )
         self.userCx = userCx
+        self.resizable( width=FALSE, height=FALSE )
 
         #Create and add widgets for vehicle info
         msg1 = Message( self, text="Vehicle Information", padx=5, pady=5, width=200 )

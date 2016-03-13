@@ -17,6 +17,7 @@ class app4( Toplevel ):
         Toplevel.__init__( self ) 
 
         self.title( "Violation Records Application" )
+        self.resizable( width=FALSE, height=FALSE )
  
         self.userCx = userCx
         

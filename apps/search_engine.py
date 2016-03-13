@@ -275,6 +275,7 @@ def run( userCx ):
     
     top = Tk()
     top.title( "Search Engine" )
+    top.resizable( width=FALSE, height=FALSE )
 
     # LIST1 ====================================================================
     info1 = "Search: License Information"

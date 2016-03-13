@@ -12,6 +12,7 @@ class tableWidget( Frame ):
         self.root = Tk()
         self.root.title( t )
         self.root.configure( background="dark grey" )
+        self.root.resizable( width=FALSE, height=FALSE )
         
         self.table = []
         

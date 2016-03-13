@@ -11,6 +11,7 @@ class App2( Toplevel ):
         Toplevel.__init__( self )
         self.title( "Auto Transaction Application" )
         self.userCx = userCx
+        self.resizable( width=FALSE, height=FALSE )
 
         #Create and add widgets for Sale Info
         msg1 = Message( self, text="Sale Information", padx=5, pady=5, width=200 )

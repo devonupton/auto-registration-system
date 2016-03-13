@@ -16,6 +16,7 @@ class NewPerson( Toplevel ):
     def __init__( self, parent, return_entry=None ):
         Toplevel.__init__( self, parent )
         self.title( "New Persons Application" )
+        self.resizable( width=FALSE, height=FALSE )
 
         self.parent = parent
         self.userCx = parent.userCx

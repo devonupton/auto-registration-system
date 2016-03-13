@@ -20,6 +20,7 @@ def login():
     
     top = Toplevel()
     top.title( "Oracle Login" )
+    top.resizable( width=FALSE, height=FALSE )
     
     #src: http://stackoverflow.com/questions/28156719/how-can-i-integrate-tkinter-with-python-log-in-screen
     # I applied it without an object however...
@@ -58,19 +59,21 @@ def login():
 
 def disconnect():
     try:
-        print( "attempting to close:", global_userCx.dsn )
+        #print( "attempting to close:", global_userCx.dsn )
         global_userCx.close()
-        print( "close successful." )
+        #print( "close successful." )
     except:
-        print( "WARNING: Connection may not have terminated properly." )
-
+        #print( "WARNING: Connection may not have terminated properly." )
+        if global_userCx != None:
+            tm.showerror( "WARNING!", "Connection may not have terminated properly." )
+        
     exit()
 
 def main():
     # MAIN =========================================================================
     # could probably make this an object, but I want functionalitiy :/
     top = Tk()
-    top.wm_title( "ARS v0228" )
+    top.wm_title( "ARS v0313" )
     top.resizable( width=FALSE, height=FALSE )
     top.geometry( '{}x{}'.format( 250, 365) )
 
