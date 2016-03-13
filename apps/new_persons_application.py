@@ -77,13 +77,13 @@ class NewPerson( Toplevel ):
     #Attempt to submit data to the database
     def submit_form( self ):
 
-        self.entries = { "sin":       self.sin_entry.get(),
-                         "name":      self.name_entry.get(),
-                         "height":    self.height_entry.get(),
-                         "weight":    self.weight_entry.get(),
-                         "eyecolor":  self.eyecolor_entry.get(),
-                         "haircolor": self.haircolor_entry.get(),
-                         "address":   self.address_entry.get(),
+        self.entries = { "sin":       self.sin_entry.get().lower(),
+                         "name":      self.name_entry.get().lower(),
+                         "height":    self.height_entry.get().lower(),
+                         "weight":    self.weight_entry.get().lower(),
+                         "eyecolor":  self.eyecolor_entry.get().lower(),
+                         "haircolor": self.haircolor_entry.get().lower(),
+                         "address":   self.address_entry.get().lower(),
                          "gender":    self.gender_entry.get(),
                          "birthday":  self.birthday_entry.get() }
 
@@ -100,8 +100,6 @@ class NewPerson( Toplevel ):
         cursor = self.userCx.cursor()
         try:
             cursor.execute( statement, self.entries )
-            cursor.close()
-            self.userCx.commit()
 
         #Source of next 2 lines of code: cx-oracle.readthedocs.org/en/latest/module/html
         except cx_Oracle.DatabaseError as exc:
@@ -111,6 +109,9 @@ class NewPerson( Toplevel ):
             else:
                 tm.showerror( "Submit Failure", error.message + "\nErr 0xs1-12" )
             return
+        finally:
+            cursor.close()
+        self.userCx.commit()
 
         #Success message
         successInfo = self.name_entry.get() + " has been added to the database"
@@ -129,46 +130,56 @@ class NewPerson( Toplevel ):
         error_type = "Input Error"
 
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            tm.showerror( error_type, "Invalid Sin: Length must be between 1 and 15\nErr 0xs1-1" )
+            msg = "Invalid Sin: Length must be between 1 and 15\nErr 0xs1-1"
+            tm.showerror( error_type, msg )
             return
         if self.entries["name"] == '' or len( self.entries["name"] ) > 40:
-            tm.showerror( error_type, "Invalid Name: Length must be between 1 and 40\nErr 0xs1-2" )
+            msg = "Invalid Name: Length must be between 1 and 40\nErr 0xs1-2"
+            tm.showerror( error_type, msg )
             return
         try:
             self.entries["height"] = float( self.entries["height"] )
             if not ( 0 <= self.entries["height"] < 1000 ):
                 raise
         except:
-            tm.showerror( error_type, "Invalid Height: Must be a number between 0 and 999\nErr 0xs1-3" )
+            msg = "Invalid Height: Must be a number between 0 and 999\nErr 0xs1-3"
+            tm.showerror( error_type, msg )
             return
         try:
             self.entries["weight"] = float( self.entries["weight"] )
             if not ( 0 <= self.entries["weight"] < 1000 ):
                 raise
         except:
-            tm.showerror( error_type, "Invalid Weight: Must be a number between 0 and 999\nErr 0xs1-4" )
+            msg = "Invalid Weight: Must be a number between 0 and 999\nErr 0xs1-4"
+            tm.showerror( error_type, msg )
             return
 
         if self.entries["eyecolor"] == '' or len( self.entries["eyecolor"] ) > 10:
-            tm.showerror( error_type, "Invalid Eyecolor: Character length must between 1 and 10\nErr 0xs1-5" )
+            msg = "Invalid Eyecolor: Character length must between 1 and 10\nErr 0xs1-5"
+            tm.showerror( error_type, msg )
             return
         if self.entries["haircolor"] == '' or len( self.entries["haircolor"] ) > 10:
-            tm.showerror( error_type, "Invalid Haircolor: Character length must between 1 and 10\nErr 0xs1-6" )
+            msg = "Invalid Haircolor: Character length must between 1 and 10\nErr 0xs1-6"
+            tm.showerror( error_type, msg )
             return
         if self.entries["address"] == '' or len( self.entries["address"] ) > 50:
-            tm.showerror( error_type, "Invalid Address: Character length must between 1 and 50\nErr 0xs1-7" )
+            msg = "Invalid Address: Character length must between 1 and 50\nErr 0xs1-7"
+            tm.showerror( error_type, msg )
             return
         if self.entries["gender"] == '' or self.entries["gender"][0].lower() not in ('m', 'f'):
-            tm.showerror( error_type, "Invalid Gender: Enter either 'm' or 'f'\nErr 0xs1-8" )
+            msg = "Invalid Gender: Enter either 'm' or 'f'\nErr 0xs1-8"
+            tm.showerror( error_type, msg )
             return
         self.entries["gender"] = self.entries["gender"][0].lower()
         try:
             date = datetime.strptime( self.entries["birthday"], "%d-%b-%Y" )
         except:
-            tm.showerror( error_type, "Invalid Birthday: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xs1-9" )
+            msg = "Invalid Birthday: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xs1-9"
+            tm.showerror( error_type, msg )
             return
         if date >= datetime.now():
-            tm.showerror( error_type, "Invalid Birthday: Time travellers are not allowed\nErr 0xs1-10" )
+            msg = "Invalid Birthday: Time travellers are not allowed\nErr 0xs1-10"
+            tm.showerror( error_type, msg )
             return
 
         #No errors detected!

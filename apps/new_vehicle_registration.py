@@ -83,15 +83,17 @@ class App1( Toplevel ):
     def submit_form( self ):
 
         #Get each input value
-        self.entries = { "vehicle_id":  self.vehicle_id_entry.get(),
-                         "maker":       self.maker_entry.get(),
-                         "model":       self.model_entry.get(),
+        self.entries = { "vehicle_id":  self.vehicle_id_entry.get().lower(),
+                         "maker":       self.maker_entry.get().lower(),
+                         "model":       self.model_entry.get().lower(),
                          "year":        self.year_entry.get(),
-                         "color":       self.color_entry.get(),
+                         "color":       self.color_entry.get().lower(),
                          "type_id":     self.type_id_entry.get() }
 
-        self.primary_owner_id = self.primary_owner_id_entry.get()
-        self.owner_id_list = self.owner_id_entry.get().replace( " ", "" ).split( "," )
+        self.primary_owner_id = self.primary_owner_id_entry.get().lower()
+        self.owner_id_list = self.owner_id_entry.get().lower().split( "," )
+        for element in range(len(self.owner_id_list)):
+            self.owner_id_list[element] = self.owner_id_list[element].strip()
 
         if not self.validate_input():
             return
@@ -177,38 +179,58 @@ class App1( Toplevel ):
     #Type checking
     def validate_input( self ):
         error_type = "Input Error"
-        
+
+        #vehicle_id validation
         if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
-            tm.showerror( error_type, "Invalid Vehicle_id: Length must be between 1 and 15\nErr 0xa1-2" )
+            msg = "Invalid Vehicle_id: Must not be blank and no longer than 15 characters\nErr 0xa1-2" 
+            tm.showerror( error_type, msg )
             return
+
+        #maker validation
         if self.entries["maker"] == '' or len( self.entries["maker"] ) > 20:
-            tm.showerror( error_type, "Invalid Maker: Length must be between 1 and 20\nErr 0xa1-3" )
+            msg = "Invalid Maker: Must not be blank and no longer than 20 characters\nErr 0xa1-3" 
+            tm.showerror( error_type, msg )
             return
+            
+        #model validation
         if self.entries["model"] == '' or len( self.entries["model"] ) > 20:
-            tm.showerror( error_type, "Invalid Model: Length must be between 1 and 20\nErr 0xa1-4" )
+            msg = "Invalid Model: Must not be blank and no longer than 20 characters\nErr 0xa1-4" 
+            tm.showerror( error_type, msg )
             return
+
+        #year validation
         try:
             self.entries["year"] = int( self.entries["year"] )
             if not ( 0 <= self.entries["year"] < 10000 ):
                 raise
         except:
-            tm.showerror( error_type, "Invalid Year: Must be an integer between 0 and 9999\nErr 0xa1-5" )
+            msg = "Invalid Year: Must be an integer between 0 and 9999\nErr 0xa1-5" 
+            tm.showerror( error_type, msg )
             return
+
+        #color validation
         if self.entries["color"] == '' or len( self.entries["color"] ) > 10:
-            tm.showerror( error_type, "Invalid Color: Length must be between 1 and 10\nErr 0xa1-6" )
+            msg = "Invalid Color: Must not be blank and no longer than 10 characters\nErr 0xa1-6" 
+            tm.showerror( error_type, msg )
             return
+
+        #type_id validation
         try:
             self.entries["type_id"] = int( self.entries["type_id"] )
             if not ( -2147483648 <= self.entries["type_id"] < 2147483648 ):
                 raise
         except:
-            tm.showerror( error_type, "Invalid Type_id: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa1-7" )
+            msg = "Invalid Type_id: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa1-7" 
+            tm.showerror( error_type, msg )
             return
+
         if self.owner_id_list == ['']:
             self.owner_id_list = []
+        #owner_id validation
         for owner_id in self.owner_id_list + [self.primary_owner_id]:
-            if len( owner_id ) > 15:
-                tm.showerror( error_type, "Invalid Owner_id '" + owner_id + "': Length must be between 1 and 15\nErr 0xa1-8" )
+            if owner_id == '' or len( owner_id ) > 15:
+                msg = "Invalid Owner_id '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa1-8"
+                tm.showerror( error_type, msg )
                 return
 
         #No errors encountered

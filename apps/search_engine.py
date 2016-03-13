@@ -274,10 +274,10 @@ def run( userCx ):
         return
     
     top = Tk()
-    top.title( "app5: Search Engine" )
+    top.title( "Search Engine" )
 
     # LIST1 ====================================================================
-    info1 = "entering either a licence_no or a given name."
+    info1 = "Search: License Information"
     msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
     msg1.grid( row=0, sticky=N, columnspan=2 )
 
@@ -297,7 +297,7 @@ def run( userCx ):
 
     
     # LIST2 ====================================================================
-    info2 = "drive licence_no or sin of a person  is entered."
+    info2 = "Search: Violation Records"
     msg2 = Message( top, text=info2, padx=5, pady=5, width=200 )
     msg2.grid( row=3, sticky=N, columnspan=2 )
 
@@ -317,7 +317,7 @@ def run( userCx ):
     search2LicNo_button.grid( row=5, column=1, sticky=EW )
 
     # LIST3 ====================================================================
-    info3 = "entering the vehicle's serial number."
+    info3 = "Search: Vehicle History"
     msg3 = Message( top, text=info3, padx=5, pady=5, width=200 )
     msg3.grid( row=6, sticky=N, columnspan=2 )
 
