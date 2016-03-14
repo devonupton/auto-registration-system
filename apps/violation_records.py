@@ -139,7 +139,7 @@ class app4( Toplevel ):
                 self.addTextWidget()
                 return
             else:
-                getDesc = ""
+                getDesc = None
         elif len( self.descBox.get( 1.0, END ).strip() ) == 0:
             if not tm.askokcancel( "No Description?", askMsg ):
                 return
@@ -156,7 +156,7 @@ class app4( Toplevel ):
                          "vtype":       self.vType_entry.get().lower(),
                          "vdate":       self.vDate_entry.get().lower(),
                          "place":       self.loc_entry.get().lower(),
-                         "descr":       getDesc.strip()                     }
+                         "descr":       getDesc                             }
     
         if not self.validateEntries():
             return
@@ -338,10 +338,11 @@ class app4( Toplevel ):
             return False
             
         # Description Validation
-        if len( self.entries["descr"] ) > 1024:
-            errMsg = "The description cannot be longer than 1024 characters.\nErr 0xa4-11"
-            tm.showerror( "Description Too Long", errMsg )
-            return False 
+        if self.entries["descr"] != None:
+            if len( self.entries["descr"] ) > 1024:
+                errMsg = "The description cannot be longer than 1024 characters.\nErr 0xa4-11"
+                tm.showerror( "Description Too Long", errMsg )
+                return False 
             
         # violator_no validation
         if self.entries["violatorNo"] == '' or len( self.entries["violatorNo"] ) > 15:

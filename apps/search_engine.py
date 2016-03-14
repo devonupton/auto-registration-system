@@ -150,6 +150,7 @@ def searchOne( userCx, strVar, isLicNo ):
 # sin of a person  is entered.
 def searchTwo( userCx, strVar, isLicNo ):
     strVar = strVar.strip().lower()
+    
 
     # Check if user input is empty
     if len( strVar ) < 1:
@@ -175,10 +176,11 @@ def searchTwo( userCx, strVar, isLicNo ):
         thisCursor.execute( statement )
         rows = thisCursor.fetchall()
         if len( rows ) == 0:
-            errMsg = "The licence_no '" + strVar + "' was not found.\nErr 0xa5-6"
+            errMsg = "The licence_no '" + strVar + "' was not found in the database.\nErr 0xa5-6"
             tm.showerror( "No result!", errMsg )
             return
-
+        
+        licNo = strVar
         strVar = rows[0][0]
         strVar = strVar.strip().lower()
 
@@ -190,11 +192,25 @@ def searchTwo( userCx, strVar, isLicNo ):
     thisCursor.execute( statement )
     rows = thisCursor.fetchall()
     #print( rows )
-
+    
+    # Check why no results were found
     if len( rows ) == 0:
-        infoMsg = title + " produced no results!"
-        tm.showinfo( "No Results", infoMsg )
-        return
+        if checkSIN( strVar, userCx ):
+            if isLicNo:
+                infoMsg = "The LicNo '" + LicNo + "' has no recorded violations."
+            else:
+                infoMsg = "The SIN '" + strVar + "' has no recorded violations."
+            tm.showinfo( "No Violations!", infoMsg )
+            return
+        else:
+            if isLicNo:
+                # This case will never occur (?)
+                errMsg = "The LicNo '" + LicNo + "' was not found in the database. Maybe check your spelling.\nErr 0xa5-8"
+            else:
+                errMsg = "The SIN '" + strVar + "' was not found in the database. Maybe check your spelling.\nErr 0xa5-10"     
+            tm.showerror( "Entry Not Found", errMsg )
+            return
+        
 
     headerList = []
     for object in thisCursor.description:
@@ -213,6 +229,25 @@ def searchTwo( userCx, strVar, isLicNo ):
     thisCursor.close()
     tW.buildCxTable( tableRows, title )
 
+# returns TRUE if the SIN is in the database 
+def checkSIN( strVar, userCx ):
+    strVar = strVar.lower().strip()
+    thisCursor = userCx.cursor()
+    statement = "SELECT * FROM people WHERE LOWER(sin) = '" + strVar + "'"
+    try:
+        thisCursor.execute( statement )
+    except:
+        thisCursor.close()
+        tm.showerror( "Unexpected Error", "An unexpected error occured.\nErr 0xa5-9")
+        
+    rows = thisCursor.fetchall()
+   
+    if len( rows ) == 0:
+        return False
+    
+    return True
+        
+        
 #===============================================================================
 # Function: searchThree
 #===============================================================================
