@@ -4,7 +4,7 @@ import cx_Oracle
 
 import apps.new_vehicle_registration as app1
 import apps.auto_transaction as app2
-import apps.driver_license_registration as app3
+import apps.driver_licence_registration as app3
 import apps.violation_records as app4
 import apps.search_engine as app5
 
