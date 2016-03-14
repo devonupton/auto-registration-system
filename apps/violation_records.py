@@ -47,18 +47,12 @@ class app4( Toplevel ):
         self.vType_entry = Entry( self )
         self.vType_entry.grid( column=1, row=3 )
         
-        vTypeHelp_button = Button( self, text="?", command=lambda: findViolationTypes( self.userCx ), padx=0, pady=0 )
-        vTypeHelp_button.grid( column=2, row=3 )
-        
         # v_date label/entry
         vDate_label = Label( self, text="Date Issued:" )
         vDate_label.grid( column=0, row=4, sticky=E )
         self.vDate_entry = Entry( self )
         self.vDate_entry.grid( column=1, row=4 )
         self.vDate_entry.insert( 0, "DD-MMM-YYYY HH:MM:SS" )
-        
-        getDate_button = Button( self, text="?", command=lambda: self.setSystime(), padx=0, pady=0 )
-        getDate_button.grid( column=2, row=4 )
         
         # location label/entry
         loc_label = Label( self, text="Location:" )
@@ -86,10 +80,15 @@ class app4( Toplevel ):
         # submit violation button
         submit_button = Button( self, text="Submit Record", command=lambda: self.submitViolation() )
         submit_button.grid( column=4, row=6, sticky=EW )
+
+        # Help buttons
+        vTypeHelp_button = Button( self, text="?", command=lambda: findViolationTypes( self.userCx ), padx=0, pady=0 )
+        vTypeHelp_button.grid( column=2, row=3 )
+
+        getDate_button = Button( self, text="?", command=lambda: self.setSystime(), padx=0, pady=0 )
+        getDate_button.grid( column=2, row=4 )
         
 
-        #mainloop()
-    
     def setSystime( self ):
         askMsg = "Would you like to fill vDate with the current system time?"
         if not tm.askyesno( "Autofill vDate?", askMsg ):
@@ -150,13 +149,13 @@ class app4( Toplevel ):
             getDesc = self.descBox.get( 1.0, END ).strip()
     
         # create the entry dictionary for the statement
-        self.entries = { "ticketNo":    self.ticketNo_entry.get().strip(),
-                         "violatorNo":  self.violator_entry.get().strip(),
-                         "vehicle_id":  self.vin_entry.get().strip(),
-                         "officerNo":   self.officerNo_entry.get().strip(),
-                         "vtype":       self.vType_entry.get().strip(),
-                         "vdate":       self.vDate_entry.get().strip(),
-                         "place":       self.loc_entry.get().strip(),
+        self.entries = { "ticketNo":    self.ticketNo_entry.get().lower(),
+                         "violatorNo":  self.violator_entry.get().lower(),
+                         "vehicle_id":  self.vin_entry.get().lower(),
+                         "officerNo":   self.officerNo_entry.get().lower(),
+                         "vtype":       self.vType_entry.get().lower(),
+                         "vdate":       self.vDate_entry.get().lower(),
+                         "place":       self.loc_entry.get().lower(),
                          "descr":       getDesc.strip()                     }
     
         if not self.validateEntries():
@@ -245,7 +244,7 @@ class app4( Toplevel ):
             cursor.close()
             errMsg = "The officer '" + self.entries["officerNo"] + "' is not in the database. Please double check the officerNo and try again.\nErr 0xa4-20"
             tm.showerror( "Invalid officerNo", errMsg )
-            returnh
+            return
         
         # Check vehicle_id for integrity constraint
         statement = "SELECT * FROM vehicle WHERE serial_no = '" + self.entries["vehicle_id"] + "'"
@@ -383,9 +382,9 @@ def findViolationTypes( userCx ):
     
     cursor.close()
     
-def run( connection ):
-    if connection == None:
+def run( userCx ):
+    if userCx == None:
         tm.showerror( "Error", "You need to login before using this app.\nErr 0xa4-99" )
         return
 
-    app4( connection )
+    app4( userCx )
