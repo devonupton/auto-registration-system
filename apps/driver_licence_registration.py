@@ -17,7 +17,7 @@ class App3( Toplevel ):
         msg1 = Message( self, text="License Information" , padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=2 )
 
-        licence_no_label= Label( self, text="Licence_no" )
+        licence_no_label= Label( self, text="Licence #" )
         self.licence_no_entry = Entry( self )
         licence_no_label.grid( row=1, sticky=E )
         self.licence_no_entry.grid( row=1, column=1 )
@@ -31,6 +31,7 @@ class App3( Toplevel ):
         self.issuing_date_entry = Entry( self )
         issuing_date_label.grid( row=3, sticky=E )
         self.issuing_date_entry.grid( row=3, column=1 )
+        self.issuing_date_entry.insert( 0, datetime.now().strftime( "%d-%b-%Y" ) )
 
         expiring_date_label = Label( self, text="Expiring Date" )
         self.expiring_date_entry = Entry( self )
@@ -79,12 +80,12 @@ class App3( Toplevel ):
     def submit_form( self ):
 
         #Get each input value
-        self.entries = { "licence_no":      self.licence_no_entry.get().lower(),
-                         "class":           self.class_entry.get().lower(),
-                         "issuing_date":    self.issuing_date_entry.get(),
-                         "expiring_date":   self.expiring_date_entry.get(),
-                         "sin":             self.sin_entry.get().lower(),
-                         "photo":           self.photo_entry.get().lower() }
+        self.entries = { "licence_no":      self.licence_no_entry.get().strip().lower(),
+                         "class":           self.class_entry.get().strip().lower(),
+                         "issuing_date":    self.issuing_date_entry.get().strip(),
+                         "expiring_date":   self.expiring_date_entry.get().strip(),
+                         "sin":             self.sin_entry.get().strip(),
+                         "photo":           self.photo_entry.get() }
 
         if not self.validate_input():
             return
@@ -94,20 +95,41 @@ class App3( Toplevel ):
 
         cursor = self.userCx.cursor()
 
-        #Create query statments
-
         error_type = "Submit Failure"
 
         #Create savepoint here
+        statement = "INSERT INTO drive_licence \
+                     VALUES( :licence_no, :sin, :class, :photo, :issuing_date, :expiring_date )"
+
+        #Create savepoint here
         cursor.execute( "SAVEPOINT App3Save" )
+        cursor.setinputsizes( photo=cx_Oracle.BLOB )
 
-
+        #Try to insert Licence
+        try:
+            cursor.execute( statement, self.entries )
+        except cx_Oracle.DatabaseError as exc:
+            cursor.execute( "ROLLBACK to App3Save" ) 
+            cursor.close()
+            error, = exc.args
+            if error.code == 1: #Licence_no must exist or person already has a licence
+                statement = "SELECT sin FROM drive_licence WHERE sin = :sin"
+                #Do stuff here
+                tm.showerror( error_type, "Licence # '" + \
+                    self.entries["licence_no"] + "' is already in the database\nErr 0xa3-9" )
+            elif error.code == 2291: #sin does not exist
+                tm.showerror( error_type, "Sin '" + \
+                    str( self.entries["sin"] ) + "' does not exist\nErr 0xa3-10" )
+            else: #Unknown error
+                tm.showerror( error_type, error.message + "\nErr 0xa3-11" )
+            return
+            
         #SQL statements executed successfully
         cursor.close()
         self.userCx.commit()
 
         #Success message
-        successInfo = "incomplete message"
+        successInfo = "License # '" + self.entries["licence_no"] + "' has been added to the databse"
         tm.showinfo( "Success!", successInfo )  
         self.destroy()
             
@@ -118,7 +140,7 @@ class App3( Toplevel ):
 
         #licence_no validation
         if self.entries["licence_no"] == '' or len( self.entries["licence_no"] ) > 15:
-            msg = "Invalid Licence_no: Must not be blank and no longer than 15 characters\nErr 0xa3-2" 
+            msg = "Invalid Licence #: Must not be blank and no longer than 15 characters\nErr 0xa3-2" 
             tm.showerror( error_type, msg )
             return
 
@@ -152,12 +174,18 @@ class App3( Toplevel ):
 
         #sin validation
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            msg = "Invalid Sin: Must not be blank and no longer than 15 characters\nErr 0xa3-6" 
+            msg = "Invalid Licence #: Must not be blank and no longer than 15 characters\nErr 0xa3-7" 
             tm.showerror( error_type, msg )
             return
 
         #photo validation
-
+        try:
+            self.entries["photo"] = open( self.entries["photo"], 'rb' ).read()
+        except:
+            msg = "Invalid Photo File: File not found\nErr 0xa3-8"
+            tm.showerror( error_type, msg )
+            return
+                        
         #No errors encountered
         return True
 
