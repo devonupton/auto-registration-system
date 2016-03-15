@@ -1,10 +1,8 @@
 ''' Search Engine Application '''
-
-# NOTES TO SELF ################################################################
-    # need to make a consistent error message scheme 
-        # check "no result!" error (showinfo?)
-        # check "invalid entry" error (showerror?)
-################################################################################
+# This application allows a user to perform various searches in the 
+# database that they are connected to. 
+# You can see the major searches (there are three) detailed below. 
+# The main component of this program is the "run" function.
 
 from tkinter import *
 import tkinter.messagebox as tm
@@ -17,16 +15,16 @@ global_lastString = None
 #===============================================================================
 # Function: checkLastSearch
 #===============================================================================
-# searchOne 11, 12
-# searchTwo 21, 22
-# searchThree 3
+# Maintains global variables to help warn the user if they are making 
+# multiple of the same search in a row.
 def checkLastSearch( searchType, strVar ):
     strVar = strVar.lower()
     global global_lastType
     global global_lastString
 
     if (searchType == global_lastType) and (strVar == global_lastString):
-        yesnoMsg = "Your most recent search was '" + strVar + "' do you wish to search this again?"
+        yesnoMsg = "Your most recent search was '" + strVar +\
+                   "' do you wish to search this again?"
         if tm.askyesno( "Double Search", yesnoMsg ):
             return True
         else:
@@ -72,25 +70,25 @@ def searchOne( userCx, strVar, isLicNo ):
                         "FROM People P LEFT JOIN drive_Licence L ON P.sin = L.sin "+\
                         "WHERE LOWER(P.name) = " + "'" + strVar.lower() + "'"
             
-        #print( statement )
+        # open a cursor for database usage
         thisCursor = userCx.cursor()
         
         # try to execute the requested statement
         try:
             thisCursor.execute( statement )
         except:
-            # NEED TO INCLUDE HELP FOR DETERMINING ERRORS IN THE SQL STATEMENT
-            tm.showerror( "Invalid Input", "There is a problem with your search, please try again.\nErr 0xa5-3" )
+            tm.showerror( "Invalid Input", "There is a problem with the search, please try again.\nErr 0xa5-3" )
             return
          
         rows = thisCursor.fetchall()
         
+        # If there was no results, it means the person wasn't in the database (LEFT JOIN)
         if len( rows ) == 0:
-            infoMsg = title + " produced no results!"
-            tm.showinfo( "No results!", infoMsg )
+            infoMsg = title + " had no results! Check spelling and try again.\nErr 0xa5-11"
+            tm.showerror( "No results!", infoMsg )
             return
     
-        # build the tableSpace for tableWidget =================================
+        # build the tableSpace for tableWidget 
         numRows = len( rows )
         numCols = len( thisCursor.description )
         
@@ -139,10 +137,10 @@ def searchOne( userCx, strVar, isLicNo ):
                     
             tableRows.append( tempRow )
         
-        #print( tableRows )
         thisCursor.close()
         
         tW.buildCxTable( tableRows, title )
+        
 #===============================================================================
 # Function: searchTwo
 #===============================================================================
@@ -150,7 +148,6 @@ def searchOne( userCx, strVar, isLicNo ):
 # sin of a person  is entered.
 def searchTwo( userCx, strVar, isLicNo ):
     strVar = strVar.strip().lower()
-    
 
     # Check if user input is empty
     if len( strVar ) < 1:
@@ -229,6 +226,9 @@ def searchTwo( userCx, strVar, isLicNo ):
     thisCursor.close()
     tW.buildCxTable( tableRows, title )
 
+#===============================================================================
+# Function: checkSIN
+#===============================================================================
 # returns TRUE if the SIN is in the database 
 def checkSIN( strVar, userCx ):
     strVar = strVar.lower().strip()
@@ -302,6 +302,7 @@ def searchThree( userCx, vinVar ):
 #===============================================================================
 # Function: run
 #===============================================================================
+# creates the toplevel that holds the user's interface for app5. 
 def run( userCx ):
     # prevents use of app if user hasn't logged in.
     if userCx == None:
@@ -312,6 +313,7 @@ def run( userCx ):
     top.title( "Search Engine" )
     top.resizable( width=FALSE, height=FALSE )
 
+    # Setting up the various searches
     # LIST1 ====================================================================
     info1 = "Search: License Information"
     msg1 = Message( top, text=info1, padx=5, pady=5, width=200 )
@@ -341,7 +343,7 @@ def run( userCx ):
     sin_entry.grid( row=4, column=0, sticky=EW )
     sin_entry.insert( 0, "Enter a SIN here" )
     
-    # NOTICE THE NAME... I SUCK AT NAMING HELP
+    # Be weary, this name is similar to the other licNo_entry
     lic_entry = Entry( top )
     lic_entry.grid( row=4, column=1, sticky=EW )
     lic_entry.insert( 0, "Enter a licence_no here" )

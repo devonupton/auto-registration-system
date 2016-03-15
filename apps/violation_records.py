@@ -1,5 +1,4 @@
 ''' Violation Records Application '''
-
 #Violation Record: 
     # This component is used by a police officer to issue a traffic ticket and record 
     # the violation. You may assume that all the information about ticket_type has been 
@@ -88,7 +87,7 @@ class app4( Toplevel ):
         getDate_button = Button( self, text="?", command=lambda: self.setSystime(), padx=0, pady=0 )
         getDate_button.grid( column=2, row=4 )
         
-
+    # Allows user to set the violation date to the system time when requested
     def setSystime( self ):
         askMsg = "Would you like to fill vDate with the current system time?"
         if not tm.askyesno( "Autofill vDate?", askMsg ):
@@ -113,7 +112,6 @@ class app4( Toplevel ):
             self.descBox.destroy()
             
         else:
-            #print( "open extendWindow" )
             self.descButton.configure( text="<< Close Description" )
             self.descOpen = True
          
@@ -149,13 +147,13 @@ class app4( Toplevel ):
             getDesc = self.descBox.get( 1.0, END ).strip()
     
         # create the entry dictionary for the statement
-        self.entries = { "ticketNo":    self.ticketNo_entry.get().lower(),
-                         "violatorNo":  self.violator_entry.get().lower(),
-                         "vehicle_id":  self.vin_entry.get().lower(),
-                         "officerNo":   self.officerNo_entry.get().lower(),
-                         "vtype":       self.vType_entry.get().lower(),
-                         "vdate":       self.vDate_entry.get().lower(),
-                         "place":       self.loc_entry.get().lower(),
+        self.entries = { "ticketNo":    self.ticketNo_entry.get().strip(),
+                         "violatorNo":  self.violator_entry.get().strip(),
+                         "vehicle_id":  self.vin_entry.get().strip(),
+                         "officerNo":   self.officerNo_entry.get().strip(),
+                         "vtype":       self.vType_entry.get().strip(),
+                         "vdate":       self.vDate_entry.get().strip(),
+                         "place":       self.loc_entry.get().strip(),
                          "descr":       getDesc                             }
     
         if not self.validateEntries():
@@ -184,13 +182,18 @@ class app4( Toplevel ):
         infoMsg = "Ticket Number " + str( self.entries["ticketNo"] ) + " has been recorded."
         tm.showinfo( "Success!", infoMsg )
         cursor.close()
-        
+     
+    # If an error is encountered, we check the error and print a message
+    # basically checks the error code, and searches each table to check
+    # where a integrity/foreign key constraint comes from.
     def recoverError( self, error ):
+        # Ticket No already in Database
         if error.code == 1:
                 errMsg = "There is already the ticketNo " + str( self.entries["ticketNo"] ) + " in the database."
                 tm.showerror( "TicketNo Already Used", errMsg )
                 return
-                
+        
+        # If the error is not from a foreign key constraint, it is unknown
         if error.code != 2291:
             errMsg = error.message + "\nErr 0xa4-16"
             tm.showerror( "Unexpected Error", errMsg )
@@ -265,6 +268,7 @@ class app4( Toplevel ):
         cursor.close()
         tm.showerror( "UNEXPECTED ERROR", error.message )
         
+    # Ensures that the entries are valid for submitting to oracle/database
     def validateEntries( self ):
         # ticketNo validation
         if self.entries["ticketNo"] == '':
@@ -383,6 +387,8 @@ def findViolationTypes( userCx ):
     
     cursor.close()
     
+# starts the toplevel for APP4
+# makes sure the user is logged in before the app can open
 def run( userCx ):
     if userCx == None:
         tm.showerror( "Error", "You need to login before using this app.\nErr 0xa4-99" )
