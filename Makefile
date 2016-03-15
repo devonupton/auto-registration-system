@@ -3,7 +3,7 @@
 
 # This makefile is designed to be in the directory above C291_project1
 #mainFile = "menu.py"
-mainFile = "gui.py"
+mainFile = "ARS.py"
 
 run:
 	python3 $(mainFile)
