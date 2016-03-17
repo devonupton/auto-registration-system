@@ -26,7 +26,7 @@ class NewPerson( Toplevel ):
         msg1 = Message( self, text="Personal Information", padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=4 )
 
-        sin_label = Label( self, text="Sin" )
+        sin_label = Label( self, text="SIN" )
         self.sin_entry = Entry( self )
         sin_label.grid( row=1, sticky=E )
         self.sin_entry.grid( row=1, column=1 )
@@ -131,7 +131,7 @@ class NewPerson( Toplevel ):
         error_type = "Input Error"
 
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            msg = "Invalid Sin: Must not be blank or longer than 15 characters\nErr 0xs1-1"
+            msg = "Invalid SIN: Must not be blank or longer than 15 characters\nErr 0xs1-1"
             tm.showerror( error_type, msg )
             return
         if self.entries["name"] == '' or len( self.entries["name"] ) > 40:

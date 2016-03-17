@@ -5,6 +5,11 @@ import tkinter.messagebox as tm
 import cx_Oracle
 from datetime import datetime
 from apps.new_persons_application import NewPerson
+try:
+    from PIL import Image
+    PIL_loaded = True
+except:
+    PIL_loaded = False
 
 class App3( Toplevel ):
     def __init__( self, userCx ):
@@ -45,7 +50,7 @@ class App3( Toplevel ):
         msg2 = Message( self, text="Personal Information" , padx=5, pady=5, width=200 )
         msg2.grid( row=0, column=2, sticky=N, columnspan=2 )
 
-        sin_label = Label( self, text="Sin" )
+        sin_label = Label( self, text="SIN" )
         self.sin_entry = Entry( self )
         sin_label.grid( row=1, column=2, sticky=E )
         self.sin_entry.grid( row=1, column=3 )
@@ -73,8 +78,13 @@ class App3( Toplevel ):
         self.sin_entry.insert( 0, value )
 
     def openimage( self ):
-        tm.showerror( "CONSTRUCTION ZONE", "INCOMPLETE" )
-        return
+        if PIL_loaded:
+            try:
+                Image.open( self.photo_entry.get() ).show()
+            except:
+                tm.showerror( "Open Image Error", "Image could not be opened\nErr 0x3-14" )
+        else:
+            tm.showerror( "Open Image Error", "Module unavailable to open images\nErr 0x3-15" )
 
     #Attempt to submit data to the database
     def submit_form( self ):
@@ -110,19 +120,32 @@ class App3( Toplevel ):
             cursor.execute( statement, self.entries )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute( "ROLLBACK to App3Save" ) 
-            cursor.close()
             error, = exc.args
             if error.code == 1: #Licence_no must exist or person already has a licence
-                statement = "SELECT sin FROM drive_licence WHERE sin = :sin"
-                #Do stuff here
-                tm.showerror( error_type, "Licence # '" + \
-                    self.entries["licence_no"] + "' is already in the database\nErr 0xa3-9" )
+
+                #Test is licence exists already
+                statement = "SELECT licence_no FROM drive_licence WHERE licence_no = :a"
+                try:
+                    cursor.execute( statement, a=self.entries["licence_no"].ljust(15) )
+                except: #Unknown error
+                    tm.showerror( error_type, "Unexpected Error\nErr 0xa3-9" )
+                    return
+
+                if len( cursor.fetchall() ) == 0: #Licence isn't taken, must be sin that is taken
+                    tm.showerror( error_type, "SIN '" + \
+                        self.entries["sin"] + "' already has a licence\nErr 0xa3-10" )
+                else: 
+                    tm.showerror( error_type, "Licence # '" + \
+                        self.entries["licence_no"] + "' is already in the database\nErr 0xa3-11" )
+
             elif error.code == 2291: #sin does not exist
-                tm.showerror( error_type, "Sin '" + \
-                    str( self.entries["sin"] ) + "' does not exist\nErr 0xa3-10" )
+                tm.showerror( error_type, "SIN '" + \
+                    str( self.entries["sin"] ) + "' does not exist\nErr 0xa3-12" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa3-11" )
+                tm.showerror( error_type, error.message + "\nErr 0xa3-13" )
             return
+        finally:
+            cursor.close()
             
         #SQL statements executed successfully
         cursor.close()

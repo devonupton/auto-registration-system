@@ -16,7 +16,7 @@ class App1( Toplevel ):
         msg1 = Message( self, text="Vehicle Information", padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=2 )
 
-        vehicle_id_label= Label( self, text="Vehicle Id" )
+        vehicle_id_label= Label( self, text="Vehicle ID" )
         self.vehicle_id_entry = Entry( self )
         vehicle_id_label.grid( row=1, sticky=E )
         self.vehicle_id_entry.grid( row=1, column=1 )
@@ -41,7 +41,7 @@ class App1( Toplevel ):
         color_label.grid( row=5, sticky=E )
         self.color_entry.grid( row=5, column=1 )
 
-        type_id_label = Label( self, text="Type Id" )
+        type_id_label = Label( self, text="Type ID" )
         self.type_id_entry = Entry( self )
         type_id_label.grid( row=6, sticky=E )
         self.type_id_entry.grid( row=6, column=1 )
@@ -50,12 +50,12 @@ class App1( Toplevel ):
         msg2 = Message( self, text="Personal Information", padx=5, pady=5, width=200 )
         msg2.grid( row=0, column=2, sticky=N, columnspan=2 )
 
-        primary_owner_id_label = Label( self, text="Primary Owner Id" )
+        primary_owner_id_label = Label( self, text="Primary Owner ID" )
         self.primary_owner_id_entry = Entry( self )
         primary_owner_id_label.grid( row=1, column=2, sticky=E )
         self.primary_owner_id_entry.grid( row=1, column=3 )
 
-        owner_id_label = Label( self, text="Other Owner Id's" )
+        owner_id_label = Label( self, text="Other Owner ID's" )
         self.owner_id_entry = Entry( self )
         owner_id_label.grid( row=2, column=2, sticky=E )
         self.owner_id_entry.grid( row=2, column=3 )
@@ -125,10 +125,10 @@ class App1( Toplevel ):
             cursor.close()
             error, = exc.args
             if error.code == 1: #Vehicle must already exist
-                tm.showerror( error_type, "Vehicle Id '" + \
+                tm.showerror( error_type, "Vehicle ID '" + \
                     self.entries["vehicle_id"] + "' is already in the database\nErr 0xa1-9" )
             elif error.code == 2291: #type_id does not exist
-                tm.showerror( error_type, "Type Id '" + \
+                tm.showerror( error_type, "Type ID '" + \
                     str( self.entries["type_id"] ) + "' does not exist\nErr 0xa1-10" )
             else: #Unknown error
                 tm.showerror( error_type, error.message + "\nErr 0xa1-11" )
@@ -141,8 +141,8 @@ class App1( Toplevel ):
             cursor.execute("ROLLBACK to App1Save" )
             cursor.close()
             error, = exc.args
-            if error.code == 2291: #Owner Id does not exist
-                tm.showerror( error_type, "owner_id '" + self.primary_owner_id + "' does not exist\nErr 0xa1-12" )
+            if error.code == 2291: #Owner ID does not exist
+                tm.showerror( error_type, "Owner ID '" + self.primary_owner_id + "' does not exist\nErr 0xa1-12" )
             elif error.code == 1400: #Primary_owner_id was empty string (read as NULL)
                 tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa1-13" )
             else: #Unknown error
@@ -158,9 +158,9 @@ class App1( Toplevel ):
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' entered more than once\nErr 0xa1-15" )
-                elif error.code == 2291: #Owner Id does not exist
-                    tm.showerror( error_type, "owner_id '" + owner_id + "' does not exist\nErr 0xa1-16" )
+                    tm.showerror( error_type, "Owner ID '" + owner_id + "' entered more than once\nErr 0xa1-15" )
+                elif error.code == 2291: #Owner ID does not exist
+                    tm.showerror( error_type, "Owner ID '" + owner_id + "' does not exist\nErr 0xa1-16" )
                 else: #Unknown error
                     tm.showerror( error_type, error.message + "\nErr 0xa1-17" )
                 return
@@ -171,8 +171,8 @@ class App1( Toplevel ):
 
         #Success message
         successInfo = "Vehicle '" + self.entries["vehicle_id"] + "' had been created\n" + \
-                      "Primary owner_id: " + self.primary_owner_id + "\n" + \
-                      "Other owner_id's: " + ", ".join(self.owner_id_list)
+                      "Primary Owner ID: " + self.primary_owner_id + "\n" + \
+                      "Other Owner ID's: " + ", ".join(self.owner_id_list)
         tm.showinfo( "Success!", successInfo )  
         self.destroy()
             
@@ -183,7 +183,7 @@ class App1( Toplevel ):
 
         #vehicle_id validation
         if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
-            msg = "Invalid Vehicle Id: Must not be blank and no longer than 15 characters\nErr 0xa1-2" 
+            msg = "Invalid Vehicle ID: Must not be blank and no longer than 15 characters\nErr 0xa1-2" 
             tm.showerror( error_type, msg )
             return
 
@@ -221,7 +221,7 @@ class App1( Toplevel ):
             if not ( -2147483648 <= self.entries["type_id"] < 2147483648 ):
                 raise
         except:
-            msg = "Invalid Type Id: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa1-7" 
+            msg = "Invalid Type ID: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa1-7" 
             tm.showerror( error_type, msg )
             return
 
@@ -230,7 +230,7 @@ class App1( Toplevel ):
         #owner_id validation
         for owner_id in self.owner_id_list + [self.primary_owner_id]:
             if owner_id == '' or len( owner_id ) > 15:
-                msg = "Invalid Owner Id '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa1-8"
+                msg = "Invalid Owner ID '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa1-8"
                 tm.showerror( error_type, msg )
                 return
 
