@@ -3,6 +3,7 @@
 from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
+import apps.tableWidget as tW
 from apps.new_persons_application import NewPerson
 
 class App1( Toplevel ):
@@ -64,6 +65,9 @@ class App1( Toplevel ):
         owner_id_label2.grid( row=3, column=2, columnspan=2, )
 
         #Buttons
+        type_id_help_button = Button( self, text="?", command=lambda: self.findVehicleTypes(), padx=0, pady=0 )
+        type_id_help_button.grid( row=6, column=2, sticky=W )
+
         new_person_button = Button( self, text="Add new Person", \
                                     command=lambda: NewPerson( self, self.autofill ) )
         new_person_button.grid( row=3, column=2, rowspan=3, columnspan=2, )
@@ -79,6 +83,25 @@ class App1( Toplevel ):
             self.owner_id_entry.insert( 0, value )
         else:
             self.owner_id_entry.insert( END, ", " + value )
+
+    #Returns a super table of vehicle types for the user
+    def findVehicleTypes( self ):
+        askMsg = "Do you wish to bring up a table of the possible Vehicle Types and their Type ID's?"
+        if not tm.askyesno( "Type ID Help", askMsg ):
+            return
+        
+        cursor = self.userCx.cursor()
+        
+        statement = "SELECT UNIQUE * FROM vehicle_type"
+        cursor.execute( statement )
+        
+        rows = cursor.fetchall()
+        if len( rows ) == 0:
+            tm.showerror( "No Vehicle Types!", "There are no Vehicle Types in the database.\nErr 0xa1-18" )
+            
+        tW.buildSuperTable( cursor.description, rows, "Vehicle Types" )
+        
+        cursor.close()
 
     #Attempt to submit data to the database
     def submit_form( self ):
