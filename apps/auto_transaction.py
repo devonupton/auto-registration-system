@@ -17,17 +17,17 @@ class App2( Toplevel ):
         msg1 = Message( self, text="Sale Information", padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=2 )
 
-        seller_id_label= Label( self, text="Seller_id" )
+        seller_id_label= Label( self, text="Seller ID" )
         self.seller_id_entry = Entry( self )
         seller_id_label.grid( row=1, sticky=E )
         self.seller_id_entry.grid( row=1, column=1 )
 
-        transaction_id_label = Label( self, text="Transaction_id" )
+        transaction_id_label = Label( self, text="Transaction ID" )
         self.transaction_id_entry = Entry( self )
         transaction_id_label.grid( row=2, sticky=E )
         self.transaction_id_entry.grid( row=2, column=1 )
 
-        vehicle_id_label = Label( self, text="Vehicle_id" )
+        vehicle_id_label = Label( self, text="Vehicle ID" )
         self.vehicle_id_entry = Entry( self )
         vehicle_id_label.grid( row=3, sticky=E )
         self.vehicle_id_entry.grid( row=3, column=1 )
@@ -50,12 +50,12 @@ class App2( Toplevel ):
         msg2 = Message( self, text="Buyer Information", padx=5, pady=5, width=200 )
         msg2.grid( row=0, column=2, sticky=N, columnspan=2 )
 
-        buyer_id_label = Label( self, text="Buyer_id" )
+        buyer_id_label = Label( self, text="Buyer ID" )
         self.buyer_id_entry = Entry( self )
         buyer_id_label.grid( row=1, column=2, sticky=E )
         self.buyer_id_entry.grid( row=1, column=3 )
 
-        owner_list_label = Label( self, text="Other Owner_id's" )
+        owner_list_label = Label( self, text="Other Owner ID's" )
         self.owner_list_entry = Entry( self )
         owner_list_label.grid( row=2, column=2, sticky=E )
         self.owner_list_entry.grid( row=2, column=3 )
@@ -84,12 +84,12 @@ class App2( Toplevel ):
     def submit_form( self ):
 
         #Get each input value
-        self.seller_id = self.seller_id_entry.get()
-        self.transaction_id = self.transaction_id_entry.get()
-        self.vehicle_id = self.vehicle_id_entry.get()
-        self.sale_date = self.sale_date_entry.get()
+        self.seller_id = self.seller_id_entry.get().strip()
+        self.transaction_id = self.transaction_id_entry.get().strip()
+        self.vehicle_id = self.vehicle_id_entry.get().strip()
+        self.sale_date = self.sale_date_entry.get().strip()
         self.price = self.price_entry.get()
-        self.buyer_id = self.buyer_id_entry.get()
+        self.buyer_id = self.buyer_id_entry.get().strip()
         self.owner_id_list = self.owner_list_entry.get().split( "," )
         for element in range(len(self.owner_id_list)):
             self.owner_id_list[element] = self.owner_id_list[element].strip()
@@ -123,7 +123,7 @@ class App2( Toplevel ):
                 return
 
             if len( cursor.fetchall() ) == 0:
-                tm.showerror( error_type, "Seller_id '" + self.seller_id + "' does not exist\nErr 0xa2-12" )
+                tm.showerror( error_type, "Seller ID '" + self.seller_id + "' does not exist\nErr 0xa2-12" )
                 cursor.close()
                 return
 
@@ -136,7 +136,7 @@ class App2( Toplevel ):
                 return
 
             if len( cursor.fetchall() ) == 0:
-                tm.showerror( error_type, "Vehicle_id '" + self.vehicle_id + "' does not exist\nErr 0xa2-14" )
+                tm.showerror( error_type, "Vehicle ID '" + self.vehicle_id + "' does not exist\nErr 0xa2-14" )
 
             #Else, seller not prmiary owner
             else:
@@ -156,11 +156,11 @@ class App2( Toplevel ):
             cursor.execute( "ROLLBACK to App2Save" )
             cursor.close()
             error, = exc.args
-            if error.code == 1: #Transaction_id already exists
-                tm.showerror( error_type, "Transaction_id '" + \
+            if error.code == 1: #Transaction ID already exists
+                tm.showerror( error_type, "Transaction ID '" + \
                     str(self.transaction_id) + "' is already in the database\nErr 0xa2-16" )
             elif error.code == 2291: #Seller and vehicle already verified -> Buyer does not exist
-                tm.showerror( error_type, "Buyer_id '" + \
+                tm.showerror( error_type, "Buyer ID '" + \
                     self.buyer_id + "' does not exist\nErr 0xa2-17" )
             else: #Unknown error
                 tm.showerror( error_type, error.message + "\nErr 0xa2-18" )
@@ -189,8 +189,8 @@ class App2( Toplevel ):
             cursor.execute("ROLLBACK to App2Save" )
             cursor.close()
             error, = exc.args
-            if error.code == 2291: #Owner_id does not exist
-                tm.showerror( error_type, "owner_id '" + self.seller_id + "' does not exist\nErr 0xa2-20" )
+            if error.code == 2291: #Buyer ID does not exist
+                tm.showerror( error_type, "Buyer ID '" + self.seller_id + "' does not exist\nErr 0xa2-20" )
             elif error.code == 1400: #Primary_owner_id was empty string (read as NULL)
                 tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa2-21" )
             else: #Unknown error
@@ -209,9 +209,9 @@ class App2( Toplevel ):
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
-                    tm.showerror( error_type, "Owner_id '" + owner_id + "' entered more than once\nErr 0xa2-23" )
-                elif error.code == 2291: #Owner_id does not exist
-                    tm.showerror( error_type, "Owner_id '" + owner_id + "' does not exist\nErr 0xa2-24" )
+                    tm.showerror( error_type, "Owner ID '" + owner_id + "' entered more than once\nErr 0xa2-23" )
+                elif error.code == 2291: #Owner ID does not exist
+                    tm.showerror( error_type, "Owner ID '" + owner_id + "' does not exist\nErr 0xa2-24" )
                 else: #Unknown error
                     tm.showerror( error_type, error.message + "\nErr 0xa2-25" )
                 return
@@ -224,8 +224,8 @@ class App2( Toplevel ):
 
         #Success message
         successInfo = "Vehicle '" + self.vehicle_id + "' has been sold\n" + \
-                      "New Primary owner_id: " + self.buyer_id + "\n" + \
-                      "Other new owner_id's: " + ", ".join(self.owner_id_list)
+                      "New Primary Owner ID: " + self.buyer_id + "\n" + \
+                      "Other new Owner ID's: " + ", ".join(self.owner_id_list)
         tm.showinfo( "Success!", successInfo )  
         self.destroy()
             
@@ -235,7 +235,7 @@ class App2( Toplevel ):
 
         #seller_id validation 
         if self.seller_id == '' or len( self.seller_id ) > 15:
-            msg = "Invalid Seller_id: Must not be blank or longer than 15 character\nErr 0xa2-2"
+            msg = "Invalid Seller ID: Must not be blank or longer than 15 character\nErr 0xa2-2"
             tm.showerror( error_type, msg )
             return
 
@@ -245,13 +245,13 @@ class App2( Toplevel ):
             if not ( -2147483648 <= self.transaction_id < 2147483648 ):
                 raise
         except:
-            msg = "Invalid Transaction_id: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa2-3"
+            msg = "Invalid Transaction ID: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa2-3"
             tm.showerror( error_type, msg )
             return
 
         #vehicle_id validation
         if self.vehicle_id == '' or len( self.vehicle_id ) > 15:
-            msg = "Invalid Vehicle_id: Must not be blank or longer than 15 characters\nErr 0xa2-4"
+            msg = "Invalid Vehicle ID: Must not be blank or longer than 15 characters\nErr 0xa2-4"
             tm.showerror( error_type, msg )
             return
 
@@ -282,13 +282,13 @@ class App2( Toplevel ):
 
         #buyer_id validation
         if self.buyer_id == '' or len( self.buyer_id ) > 15:
-            msg = "Invalid Buyer_id: Must not be blank or longer than 15 characters\nErr 0xa2-8"
+            msg = "Invalid Buyer ID: Must not be blank or longer than 15 characters\nErr 0xa2-8"
             tm.showerror( error_type, msg )
             return
 
         #buyer != seller
         if self.buyer_id == self.seller_id:
-            msg = "Invalid Buyer_id: The seller cannot sell to themself\nErr 0xa2-9"
+            msg = "Invalid Buyer ID: The seller cannot sell to themself\nErr 0xa2-9"
             tm.showerror( error_type, msg )
             return
 
@@ -297,7 +297,7 @@ class App2( Toplevel ):
         #owner_id validation
         for owner_id in self.owner_id_list:
             if owner_id == '' or len( owner_id ) > 15:
-                msg = "Invalid Owner_id '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa2-10"
+                msg = "Invalid Owner ID '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa2-10"
                 tm.showerror( error_type, msg )
                 return
 

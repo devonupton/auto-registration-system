@@ -26,7 +26,7 @@ class NewPerson( Toplevel ):
         msg1 = Message( self, text="Personal Information", padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=4 )
 
-        sin_label = Label( self, text="Sin" )
+        sin_label = Label( self, text="SIN" )
         self.sin_entry = Entry( self )
         sin_label.grid( row=1, sticky=E )
         self.sin_entry.grid( row=1, column=1 )
@@ -78,15 +78,15 @@ class NewPerson( Toplevel ):
     #Attempt to submit data to the database
     def submit_form( self ):
 
-        self.entries = { "sin":       self.sin_entry.get().lower(),
-                         "name":      self.name_entry.get().lower(),
-                         "height":    self.height_entry.get().lower(),
-                         "weight":    self.weight_entry.get().lower(),
-                         "eyecolor":  self.eyecolor_entry.get().lower(),
-                         "haircolor": self.haircolor_entry.get().lower(),
-                         "address":   self.address_entry.get().lower(),
+        self.entries = { "sin":       self.sin_entry.get().strip(),
+                         "name":      self.name_entry.get().strip(),
+                         "height":    self.height_entry.get(),
+                         "weight":    self.weight_entry.get(),
+                         "eyecolor":  self.eyecolor_entry.get().strip(),
+                         "haircolor": self.haircolor_entry.get().strip(),
+                         "address":   self.address_entry.get().strip(),
                          "gender":    self.gender_entry.get(),
-                         "birthday":  self.birthday_entry.get() }
+                         "birthday":  self.birthday_entry.get().strip() }
 
         if not self.validate_input():
             return
@@ -131,7 +131,7 @@ class NewPerson( Toplevel ):
         error_type = "Input Error"
 
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            msg = "Invalid Sin: Must not be blank or longer than 15 characters\nErr 0xs1-1"
+            msg = "Invalid SIN: Must not be blank or longer than 15 characters\nErr 0xs1-1"
             tm.showerror( error_type, msg )
             return
         if self.entries["name"] == '' or len( self.entries["name"] ) > 40:
