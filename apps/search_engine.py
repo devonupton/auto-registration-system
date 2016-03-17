@@ -64,18 +64,21 @@ def searchOne( userCx, strVar, isLicNo ):
         if isLicNo:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
                         "FROM People P LEFT JOIN drive_Licence L ON P.sin = L.sin "+\
-                        "WHERE LOWER(L.licence_no) = " + "'" + strVar.lower() + "'"
+                        "WHERE LOWER(L.licence_no) = :a"
         else:
             statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
                         "FROM People P LEFT JOIN drive_Licence L ON P.sin = L.sin "+\
-                        "WHERE LOWER(P.name) = " + "'" + strVar.lower() + "'"
+                        "WHERE LOWER(P.name) = :a"
             
         # open a cursor for database usage
         thisCursor = userCx.cursor()
         
         # try to execute the requested statement
         try:
-            thisCursor.execute( statement )
+            if isLicNo:
+                thisCursor.execute( statement, a=strVar.lower().ljust(15) )
+            else:
+                thisCursor.execute( statement, a=strVar.lower() )
         except:
             tm.showerror( "Invalid Input", "There is a problem with the search, please try again.\nErr 0xa5-3" )
             return
@@ -119,9 +122,9 @@ def searchOne( userCx, strVar, isLicNo ):
                 tableRows.append( tempRow )
                 continue;
             statement = "SELECT DC.description " +\
-                         "FROM restriction R, driving_condition DC " +\
-                        "WHERE R.r_id = DC.c_id AND LOWER(R.licence_no) = '" + tempRow[1].strip().lower() + "'"
-            thisCursor.execute( statement )  
+                        "FROM restriction R, driving_condition DC " +\
+                        "WHERE R.r_id = DC.c_id AND LOWER(R.licence_no) = :a"
+            thisCursor.execute( statement, a=tempRow[1].strip().lower().ljust(15) )  
             conditions = thisCursor.fetchall()
             if len( rows ) == 0:
                 # if no conditions found for the licence, append N/A value
@@ -168,9 +171,9 @@ def searchTwo( userCx, strVar, isLicNo ):
     # Translate the LicNo into a sin
     if isLicNo:
         statement = "SELECT P.sin FROM drive_Licence L, People P " +\
-        "WHERE P.sin = L.sin AND LOWER( L.licence_no ) ='" + strVar + "'"
+        "WHERE P.sin = L.sin AND LOWER( L.licence_no ) = :a"
 
-        thisCursor.execute( statement )
+        thisCursor.execute( statement, a=strVar.ljust(15) )
         rows = thisCursor.fetchall()
         if len( rows ) == 0:
             errMsg = "The licence_no '" + strVar + "' was not found in the database.\nErr 0xa5-6"
@@ -184,9 +187,9 @@ def searchTwo( userCx, strVar, isLicNo ):
     # search for tickets on the SIN (strVar)
     statement = "SELECT violator_no AS violatior_SIN, ticket_no, vehicle_id, office_no AS officer_ID, vdate, place, TT.vtype, TT.fine, descriptions " +\
                 "FROM ticket, ticket_type TT " +\
-                "WHERE ticket.vtype = TT.vtype AND LOWER( violator_no ) = '" + strVar + "'"
+                "WHERE ticket.vtype = TT.vtype AND LOWER( violator_no ) = :a"
 
-    thisCursor.execute( statement )
+    thisCursor.execute( statement, a=strVar.ljust(15) )
     rows = thisCursor.fetchall()
     #print( rows )
     
@@ -233,9 +236,9 @@ def searchTwo( userCx, strVar, isLicNo ):
 def checkSIN( strVar, userCx ):
     strVar = strVar.lower().strip()
     thisCursor = userCx.cursor()
-    statement = "SELECT * FROM people WHERE LOWER(sin) = '" + strVar + "'"
+    statement = "SELECT * FROM people WHERE LOWER(sin) = :a"
     try:
-        thisCursor.execute( statement )
+        thisCursor.execute( statement, a=strVar.ljust(15) )
     except:
         thisCursor.close()
         tm.showerror( "Unexpected Error", "An unexpected error occured.\nErr 0xa5-9")
@@ -270,8 +273,8 @@ def searchThree( userCx, vinVar ):
     thisCursor = userCx.cursor()
 
     # Check if vehicle is in DB system
-    statement = "SELECT * FROM vehicle WHERE LOWER( serial_no ) = '" + vinVar + "'"
-    thisCursor.execute( statement )
+    statement = "SELECT * FROM vehicle WHERE LOWER( serial_no ) = :a"
+    thisCursor.execute( statement, a=vinVar.ljust(15) )
     rows = thisCursor.fetchall()
     if len( rows ) == 0:
         errMsg = "'" + vinVar + "' was not found in the data base.\nErr 0xa5-5"
@@ -279,14 +282,14 @@ def searchThree( userCx, vinVar ):
         return
             
     # get violation count
-    statement = "SELECT COUNT( * ) FROM ticket WHERE LOWER( vehicle_id ) = '" + vinVar + "'"
-    thisCursor.execute( statement )
+    statement = "SELECT COUNT( * ) FROM ticket WHERE LOWER( vehicle_id ) = :a"
+    thisCursor.execute( statement, a=vinVar.ljust(15) )
     rows = thisCursor.fetchall()
     numViolations = rows[0][0]
     
     # get avg( sale ) and count( sale )
-    statement = "SELECT AVG( price ), COUNT( * ) FROM auto_sale WHERE LOWER( vehicle_id ) = '" + vinVar + "'"
-    thisCursor.execute( statement )
+    statement = "SELECT AVG( price ), COUNT( * ) FROM auto_sale WHERE LOWER( vehicle_id ) = :a"
+    thisCursor.execute( statement, a=vinVar.ljust(15) )
     rows = thisCursor.fetchall()
     avgPrice = rows[0][0]
     numSales = rows[0][1]

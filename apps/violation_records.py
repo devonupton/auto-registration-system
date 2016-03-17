@@ -202,9 +202,9 @@ class app4( Toplevel ):
         cursor = self.userCx.cursor()
             
         # Check vtype for integrity constraint
-        statement = "SELECT * FROM ticket_type WHERE vtype = '" + self.entries["vtype"] + "'"
+        statement = "SELECT * FROM ticket_type WHERE vtype = :a"
         try:
-            cursor.execute( statement )
+            cursor.execute( statement, a=self.entries["vtype"].ljust(10) )
         except:
             cursor.close()
             tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-17")
@@ -218,9 +218,9 @@ class app4( Toplevel ):
             return
             
         # Check violator_no for integrity constraint
-        statement = "SELECT * FROM people WHERE sin = '" + self.entries["violatorNo"] + "'"
+        statement = "SELECT * FROM people WHERE sin = :a"
         try:
-            cursor.execute( statement )
+            cursor.execute( statement, a=self.entries["violatorNo"].ljust(15) )
         except:
             cursor.close()
             tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-18")
@@ -234,9 +234,9 @@ class app4( Toplevel ):
             return
             
         # Check office_no for integrity constraint
-        statement = "SELECT * FROM people WHERE sin = '" + self.entries["officerNo"] + "'"
+        statement = "SELECT * FROM people WHERE sin = :a"
         try:
-            cursor.execute( statement )
+            cursor.execute( statement, a=self.entries["officerNo"].ljust(15) )
         except:
             cursor.close()
             tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-19")
@@ -250,9 +250,9 @@ class app4( Toplevel ):
             return
         
         # Check vehicle_id for integrity constraint
-        statement = "SELECT * FROM vehicle WHERE serial_no = '" + self.entries["vehicle_id"] + "'"
+        statement = "SELECT * FROM vehicle WHERE serial_no = :a"
         try:
-            cursor.execute( statement )
+            cursor.execute( statement, a=self.entries["vehicle_id"] )
         except:
             cursor.close()
             tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-21")
