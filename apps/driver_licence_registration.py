@@ -6,11 +6,13 @@ import cx_Oracle
 from datetime import datetime
 from apps.new_persons_application import NewPerson
 try:
+    #Module for opening the image
     from PIL import Image
     PIL_loaded = True
 except:
     PIL_loaded = False
 
+#The application object
 class App3( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self )
@@ -77,14 +79,15 @@ class App3( Toplevel ):
         self.sin_entry.delete( 0, END )
         self.sin_entry.insert( 0, value )
 
+    #Attempt to open the image upon pressing "Open Image"
     def openimage( self ):
         if PIL_loaded:
             try:
                 Image.open( self.photo_entry.get() ).show()
             except:
-                tm.showerror( "Open Image Error", "Image could not be opened\nErr 0x3-14" )
+                tm.showerror( "Open Image Error", "Image could not be opened\nErr 0xa3-2" )
         else:
-            tm.showerror( "Open Image Error", "Module unavailable to open images\nErr 0x3-15" )
+            tm.showerror( "Open Image Error", "Module unavailable to open images\nErr 0xa3-3" )
 
     #Attempt to submit data to the database
     def submit_form( self ):
@@ -97,6 +100,7 @@ class App3( Toplevel ):
                          "sin":             self.sin_entry.get().strip(),
                          "photo":           self.photo_entry.get().strip() }
 
+        #Check if input is valid
         if not self.validate_input():
             return
 
@@ -104,14 +108,12 @@ class App3( Toplevel ):
             return
 
         cursor = self.userCx.cursor()
-
         error_type = "Submit Failure"
 
-        #Create savepoint here
         statement = "INSERT INTO drive_licence \
                      VALUES( :licence_no, :sin, :class, :photo, :issuing_date, :expiring_date )"
 
-        #Create savepoint here
+        #Create savepoint here and specify size of photo
         cursor.execute( "SAVEPOINT App3Save" )
         cursor.setinputsizes( photo=cx_Oracle.BLOB )
 
@@ -123,53 +125,52 @@ class App3( Toplevel ):
             error, = exc.args
             if error.code == 1: #Licence_no must exist or person already has a licence
 
-                #Test is licence exists already
+                #Test if licence already exists
                 statement = "SELECT licence_no FROM drive_licence WHERE licence_no = :a"
                 try:
                     cursor.execute( statement, a=self.entries["licence_no"].ljust(15) )
                 except: #Unknown error
-                    tm.showerror( error_type, "Unexpected Error\nErr 0xa3-9" )
+                    tm.showerror( error_type, "Unexpected Error\nErr 0xa3-12" )
                     return
 
                 if len( cursor.fetchall() ) == 0: #Licence isn't taken, must be sin that is taken
                     tm.showerror( error_type, "SIN '" + \
-                        self.entries["sin"] + "' already has a licence\nErr 0xa3-10" )
-                else: 
+                        self.entries["sin"] + "' already has a licence\nErr 0xa3-13" )
+                else: #Licence was found, therefore it's already taken
                     tm.showerror( error_type, "Licence # '" + \
-                        self.entries["licence_no"] + "' is already in the database\nErr 0xa3-11" )
+                        self.entries["licence_no"] + "' is already in the database\nErr 0xa3-14" )
 
             elif error.code == 2291: #sin does not exist
                 tm.showerror( error_type, "SIN '" + \
-                    str( self.entries["sin"] ) + "' does not exist\nErr 0xa3-12" )
+                    str( self.entries["sin"] ) + "' does not exist\nErr 0xa3-15" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa3-13" )
+                tm.showerror( error_type, error.message + "\nErr 0xa3-16" )
             return
         finally:
             cursor.close()
             
         #SQL statements executed successfully
-        cursor.close()
         self.userCx.commit()
 
         #Success message
-        successInfo = "License # '" + self.entries["licence_no"] + "' has been added to the databse"
+        successInfo = "License # '" + self.entries["licence_no"] + \
+                      "' has been added to the databse with SIN: '" +  self.entries["sin"] + "'"
         tm.showinfo( "Success!", successInfo )  
         self.destroy()
             
-
     #Type checking
     def validate_input( self ):
         error_type = "Input Error"
 
         #licence_no validation
         if self.entries["licence_no"] == '' or len( self.entries["licence_no"] ) > 15:
-            msg = "Invalid Licence #: Must not be blank and no longer than 15 characters\nErr 0xa3-2" 
+            msg = "Invalid Licence #: Must not be blank and no longer than 15 characters\nErr 0xa3-4" 
             tm.showerror( error_type, msg )
             return
 
         #class validation
         if self.entries["class"] == '' or len( self.entries["class"] ) > 10:
-            msg = "Invalid Class: Must not be blank and no longer than 10 characters\nErr 0xa3-3" 
+            msg = "Invalid Class: Must not be blank and no longer than 10 characters\nErr 0xa3-5" 
             tm.showerror( error_type, msg )
             return
             
@@ -177,27 +178,36 @@ class App3( Toplevel ):
         try:
             date1 = datetime.strptime( self.entries["issuing_date"], "%d-%b-%Y" )
         except:
-            msg = "Invalid Issuing Date: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xa3-4"
+            msg = "Invalid Issuing Date: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xa3-6"
             tm.showerror( error_type, msg )
             return
+
+        #Make sure issuing date isn't in the future
+        if date1 > datetime.now():
+            msg = "Invalid Issuing Date: Issuing Date cannot be in the future\nErr 0xa3-7"
+            tm.showerror( error_type, msg )
+            return
+        elif date1.date() < datetime.now().date():
+            if not tm.askyesno( "Input Confirmation", "The Issuing Date is listed as before today. Is that correct?" ):
+                return
 
         #expiring_date validation
         try:
             date2 = datetime.strptime( self.entries["expiring_date"], "%d-%b-%Y" )
         except:
-            msg = "Invalid Expiring Date: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xa3-5"
+            msg = "Invalid Expiring Date: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xa3-8"
             tm.showerror( error_type, msg )
             return
 
         #Make sure issuing date and expiring date make sense together
-        if date1 > date2:
-            msg = "Invalid Expiring Date: Must be later than Issuing Date\nErr 0xa3-6"
+        if date1 >= date2:
+            msg = "Invalid Expiring Date: Must be later than Issuing Date\nErr 0xa3-9"
             tm.showerror( error_type, msg )
             return
 
         #sin validation
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
-            msg = "Invalid Licence #: Must not be blank and no longer than 15 characters\nErr 0xa3-7" 
+            msg = "Invalid SIN: Must not be blank and no longer than 15 characters\nErr 0xa3-10" 
             tm.showerror( error_type, msg )
             return
 
@@ -205,13 +215,14 @@ class App3( Toplevel ):
         try:
             self.entries["photo"] = open( self.entries["photo"], 'rb' ).read()
         except:
-            msg = "Invalid Photo File: File not found\nErr 0xa3-8"
+            msg = "Invalid Photo File: File not found\nExample filepath: Pictures/MyPicture.jpg\nErr 0xa3-11"
             tm.showerror( error_type, msg )
             return
                         
         #No errors encountered
         return True
 
+#This function starts App3 if user is logged in
 def run( userCx ):
     #Prevents use of app if user hasn't logged in.
     if userCx == None:
