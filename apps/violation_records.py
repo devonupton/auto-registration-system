@@ -268,6 +268,63 @@ class app4( Toplevel ):
         cursor.close()
         tm.showerror( "UNEXPECTED ERROR", error.message )
         
+    # Gets the primary owner on a VIN.
+    def getPrimaryOwner( self ):
+        cursor = self.userCx.cursor()
+        
+        askMsg = "Would you like to write this violation to the Primary Owner of '" + self.entries["vehicle_id"] + "'"
+        if not tm.askyesno( "Blank Violator Entry", askMsg ):
+            return False
+        
+        # Check vehicle_id for integrity constraint
+        statement = "SELECT * FROM vehicle WHERE serial_no = '" + self.entries["vehicle_id"] + "'"
+        try:
+            cursor.execute( statement )
+        except:
+            cursor.close()
+            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-24")
+            return False
+            
+        rows = cursor.fetchall()
+        if len( rows ) == 0:
+            cursor.close()
+            errMsg = "The VIN '" + self.entries["vehicle_id"] + "' is not in the database. Please double check the VIN and try again.\nErr 0xa4-25"
+            tm.showerror( "Invalid VIN", errMsg )
+            return False
+            
+        # Grab the primary owner
+        statement = "SELECT owner_id FROM owner O " +\
+                    "WHERE is_primary_owner = 'y' AND " +\
+                    "vehicle_id = '" + self.entries["vehicle_id"] + "'"
+                    
+        try:
+            cursor.execute( statement )
+        except:
+            cursor.close()
+            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-26")
+            return False
+            
+        # If there is no primary owner, we have an odd issue...
+        rows = cursor.fetchall()
+        if len( rows ) == 0:
+            cursor.close()
+            errMsg = "The VIN '" + self.entries["vehicle_id"] + "' has no primary owner!\nErr 0xa4-27"
+            tm.showerror( "No primary owner!", errMsg )
+            return False
+            
+        primaryOwner = rows[0][0]
+        
+        askMsg = "The primary owner was found to be: '" + primaryOwner.strip() + "' continue?"
+        if not tm.askyesno( "Continue?", askMsg ):
+            return False
+            
+        self.violator_entry.insert( 0, primaryOwner.strip() )
+        self.entries["violatorNo"] = primaryOwner.strip()
+        
+        return True
+        
+        cursor.close()
+        
     # Ensures that the entries are valid for submitting to oracle/database
     def validateEntries( self ):
         # ticketNo validation
@@ -347,17 +404,21 @@ class app4( Toplevel ):
                 errMsg = "The description cannot be longer than 1024 characters.\nErr 0xa4-11"
                 tm.showerror( "Description Too Long", errMsg )
                 return False 
-            
-        # violator_no validation
-        if self.entries["violatorNo"] == '' or len( self.entries["violatorNo"] ) > 15:
-            errMsg = "Violator No must not be blank and no longer than 15 characters.\nErr 0xa4-12"
-            tm.showerror( "Violator SIN Error", errMsg )
-            return False
-            
+                
         # vehicle_id validation
+        # THIS MUST BE DONE BEFORE GETTING THE PRIMARY OWNER IF NEEDED
         if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
             errMsg = "VIN must not be blank and no longer than 15 characters.\nErr 0xa4-13"
             tm.showerror( "VIN Error", errMsg )
+            return False
+            
+        # violator_no validation
+        if self.entries["violatorNo"] == '':
+            if not self.getPrimaryOwner():
+                return False
+        if self.entries["violatorNo"] == '' or len( self.entries["violatorNo"] ) > 15:
+            errMsg = "Violator No must not be blank and no longer than 15 characters.\nErr 0xa4-12"
+            tm.showerror( "Violator SIN Error", errMsg )
             return False
 
         # Officer should not be Violator
@@ -367,6 +428,8 @@ class app4( Toplevel ):
             return False
             
         return True
+        
+
         
 # Returns a super table to violation types for the user
 def findViolationTypes( userCx ):
