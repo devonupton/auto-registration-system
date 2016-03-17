@@ -133,13 +133,13 @@ class app4( Toplevel ):
         # Checks that user wants to submit with or without a description.
         askMsg = "Are you sure you want to submit the violation with no description?"
         if not self.descOpen:
-            if not tm.askokcancel( "No Description?", askMsg ):
+            if not tm.askyesno( "No Description?", askMsg ):
                 self.addTextWidget()
                 return
             else:
                 getDesc = None
         elif len( self.descBox.get( 1.0, END ).strip() ) == 0:
-            if not tm.askokcancel( "No Description?", askMsg ):
+            if not tm.askyesno( "No Description?", askMsg ):
                 return
             else:
                 getDesc = None
@@ -159,8 +159,8 @@ class app4( Toplevel ):
         if not self.validateEntries():
             return
     
-        askMsg = "Please check all your entries and make sure they are correct before continuing."
-        if not tm.askokcancel( "Are You Sure?", askMsg ):
+        askMsg = "Are you sure you want to submit?"
+        if not tm.askyesno( "Submit Confirmation", askMsg ):
             return
                 
         cursor = self.userCx.cursor()
@@ -356,7 +356,7 @@ class app4( Toplevel ):
         temp = self.entries["vdate"].split()
         askMsg = "Your vDate does not include hours and minutes, do you wish to continue?"
         if len( temp ) == 1:
-            if not tm.askokcancel( "No HH:MM Specified", askMsg ):
+            if not tm.askyesno( "No HH:MM Specified", askMsg ):
                 return False
             
         if len( temp ) == 1:
