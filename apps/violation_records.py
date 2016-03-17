@@ -5,11 +5,11 @@
     # loaded in the initial database.
     
 from tkinter import *
+from datetime import datetime
 import tkinter.messagebox as tm
 import cx_Oracle
 import apps.tableWidget as tW
 import apps.new_persons_application as newPA
-import time
     
 class app4( Toplevel ):
     def __init__( self, userCx ):
@@ -94,7 +94,7 @@ class app4( Toplevel ):
             return
     
         self.vDate_entry.delete( 0, END )
-        self.vDate_entry.insert( 0, time.strftime( "%d-%b-%Y %H:%M:%S", time.localtime() ) )
+        self.vDate_entry.insert( 0, datetime.now().strftime( "%d-%b-%Y %H:%M:%S" ) )
     
     # Opens an editable Text window for the ticket description
     def addTextWidget( self ):
@@ -362,7 +362,7 @@ class app4( Toplevel ):
         if len( temp ) == 1:
             try:
                 # Strip only DD-MMM-YYYY
-                ticketTime = time.strptime( self.entries["vdate"], "%d-%b-%Y" )
+                ticketTime = datetime.strptime( self.entries["vdate"], "%d-%b-%Y" )
                 self.entries["vdate"] += " 00:00:00"
             except:
                 errMsg = "Date must be of the format DD-MMM-YYYY at least.\nEx: 14-OCT-2016\nErr 0xa4-06"
@@ -371,7 +371,7 @@ class app4( Toplevel ):
         elif len( temp ) == 2:
             try:
                 # Strip DD-MMM-YYYY and HH:MM:SS
-                ticketTime = time.strptime( self.entries["vdate"], "%d-%b-%Y %H:%M:%S" )
+                ticketTime = datetime.strptime( self.entries["vdate"], "%d-%b-%Y %H:%M:%S" )
             except:
                 errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\nEx: 14-OCT-2016 14:25:00\nErr 0xa4-07"
                 tm.showerror( "Invalid Date entry", errMsg )
@@ -382,8 +382,7 @@ class app4( Toplevel ):
             return False 
             
         # vDate should not be in the future
-        now = time.time()
-        if now < time.mktime( ticketTime ):
+        if ticketTime > datetime.now():
             errMsg = "Tickets cannot be issued in advance. Please ensure the correct time.\nErr 0xa4-09"
             tm.showerror( "Ticket Date in Future", errMsg )
             return False
