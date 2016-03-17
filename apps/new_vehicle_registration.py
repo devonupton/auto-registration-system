@@ -84,15 +84,15 @@ class App1( Toplevel ):
     def submit_form( self ):
 
         #Get each input value
-        self.entries = { "vehicle_id":  self.vehicle_id_entry.get().lower(),
-                         "maker":       self.maker_entry.get().lower(),
-                         "model":       self.model_entry.get().lower(),
+        self.entries = { "vehicle_id":  self.vehicle_id_entry.get().strip(),
+                         "maker":       self.maker_entry.get().strip(),
+                         "model":       self.model_entry.get().strip(),
                          "year":        self.year_entry.get(),
-                         "color":       self.color_entry.get().lower(),
+                         "color":       self.color_entry.get().strip(),
                          "type_id":     self.type_id_entry.get() }
 
-        self.primary_owner_id = self.primary_owner_id_entry.get().lower()
-        self.owner_id_list = self.owner_id_entry.get().lower().split( "," )
+        self.primary_owner_id = self.primary_owner_id_entry.get().strip()
+        self.owner_id_list = self.owner_id_entry.get().split( "," )
         for element in range(len(self.owner_id_list)):
             self.owner_id_list[element] = self.owner_id_list[element].strip()
 

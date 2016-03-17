@@ -78,15 +78,15 @@ class NewPerson( Toplevel ):
     #Attempt to submit data to the database
     def submit_form( self ):
 
-        self.entries = { "sin":       self.sin_entry.get().lower(),
-                         "name":      self.name_entry.get().lower(),
-                         "height":    self.height_entry.get().lower(),
-                         "weight":    self.weight_entry.get().lower(),
-                         "eyecolor":  self.eyecolor_entry.get().lower(),
-                         "haircolor": self.haircolor_entry.get().lower(),
-                         "address":   self.address_entry.get().lower(),
+        self.entries = { "sin":       self.sin_entry.get().strip(),
+                         "name":      self.name_entry.get().strip(),
+                         "height":    self.height_entry.get(),
+                         "weight":    self.weight_entry.get(),
+                         "eyecolor":  self.eyecolor_entry.get().strip(),
+                         "haircolor": self.haircolor_entry.get().strip(),
+                         "address":   self.address_entry.get().strip(),
                          "gender":    self.gender_entry.get(),
-                         "birthday":  self.birthday_entry.get() }
+                         "birthday":  self.birthday_entry.get().strip() }
 
         if not self.validate_input():
             return

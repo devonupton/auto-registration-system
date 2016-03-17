@@ -90,12 +90,12 @@ class App3( Toplevel ):
     def submit_form( self ):
 
         #Get each input value
-        self.entries = { "licence_no":      self.licence_no_entry.get().strip().lower(),
-                         "class":           self.class_entry.get().strip().lower(),
+        self.entries = { "licence_no":      self.licence_no_entry.get().strip(),
+                         "class":           self.class_entry.get().strip().strip(),
                          "issuing_date":    self.issuing_date_entry.get().strip(),
                          "expiring_date":   self.expiring_date_entry.get().strip(),
                          "sin":             self.sin_entry.get().strip(),
-                         "photo":           self.photo_entry.get() }
+                         "photo":           self.photo_entry.get().strip() }
 
         if not self.validate_input():
             return
