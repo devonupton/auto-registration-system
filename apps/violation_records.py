@@ -1,8 +1,8 @@
 ''' Violation Records Application '''
 #Violation Record: 
-    # This component is used by a police officer to issue a traffic ticket and record 
-    # the violation. You may assume that all the information about ticket_type has been 
-    # loaded in the initial database.
+    # This component is used by a police officer to issue a traffic ticket
+    # and record the violation. You may assume that all the information about
+    # ticket_type has been loaded in the initial database.
     
 from tkinter import *
 from datetime import datetime
@@ -19,12 +19,14 @@ class app4( Toplevel ):
  
         self.userCx = userCx
         
-        # building the app window =======================================================
-        # [col0 col1 - ticket info] [col2 - extra] [col3, col4 - violator info] [col5 - extra]
+        # building the app window ============================================
         # Information headers
-        ticketHeader = Message( self, text="Ticket Information", padx=5, pady=5, width=200 )
+        ticketHeader = Message( self, text="Ticket Information",\
+                                padx=5, pady=5, width=200 )
         ticketHeader.grid( column=0, row=0, columnspan=2 )
-        violatorHeader = Message( self, text="Violator Information", padx=5, pady=5, width=200 )
+        
+        violatorHeader = Message( self, text="Violator Information",\
+                                  padx=5, pady=5, width=200 )
         violatorHeader.grid( column=3, row=0, columnspan=2 )
         
         # ticketNo label/entry
@@ -60,7 +62,8 @@ class app4( Toplevel ):
         
         # Add Description Button ( extends window to add text? )
         self.descOpen = False
-        self.descButton = Button( self, text="Add Description >>", command=lambda: self.addTextWidget() )
+        self.descButton = Button( self, text="Add Description >>",\
+                                  command=lambda: self.addTextWidget() )
         self.descButton.grid( column=1, row=6, sticky=EW )
         
         # vehicle_id (VIN) label/entry
@@ -80,14 +83,18 @@ class app4( Toplevel ):
         self.violator_entry.grid( column=4, row=4 )
         
         # submit violation button
-        submit_button = Button( self, text="Submit Record", command=lambda: self.submitViolation() )
+        submit_button = Button( self, text="Submit Record",\
+                                command=lambda: self.submitViolation() )
         submit_button.grid( column=4, row=6, sticky=EW )
 
         # Help buttons
-        vTypeHelp_button = Button( self, text="?", command=lambda: findViolationTypes( self.userCx ), padx=0, pady=0 )
+        vTypeHelp_button = Button( self, text="?", command=lambda:\
+                                   findViolationTypes( self.userCx ),\
+                                   padx=0, pady=0 )
         vTypeHelp_button.grid( column=2, row=3 )
 
-        getDate_button = Button( self, text="?", command=lambda: self.setSystime(), padx=0, pady=0 )
+        getDate_button = Button( self, text="?", command=lambda:\
+                                 self.setSystime(), padx=0, pady=0 )
         getDate_button.grid( column=2, row=4 )
         
     # Allows user to set the violation date to the system time when requested
@@ -97,7 +104,8 @@ class app4( Toplevel ):
             return
     
         self.vDate_entry.delete( 0, END )
-        self.vDate_entry.insert( 0, datetime.now().strftime( "%d-%b-%Y %H:%M:%S" ) )
+        date = datetime.now().strftime( "%d-%b-%Y %H:%M:%S" )
+        self.vDate_entry.insert( 0, date )
     
     # Opens an editable Text window for the ticket description
     # if the widget is already open, it closes/destroys it
@@ -105,7 +113,8 @@ class app4( Toplevel ):
         if self.descOpen:
             # Ask user to confirm data loss for closing description
             if len( self.descBox.get( 1.0, END ).strip() ) > 0:
-                askMsg = "If you close the description you will lose what has been written. " +\
+                askMsg = "If you close the description you " +\
+                         "will lose what has been written. " +\
                          "Are you sure you want to close?"
                 if not tm.askyesno( "Data Loss Confirmation", askMsg ):
                     return
@@ -123,19 +132,12 @@ class app4( Toplevel ):
             self.descBox.grid( column=0, row=7, columnspan=5, sticky=NSEW )
             
         return
-  
-    # Asks the user if they would like to add a new person to the database, if yes opens the app for it
-    def handleNewPerson( self ):
-        askMsg = "Would you like to register a person that is not in the system for use here?"
-        if not tm.askyesno( "Add New Person?", askMsg ):
-            return
-        
-        newPA.NewPerson( self, self.autofill )
        
     # Major function for submitting a violation
     def submitViolation( self ):
         # Checks that user wants to submit with or without a description.
-        askMsg = "Are you sure you want to submit the violation with no description?"
+        askMsg = "Are you sure you want to submit the " +\
+                 "violation with no description?"
         if not self.descOpen:
             if not tm.askyesno( "No Description?", askMsg ):
                 self.addTextWidget()
@@ -169,7 +171,10 @@ class app4( Toplevel ):
                 
         cursor = self.userCx.cursor()
        
-        statement = "INSERT INTO ticket VALUES ( :ticketNo, :violatorNo, :vehicle_id, :officerNo, :vtype, TO_DATE( :vdate, 'dd-Mon-yyyy hh24:mi:ss' ), :place, :descr )"
+        statement = "INSERT INTO ticket VALUES ( :ticketNo, :violatorNo, " +\
+                    ":vehicle_id, :officerNo, :vtype, " +\
+                    "TO_DATE( :vdate, 'dd-Mon-yyyy hh24:mi:ss' ), " +\
+                    ":place, :descr )"
     
         cursor.execute( "SAVEPOINT Violation" )
         
@@ -183,7 +188,8 @@ class app4( Toplevel ):
             self.recoverError( error )
             return
             
-        infoMsg = "Ticket Number " + str( self.entries["ticketNo"] ) + " has been recorded."
+        infoMsg = "Ticket Number " + str( self.entries["ticketNo"] ) +\
+                  " has been recorded."
         tm.showinfo( "Success!", infoMsg )
         cursor.close()
      
@@ -193,7 +199,8 @@ class app4( Toplevel ):
     def recoverError( self, error ):
         # Ticket No already in Database
         if error.code == 1:
-                errMsg = "There is already the ticketNo " + str( self.entries["ticketNo"] ) + " in the database."
+                errMsg = "There is already the ticketNo " +\
+                         str( self.entries["ticketNo"] ) + " in the database."
                 tm.showerror( "TicketNo Already Used", errMsg )
                 return
         
@@ -211,13 +218,16 @@ class app4( Toplevel ):
             cursor.execute( statement, a=self.entries["vtype"].ljust(10) )
         except:
             cursor.close()
-            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-17")
+            errMsg = "Something unexpected happened!\nErr 0xa4-17"
+            tm.showerror( "Error", errMsg )
             return
             
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "'" + self.entries["vtype"] + "' is not a valid vType. Use the '?' button to the right of the vType entry to check possible vTypes.\nErr 0xa4-23"
+            errMsg = "'" + self.entries["vtype"] + "' is not a valid vType. " +\
+                     "Use the '?' button to the right of the vType entry to " +\
+                     "check possible vTypes.\nErr 0xa4-23"
             tm.showerror( "Invalid vType", errMsg )
             return
             
@@ -227,13 +237,16 @@ class app4( Toplevel ):
             cursor.execute( statement, a=self.entries["violatorNo"].ljust(15) )
         except:
             cursor.close()
-            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-18")
+            errMsg = "Something unexpected happened!\nErr 0xa4-18"
+            tm.showerror( "Error", errMsg )
             return
             
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "The violator '" + self.entries["violatorNo"] + "' is not in the database. Please double check the violatorNo and try again.\nErr 0xa4-19"
+            errMsg = "The violator '" + self.entries["violatorNo"] +\
+                     "' is not in the database. Please double check " +\
+                     "the violatorNo and try again.\nErr 0xa4-19"
             tm.showerror( "Invalid violatorNo", errMsg )
             return
             
@@ -243,13 +256,16 @@ class app4( Toplevel ):
             cursor.execute( statement, a=self.entries["officerNo"].ljust(15) )
         except:
             cursor.close()
-            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-19")
+            errMsg = "Something unexpected happened!\nErr 0xa4-19"
+            tm.showerror( "Error", errMsg )
             return
             
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "The officer '" + self.entries["officerNo"] + "' is not in the database. Please double check the officerNo and try again.\nErr 0xa4-20"
+            errMsg = "The officer '" + self.entries["officerNo"] +\
+                     "' is not in the database. Please double check " +\
+                     "the officerNo and try again.\nErr 0xa4-20"
             tm.showerror( "Invalid officerNo", errMsg )
             return
         
@@ -259,13 +275,16 @@ class app4( Toplevel ):
             cursor.execute( statement, a=self.entries["vehicle_id"] )
         except:
             cursor.close()
-            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-21")
+            errMsg = "Something unexpected happened!\nErr 0xa4-21"
+            tm.showerror( "Error", errMsg )
             return
             
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "The VIN '" + self.entries["vehicle_id"] + "' is not in the database. Please double check the VIN and try again.\nErr 0xa4-22"
+            errMsg = "The VIN '" + self.entries["vehicle_id"] +\
+                     "' is not in the database. Please double check " +\
+                     "the VIN and try again.\nErr 0xa4-22"
             tm.showerror( "Invalid VIN", errMsg )
             return
             
@@ -276,23 +295,28 @@ class app4( Toplevel ):
     def getPrimaryOwner( self ):
         cursor = self.userCx.cursor()
         
-        askMsg = "Would you like to write this violation to the Primary Owner of '" + self.entries["vehicle_id"] + "'"
+        askMsg = "Would you like to write this violation to the " +\
+                 "Primary Owner of '" + self.entries["vehicle_id"] + "'"
         if not tm.askyesno( "Blank Violator Entry", askMsg ):
             return False
         
         # Check vehicle_id for integrity constraint
-        statement = "SELECT * FROM vehicle WHERE serial_no = '" + self.entries["vehicle_id"] + "'"
+        statement = "SELECT * FROM vehicle WHERE serial_no = '" +\
+                    self.entries["vehicle_id"] + "'"
         try:
             cursor.execute( statement )
         except:
             cursor.close()
-            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-24")
+            errMsg = "Something unexpected happened!\nErr 0xa4-24"
+            tm.showerror( "Error", errMsg )
             return False
             
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "The VIN '" + self.entries["vehicle_id"] + "' is not in the database. Please double check the VIN and try again.\nErr 0xa4-25"
+            errMsg = "The VIN '" + self.entries["vehicle_id"] +\
+                     "' is not in the database. Please double check" +\
+                     "the VIN and try again.\nErr 0xa4-25"
             tm.showerror( "Invalid VIN", errMsg )
             return False
             
@@ -305,29 +329,33 @@ class app4( Toplevel ):
             cursor.execute( statement )
         except:
             cursor.close()
-            tm.showerror( "Error", "Something unexpected happened!\nErr 0xa4-26")
+            errMsg = "Something unexpected happened!\nErr 0xa4-26"
+            tm.showerror( "Error", errMsg )
             return False
             
         # If there is no primary owner, we have an odd issue...
         rows = cursor.fetchall()
         if len( rows ) == 0:
             cursor.close()
-            errMsg = "The VIN '" + self.entries["vehicle_id"] + "' has no primary owner!\nErr 0xa4-27"
+            errMsg = "The VIN '" + self.entries["vehicle_id"] +\
+                     "' has no primary owner!\nErr 0xa4-27"
             tm.showerror( "No primary owner!", errMsg )
             return False
             
         primaryOwner = rows[0][0]
         
-        askMsg = "The primary owner was found to be: '" + primaryOwner.strip() + "' continue?"
+        askMsg = "The primary owner was found to be: '" +\
+                 primaryOwner.strip() + "' continue?"
         if not tm.askyesno( "Continue?", askMsg ):
             return False
             
         self.violator_entry.insert( 0, primaryOwner.strip() )
         self.entries["violatorNo"] = primaryOwner.strip()
         
+        cursor.close()
+        
         return True
         
-        cursor.close()
         
     # Ensures that the entries are valid for submitting to oracle/database
     def validateEntries( self ):
@@ -341,53 +369,65 @@ class app4( Toplevel ):
             if not ( -2147483648 <= self.entries["ticketNo"] < 2147483648 ):
                 raise
         except:
-            tm.showerror( "Ticket Number Error", "Invalid ticketNo: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa4-03" )
+            errMsg = "Invalid ticketNo: Must be an integer " +\
+                     "between -(2^31)-1 and (2^31)-1\nErr 0xa4-03"
+            tm.showerror( "Ticket Number Error", errMsg )
             return False
 
         # officerNo validation
-        if self.entries["officerNo"] == '' or len( self.entries["officerNo"] ) > 15:
-            errMsg = "Officer No must not be blank and no longer than 15 characters.\nErr 0xa4-04"
+        if self.entries["officerNo"] == '' \
+        or len( self.entries["officerNo"] ) > 15:
+            errMsg = "Officer No must not be blank and no longer " +\
+                     "than 15 characters.\nErr 0xa4-04"
             tm.showerror( "Officer No Error", errMsg )
             return False
             
         # vType validation
         if self.entries["vtype"] == '' or len( self.entries["vtype"] ) > 10:
-            errMsg = "vType must not be blank and no longer than 10 characters.\nErr 0xa4-05"
+            errMsg = "vType must not be blank and no longer " +\
+                     "than 10 characters.\nErr 0xa4-05"
             tm.showerror( "vType Error", errMsg )
             return False
             
         # vDate validation (allow for two date types)
         temp = self.entries["vdate"].split()
-        askMsg = "Your vDate does not include hours and minutes, do you wish to continue?"
+        askMsg = "Your vDate does not include hours, minutes, and seconds, " +\
+                 "do you wish to continue?"
         if len( temp ) == 1:
-            if not tm.askyesno( "No HH:MM Specified", askMsg ):
+            if not tm.askyesno( "No HH:MM:SS Specified", askMsg ):
                 return False
             
         if len( temp ) == 1:
             try:
                 # Strip only DD-MMM-YYYY
-                ticketTime = datetime.strptime( self.entries["vdate"], "%d-%b-%Y" )
+                ticketTime = datetime.strptime( self.entries["vdate"],\
+                                                "%d-%b-%Y" )
                 self.entries["vdate"] += " 00:00:00"
             except:
-                errMsg = "Date must be of the format DD-MMM-YYYY at least.\nEx: 14-OCT-2016\nErr 0xa4-06"
+                errMsg = "Date must be of the format DD-MMM-YYYY " +\
+                         "at least.\nEx: 14-OCT-2016\nErr 0xa4-06"
                 tm.showerror( "Invalid Date entry", errMsg )
                 return False
         elif len( temp ) == 2:
             try:
                 # Strip DD-MMM-YYYY and HH:MM:SS
-                ticketTime = datetime.strptime( self.entries["vdate"], "%d-%b-%Y %H:%M:%S" )
+                ticketTime = datetime.strptime( self.entries["vdate"],\
+                                                "%d-%b-%Y %H:%M:%S" )
             except:
-                errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\nEx: 14-OCT-2016 14:25:00\nErr 0xa4-07"
+                errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\n" +\
+                         "Ex: 14-OCT-2016 14:25:00\nErr 0xa4-07"
                 tm.showerror( "Invalid Date entry", errMsg )
                 return False
         else:
-            errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\nEx: 14-OCT-2016 14:25:00\nErr 0xa4-08"
+            errMsg = "Date must be of the format DD-MMM-YYYY HH:MM:SS\n" +\
+                     "Ex: 14-OCT-2016 14:25:00\nErr 0xa4-08"
             tm.showerror( "Invalid Date entry", errMsg )
             return False 
             
         # vDate should not be in the future
         if ticketTime > datetime.now():
-            errMsg = "Tickets cannot be issued in advance. Please ensure the correct time.\nErr 0xa4-09"
+            errMsg = "Tickets cannot be issued in advance. Please ensure " +\
+                     "the correct time.\nErr 0xa4-09"
             tm.showerror( "Ticket Date in Future", errMsg )
             return False
             
@@ -397,21 +437,25 @@ class app4( Toplevel ):
             if not tm.askyesno( "No location?", askMsg ):
                 return False
         elif len( self.entries["place"] ) > 20:
-            errMsg = "The location entry must be less than 20 characters.\nErr 0xa4-10"
+            errMsg = "The location entry must be less than " +\
+                     "20 characters.\nErr 0xa4-10"
             tm.showerror( "Location Length Error", errMsg )
             return False
             
         # Description Validation
         if self.entries["descr"] != None:
             if len( self.entries["descr"] ) > 1024:
-                errMsg = "The description cannot be longer than 1024 characters.\nErr 0xa4-11"
+                errMsg = "The description cannot be longer than 1024 " +\
+                         "characters.\nErr 0xa4-11"
                 tm.showerror( "Description Too Long", errMsg )
                 return False 
                 
         # vehicle_id validation
         # THIS MUST BE DONE BEFORE GETTING THE PRIMARY OWNER IF NEEDED
-        if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
-            errMsg = "VIN must not be blank and no longer than 15 characters.\nErr 0xa4-13"
+        if self.entries["vehicle_id"] == '' \
+        or len( self.entries["vehicle_id"] ) > 15:
+            errMsg = "VIN must not be blank and no longer " +\
+                     "than 15 characters.\nErr 0xa4-13"
             tm.showerror( "VIN Error", errMsg )
             return False
             
@@ -419,14 +463,17 @@ class app4( Toplevel ):
         if self.entries["violatorNo"] == '':
             if not self.getPrimaryOwner():
                 return False
-        if self.entries["violatorNo"] == '' or len( self.entries["violatorNo"] ) > 15:
-            errMsg = "Violator No must not be blank and no longer than 15 characters.\nErr 0xa4-12"
+        if self.entries["violatorNo"] == '' \
+        or len( self.entries["violatorNo"] ) > 15:
+            errMsg = "Violator No must not be blank and no " +\
+                     "longer than 15 characters.\nErr 0xa4-12"
             tm.showerror( "Violator SIN Error", errMsg )
             return False
 
         # Officer should not be Violator
         if self.entries["officerNo"] == self.entries["violatorNo"]:
-            errMsg = "The issuer of the ticket cannot be the violator.\nErr 0xa4-14"
+            errMsg = "The issuer of the ticket cannot be " +\
+                     "the violator.\nErr 0xa4-14"
             tm.showerror( "Officer/Violator Conflict", errMsg )
             return False
             
@@ -436,7 +483,8 @@ class app4( Toplevel ):
         
 # Returns a super table to violation types for the user
 def findViolationTypes( userCx ):
-    askMsg = "Do you wish to bring up a table of the possible violation types and their fines?"
+    askMsg = "Do you wish to bring up a table of the " +\
+             "possible violation types and their fines?"
     if not tm.askyesno( "vType Help", askMsg ):
         return
     
@@ -447,7 +495,8 @@ def findViolationTypes( userCx ):
     
     rows = cursor.fetchall()
     if len( rows ) == 0:
-        tm.showerror( "No Violation Types!", "There are no violation types in the database.\nErr 0xa4-01" )
+        errMsg = "There are no violation types in the database.\nErr 0xa4-01"
+        tm.showerror( "No Violation Types!", errMsg )
         
     tW.buildSuperTable( cursor.description, rows, "Violation Types" )
     
@@ -457,7 +506,8 @@ def findViolationTypes( userCx ):
 # makes sure the user is logged in before the app can open
 def run( userCx ):
     if userCx == None:
-        tm.showerror( "Error", "You need to login before using this app.\nErr 0xa4-99" )
+        errMsg = "You need to login before using this app.\nErr 0xa4-99"
+        tm.showerror( "Error", errMsg )
         return
 
     app4( userCx )
