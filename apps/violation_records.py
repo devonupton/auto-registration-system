@@ -260,7 +260,7 @@ class app4( Toplevel ):
             cursor.execute( statement, a=self.entries["officerNo"].ljust(15) )
         except:
             cursor.close()
-            errMsg = "Something unexpected happened!\nErr 0xa4-19"
+            errMsg = "Something unexpected happened!\nErr 0xa4-30"
             tm.showerror( "Error", errMsg )
             return
             
@@ -499,7 +499,7 @@ def findViolationTypes( userCx ):
     
     rows = cursor.fetchall()
     if len( rows ) == 0:
-        errMsg = "There are no violation types in the database.\nErr 0xa4-01"
+        errMsg = "There are no violation types in the database.\nErr 0xa4-00"
         tm.showerror( "No Violation Types!", errMsg )
         
     tW.buildSuperTable( cursor.description, rows, "Violation Types" )
@@ -510,7 +510,7 @@ def findViolationTypes( userCx ):
 # makes sure the user is logged in before the app can open
 def run( userCx ):
     if userCx == None:
-        errMsg = "You need to login before using this app.\nErr 0xa4-99"
+        errMsg = "You need to login before using this app.\nErr 0xa4-01"
         tm.showerror( "Error", errMsg )
         return
 
