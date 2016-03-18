@@ -6,6 +6,7 @@ import tkinter.messagebox as tm
 import apps.tableWidget as tW
 from apps.new_persons_application import NewPerson
 
+#The application object for New Vehicle Registration
 class App1( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self )
@@ -114,11 +115,13 @@ class App1( Toplevel ):
                          "color":       self.color_entry.get().strip(),
                          "type_id":     self.type_id_entry.get() }
 
+        #Get owners and remove extra spaces
         self.primary_owner_id = self.primary_owner_id_entry.get().strip()
         self.owner_id_list = self.owner_id_entry.get().split( "," )
         for element in range(len(self.owner_id_list)):
             self.owner_id_list[element] = self.owner_id_list[element].strip()
 
+        #Check if input is valid 
         if not self.validate_input():
             return
 
@@ -260,6 +263,7 @@ class App1( Toplevel ):
         #No errors encountered
         return True
 
+#This function starts App1 if user is logged in
 def run( userCx ):
     #Prevents use of app if user hasn't logged in.
     if userCx == None:

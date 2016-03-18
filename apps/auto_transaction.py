@@ -6,6 +6,7 @@ import cx_Oracle
 from datetime import datetime
 from apps.new_persons_application import NewPerson
 
+#The application object for Auto Transaction
 class App2( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self )
@@ -94,6 +95,7 @@ class App2( Toplevel ):
         for element in range(len(self.owner_id_list)):
             self.owner_id_list[element] = self.owner_id_list[element].strip()
 
+        #Check if input is valid
         if not self.validate_input():
             return
 
@@ -104,11 +106,12 @@ class App2( Toplevel ):
 
         cursor = self.userCx.cursor()
         error_type = "Submit Failure"
+        #Create Savepoint here
         cursor.execute( "SAVEPOINT App2Save" )
         
         #####################################################
-
         #Make sure seller is primary owner of the vehicle
+
         statement = "SELECT owner_id FROM owner \
                      WHERE owner_id=:a and vehicle_id=:b and is_primary_owner='y'" 
         cursor.execute( statement, a=self.seller_id.ljust(15), b=self.vehicle_id.ljust(15) )
@@ -146,8 +149,8 @@ class App2( Toplevel ):
             return
 
         #####################################################
+        #Try to create the auto_sale
 
-        #Create the auto_sale
         sale_statement = "INSERT INTO auto_sale VALUES( :a, :b, :c, :d, :e, :f )"
         try:
             cursor.execute( sale_statement, a=self.transaction_id, b=self.seller_id, \
@@ -167,8 +170,8 @@ class App2( Toplevel ):
             return
                 
         #####################################################
-
         #Delete old owners
+
         try:
             cursor.execute( "DELETE FROM owner WHERE vehicle_id=:a", a=self.vehicle_id.ljust(15) )
         except cx_Oracle.DatabaseError as exc:
@@ -180,8 +183,8 @@ class App2( Toplevel ):
             return
 
         #####################################################
+        #Try to insert new Primary owner
 
-        #Try to insert Primary owner
         primary_owner_statement = "INSERT INTO owner VALUES( :a, :b, 'y' )"
         try:
             cursor.execute( primary_owner_statement, a=self.buyer_id, b=self.vehicle_id )
@@ -198,8 +201,8 @@ class App2( Toplevel ):
             return
 
         #####################################################
+        #Try to insert other new owners
 
-        #Try to insert other owners
         secondary_owner_statement = "INSERT INTO owner VALUES( :a, :b, 'n' )"
         for owner_id in self.owner_id_list:
             try:
@@ -217,8 +220,8 @@ class App2( Toplevel ):
                 return
 
         #####################################################
-
         #SQL statements executed successfully
+
         cursor.close()
         self.userCx.commit()
 
@@ -304,6 +307,7 @@ class App2( Toplevel ):
         #No errors encountered
         return True
 
+#This function starts App2 if user is logged in
 def run( userCx ):
     #Prevents use of app if user hasn't logged in.
     if userCx == None:

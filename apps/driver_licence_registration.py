@@ -13,7 +13,7 @@ try:
 except:
     PIL_loaded = False
 
-#The application object
+#The application object for Driver Licence Registration
 class App3( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self )
@@ -140,7 +140,7 @@ class App3( Toplevel ):
                          "issuing_date":    self.issuing_date_entry.get().strip(),
                          "expiring_date":   self.expiring_date_entry.get().strip(),
                          "sin":             self.sin_entry.get().strip(),
-                         "photo":           self.photo_entry.get().strip() }
+                         "photo":           self.photo_entry.get() }
 
         #Get the Condition IDs
         self.condition_id_list = self.condition_id_list_entry.get().split( "," )
@@ -280,12 +280,13 @@ class App3( Toplevel ):
         try:
             self.entries["photo"] = open( self.entries["photo"], 'rb' ).read()
         except:
-            msg = "Invalid Photo File: File not found\nExample filepath: Pictures/MyPicture.jpg\nErr 0xa3-12"
+            msg = "Invalid Photo File: File not found\nExample filepath: Pictures/MyPicture.gif\nErr 0xa3-12"
             tm.showerror( error_type, msg )
             return
 
         if self.condition_id_list[0].strip() == '' and len(self.condition_id_list) == 1:
             self.condition_id_list = []
+
         #condition_id validation and conversion to integers
         for element in range(len(self.condition_id_list)):
             try:
@@ -303,7 +304,7 @@ class App3( Toplevel ):
 
 ################################################################################
 
-#A sub-application used to adding a new Driving Condition
+#A sub-application used for adding a new Driving Condition
 #return_entry: A function from parent window that will be automatically
 #              called with "c_id" once this application finishes
 class NewCondition( Toplevel ):
@@ -346,7 +347,7 @@ class NewCondition( Toplevel ):
         if not tm.askyesno( "Submit Confirmation", "Are you sure you want to submit?" ):
             return
         
-        #Send information to Oracle Database
+        #Try to insert Driving Condition
         statement = "INSERT INTO driving_condition VALUES( :a, :b )"
         cursor = self.userCx.cursor()
         try:
@@ -354,7 +355,7 @@ class NewCondition( Toplevel ):
 
         except cx_Oracle.DatabaseError as exc:
             error, = exc.args
-            if error.code == 1:
+            if error.code == 1: #C_id already exists
                 tm.showerror( "Submit Failure", "Condition ID '" + str(self.c_id) + "' is already taken\nErr 0xa3-24" )
             else:
                 tm.showerror( "Submit Failure", error.message + "\nErr 0xa3-25" )
@@ -368,7 +369,7 @@ class NewCondition( Toplevel ):
         successInfo = "Condition ID '" + str(self.c_id) + "' has been added to the database"
         tm.showinfo( "Success!", successInfo )  
                 
-        #Return sin back to previous window
+        #Return c_id back to previous window
         if self.return_entry:
             return_entry = self.return_entry
             return_entry( self.c_id_entry.get() )
@@ -379,10 +380,13 @@ class NewCondition( Toplevel ):
     def validate_input( self ):
         error_type = "Input Error"
 
+        #description validation
         if self.descr == '' or len( self.descr ) > 1024:
             msg = "Invalid Description: Must not be blank or longer than 1024 characters\nErr 0xa3-22"
             tm.showerror( error_type, msg )
             return
+
+        #condition_id validation
         try:
             self.c_id = int( self.c_id )
             if not ( -2147483648 <= self.c_id < 2147483648 ):
