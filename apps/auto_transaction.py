@@ -207,11 +207,8 @@ class App2( Toplevel ):
             if error.code == 2291: #Buyer ID does not exist
                 tm.showerror( error_type, "Buyer ID '" + self.seller_id + \
                                           "' does not exist\nErr 0xa2-20" )
-            elif error.code == 1400: #Primary_owner_id was empty string
-                tm.showerror( error_type, "You must have exactly one " + \
-                                          "primary owner\nErr 0xa2-21" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa2-22" )
+                tm.showerror( error_type, error.message + "\nErr 0xa2-21" )
             return
 
         #####################################################
@@ -228,12 +225,12 @@ class App2( Toplevel ):
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
                     tm.showerror( error_type, "Owner ID '" + owner_id + \
-                                  "' entered more than once\nErr 0xa2-23" )
+                                  "' entered more than once\nErr 0xa2-22" )
                 elif error.code == 2291: #Owner ID does not exist
                     tm.showerror( error_type, "Owner ID '" + owner_id + \
-                                  "' does not exist\nErr 0xa2-24" )
+                                  "' does not exist\nErr 0xa2-23" )
                 else: #Unknown error
-                    tm.showerror( error_type, error.message + "\nErr 0xa2-25" )
+                    tm.showerror( error_type, error.message + "\nErr 0xa2-24" )
                 return
 
         #####################################################
@@ -299,10 +296,10 @@ class App2( Toplevel ):
         #price validation
         try:
             self.price = float( self.price )
-            if not ( 0 <= self.price < 10000000 ):
+            if not ( 0 <= self.price <= 9999999.99 ):
                 raise
         except:
-            msg = "Invalid Price: Must be a number between 0 and 9999999" + \
+            msg = "Invalid Price: Must be a number between 0 and 9999999.99" + \
                   "\nErr 0xa2-7"
             tm.showerror( error_type, msg )
             return
