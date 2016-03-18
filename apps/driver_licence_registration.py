@@ -23,7 +23,7 @@ class App3( Toplevel ):
 
         #Create and add widgets for licence info
         msgtext = "Licence Information" 
-        msg1 = Message( self, text=msgtest, padx=5, pady=5, width=200 )
+        msg1 = Message( self, text=msgtext, padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=2 )
 
         licence_no_label= Label( self, text="Licence #" )
@@ -349,7 +349,7 @@ class NewCondition( Toplevel ):
 
         #Create and add widgets for Description and C_ID
         msgtext = "Enter the Driving Condition Description below"
-        descr_label = Message( self, text=msgtext , padx=5, pady=5, width=250 )
+        descr_label = Message( self, text=msgtext , padx=5, pady=5, width=300 )
         self.descBox = Text( self, relief=SUNKEN, width=70, height=15 )
         descr_label.grid( columnspan=4 )
         self.descBox.grid( row=1, columnspan=4 )
