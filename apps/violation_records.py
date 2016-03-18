@@ -9,7 +9,6 @@ from datetime import datetime
 import tkinter.messagebox as tm
 import cx_Oracle
 import apps.tableWidget as tW
-import apps.new_persons_application as newPA
     
 class app4( Toplevel ):
     def __init__( self, userCx ):
@@ -64,17 +63,21 @@ class app4( Toplevel ):
         self.descButton = Button( self, text="Add Description >>", command=lambda: self.addTextWidget() )
         self.descButton.grid( column=1, row=6, sticky=EW )
         
-        # violator_id label/entry
-        violator_label = Label( self, text="Violator SIN:" )
-        violator_label.grid( column=3, row=1, sticky=E )
-        self.violator_entry = Entry( self )
-        self.violator_entry.grid( column=4, row=1 )
-        
-        # vehicle_id label/entry
-        vin_label = Label( self, text="VIN:" )
-        vin_label.grid( column=3, row=2, sticky=E )
+        # vehicle_id (VIN) label/entry
+        vin_label = Label( self, text="Vehicle ID:" )
+        vin_label.grid( column=3, row=1, sticky=E )
         self.vin_entry = Entry( self )
-        self.vin_entry.grid( column=4, row=2 )
+        self.vin_entry.grid( column=4, row=1 )
+        
+        # Optional Label 
+        optional_label = Label( self, text="Optional Information" )
+        optional_label.grid( column=3, row=3, columnspan=2 )
+        
+        # violator_id label/entry (spaces in label neccessary for style)
+        violator_label = Label( self, text="   Violator SIN:" )
+        violator_label.grid( column=3, row=4, sticky=E )
+        self.violator_entry = Entry( self )
+        self.violator_entry.grid( column=4, row=4 )
         
         # submit violation button
         submit_button = Button( self, text="Submit Record", command=lambda: self.submitViolation() )
@@ -97,6 +100,7 @@ class app4( Toplevel ):
         self.vDate_entry.insert( 0, datetime.now().strftime( "%d-%b-%Y %H:%M:%S" ) )
     
     # Opens an editable Text window for the ticket description
+    # if the widget is already open, it closes/destroys it
     def addTextWidget( self ):
         if self.descOpen:
             # Ask user to confirm data loss for closing description
