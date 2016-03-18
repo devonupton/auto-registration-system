@@ -73,7 +73,7 @@ class app4( Toplevel ):
         self.violator_entry.grid( column=4, row=1 )
         
         # vehicle_id (VIN) label/entry
-        vin_label = Label( self, text="Vehicle ID:" )
+        vin_label = Label( self, text="Vehicle ID (VIN):" )
         vin_label.grid( column=3, row=2, sticky=E )
         self.vin_entry = Entry( self )
         self.vin_entry.grid( column=4, row=2 )
