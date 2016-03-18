@@ -180,11 +180,8 @@ class App1( Toplevel ):
             if error.code == 2291: #Owner ID does not exist
                 tm.showerror( error_type, "Owner ID '" + \
                         self.primary_owner_id + "' does not exist\nErr 0xa1-12")
-            elif error.code == 1400: #Primary_owner_id was empty string
-                tm.showerror( error_type, "You must have exactly one " + \
-                                          "primary owner\nErr 0xa1-13" )
             else: #Unknown error
-                tm.showerror( error_type, error.message + "\nErr 0xa1-14" )
+                tm.showerror( error_type, error.message + "\nErr 0xa1-13" )
             return
 
         #Try to insert other owners
@@ -198,12 +195,12 @@ class App1( Toplevel ):
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
                     tm.showerror( error_type, "Owner ID '" + owner_id + \
-                                  "' entered more than once\nErr 0xa1-15" )
+                                  "' entered more than once\nErr 0xa1-14" )
                 elif error.code == 2291: #Owner ID does not exist
                     tm.showerror( error_type, "Owner ID '" + owner_id + \
-                                  "' does not exist\nErr 0xa1-16" )
+                                  "' does not exist\nErr 0xa1-15" )
                 else: #Unknown error
-                    tm.showerror( error_type, error.message + "\nErr 0xa1-17" )
+                    tm.showerror( error_type, error.message + "\nErr 0xa1-16" )
                 return
 
         #SQL statements executed successfully
@@ -212,7 +209,7 @@ class App1( Toplevel ):
 
         #Success message
         successInfo = "Vehicle '" + self.entries["vehicle_id"] + \
-                      "' had been created\n" + \
+                      "' has been created\n" + \
                       "Primary Owner ID: " + self.primary_owner_id + "\n" + \
                       "Other Owner IDs: " + ", ".join(self.owner_id_list)
         tm.showinfo( "Success!", successInfo )  
