@@ -88,7 +88,7 @@ class NewPerson( Toplevel ):
                          "eyecolor":  self.eyecolor_entry.get().strip(),
                          "haircolor": self.haircolor_entry.get().strip(),
                          "address":   self.address_entry.get().strip(),
-                         "gender":    self.gender_entry.get(),
+                         "gender":    self.gender_entry.get().strip(),
                          "birthday":  self.birthday_entry.get().strip() }
 
         #Check if input is valid
@@ -151,10 +151,10 @@ class NewPerson( Toplevel ):
         #height validation
         try:
             self.entries["height"] = float( self.entries["height"] )
-            if not ( 0 <= self.entries["height"] < 1000 ):
+            if not ( 0 <= self.entries["height"] <= 999.99 ):
                 raise
         except:
-            msg = "Invalid Height: Must be a number between 0 and 999" + \
+            msg = "Invalid Height: Must be a number between 0 and 999.99" + \
                   "\nErr 0xs1-3"
             tm.showerror( error_type, msg )
             return
@@ -162,10 +162,10 @@ class NewPerson( Toplevel ):
         #weight validation
         try:
             self.entries["weight"] = float( self.entries["weight"] )
-            if not ( 0 <= self.entries["weight"] < 1000 ):
+            if not ( 0 <= self.entries["weight"] <= 999.99 ):
                 raise
         except:
-            msg = "Invalid Weight: Must be a number between 0 and 999" + \
+            msg = "Invalid Weight: Must be a number between 0 and 999.99" + \
                   "\nErr 0xs1-4"
             tm.showerror( error_type, msg )
             return
