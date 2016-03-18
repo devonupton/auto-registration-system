@@ -1,11 +1,12 @@
-# creates a table based on your needs.
+# creates a tkinter table from SQL rows 
 
 from tkinter import *
 import tkinter.messagebox as tm
 import cx_Oracle
 
 class tableWidget( Frame ):
-    # When calling the widget enter the number of rows NOT including the header row
+    # When calling the widget enter the number of rows 
+    # NOT including the header row
     def __init__( self, numRows = 4, numCols = 4, t="Search Result" ):
         self.rows = numRows + 1
         self.cols = numCols
@@ -16,13 +17,17 @@ class tableWidget( Frame ):
         
         self.table = []
         
+        # Pythonic way of creating a list of tkinter widgets
         for row in range( self.rows ):
             for col in range( self.cols ):
                 if row == 0:
                     thisLabel = Label( self.root, text="", bg="grey")
                 else:
                     thisLabel = Label( self.root, text="" )
-                thisLabel.grid( row=row, column=col, padx=1, pady=1, sticky=NSEW )
+                    
+                thisLabel.grid( row=row, column=col,\
+                                padx=1, pady=1, sticky=NSEW )
+                                
                 self.table.append( thisLabel )
        
     # Ensures data is not too long for the table
@@ -61,9 +66,11 @@ class tableWidget( Frame ):
     # changes a entry a (row, col) in the entrySpace (not headerSpace)
     def changeEntry( self, row=0, col=0, Text="" ):            
         if not self.validEntryRange( row, col ):
-            errorMsg = "Row or col index out of range ( " + str(row) + ", " + str(col) + " )\nErr 0xTW-02"
+            errorMsg = "Row or col index out of range ( " + str(row) +\
+                       ", " + str(col) + " )\nErr 0xTW-02"
             tm.showerror( "tableWidget Error", errorMsg )
             return
+            
         row = row + 1
         self.table[ (row * self.cols) + col ].configure( text=Text )
        
@@ -83,6 +90,7 @@ class tableWidget( Frame ):
 # Function: buildCxTable
 #===============================================================================
 # builds a tableSpace into tkinter (a list of all the things)
+# You may want to see the buildSuperTable, a more general function
 def buildCxTable( tableSpace, title ):
     numRow = len( tableSpace ) - 1
     numCol = len( tableSpace[0] )
@@ -97,9 +105,10 @@ def buildCxTable( tableSpace, title ):
          
 #===============================================================================
 # Function: getHeaderList
-#===============================================================================        
+#===============================================================================
 # expected use: getHeaderList( cursor.description )
 # returns the headerList for use with createTableSpace
+# You may just want to use the general buildSuperTable function.
 def getHeaderList( objectSet ):
     temp = []
     for column in objectSet:
@@ -110,6 +119,7 @@ def getHeaderList( objectSet ):
 # Function: createTableSpace
 #===============================================================================
 # creates a tableSpace for use with buildCxTable
+# You may want to see buildSuperTable, instead
 def createTableSpace( headerList, rows ):
     if len( rows ) == 0:
         return None
@@ -128,6 +138,7 @@ def createTableSpace( headerList, rows ):
 # Function: buildSuperTable
 #===============================================================================
 # builds a table before your eyes
+# usage: buildSuperTable( cursor.description, cursor.fetchall(), "title" )
 def buildSuperTable( desc, rows, title ):
     if len( rows ) == 0:
         return None
