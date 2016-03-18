@@ -15,7 +15,8 @@ class App1( Toplevel ):
         self.resizable( width=FALSE, height=FALSE )
 
         #Create and add widgets for vehicle info
-        msg1 = Message( self, text="Vehicle Information", padx=5, pady=5, width=200 )
+        msgtext = "Vehicle Information"
+        msg1 = Message( self, text=msgtext, padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=2 )
 
         vehicle_id_label= Label( self, text="Vehicle ID" )
@@ -49,7 +50,8 @@ class App1( Toplevel ):
         self.type_id_entry.grid( row=6, column=1 )
 
         #Create and add widgets for Personal info
-        msg2 = Message( self, text="Personal Information", padx=5, pady=5, width=200 )
+        msgtext = "Personal Information"
+        msg2 = Message( self, text=msgtext, padx=5, pady=5, width=200 )
         msg2.grid( row=0, column=2, sticky=N, columnspan=2 )
 
         primary_owner_id_label = Label( self, text="Primary Owner ID" )
@@ -62,18 +64,20 @@ class App1( Toplevel ):
         owner_id_label.grid( row=2, column=2, sticky=E )
         self.owner_id_entry.grid( row=2, column=3 )
 
-        owner_id_label2 = Label( self, text="(comma separated list of sin #'s)" )
+        owner_id_label2 = Label(self, text="(comma separated list of sin #'s)")
         owner_id_label2.grid( row=3, column=2, columnspan=2, )
 
         #Buttons
-        type_id_help_button = Button( self, text="?", command=lambda: self.findVehicleTypes(), padx=0, pady=0 )
+        type_id_help_button = Button( self, text="?", \
+                    command=lambda: self.findVehicleTypes(), padx=0, pady=0 )
         type_id_help_button.grid( row=6, column=2, sticky=W )
 
         new_person_button = Button( self, text="Add new Person", \
-                                    command=lambda: NewPerson( self, self.autofill ) )
+                    command=lambda: NewPerson( self, self.autofill ) )
         new_person_button.grid( row=3, column=2, rowspan=3, columnspan=2, )
 
-        submit_button = Button( self, text="Submit", command=lambda: self.submit_form() )
+        submit_button = Button( self, text="Submit", \
+                    command=lambda: self.submit_form() )
         submit_button.grid( row=5, column=2, rowspan=2, columnspan=2, )
 
     #Used to fill the sin # upon returning from NewPerson app
@@ -87,7 +91,8 @@ class App1( Toplevel ):
 
     #Returns a super table of vehicle types for the user
     def findVehicleTypes( self ):
-        askMsg = "Do you wish to bring up a table of the possible Vehicle Types and their Type IDs?"
+        askMsg = "Do you wish to bring up a table of the possible " + \
+                 "Vehicle Types and their Type IDs?"
         if not tm.askyesno( "Type ID Help", askMsg ):
             return
         
@@ -98,7 +103,8 @@ class App1( Toplevel ):
         
         rows = cursor.fetchall()
         if len( rows ) == 0:
-            tm.showerror( "No Vehicle Types!", "There are no Vehicle Types in the database.\nErr 0xa1-18" )
+            msg = "There are no Vehicle Types in the database.\nErr 0xa1-18"
+            tm.showerror( "No Vehicle Types!", msg )
             
         tW.buildSuperTable( cursor.description, rows, "Vehicle Types" )
         
@@ -124,15 +130,16 @@ class App1( Toplevel ):
         #Check if input is valid 
         if not self.validate_input():
             return
-
-        if not tm.askyesno( "Submit Confirmation", "Are you sure you want to submit?" ):
+        msg = "Are you sure you want to submit?"
+        if not tm.askyesno( "Submit Confirmation", msg ):
             return
 
         cursor = self.userCx.cursor()
 
         #Create query statments
         vehicle_statement = "INSERT INTO vehicle \
-                             VALUES( :vehicle_id, :maker, :model, :year, :color, :type_id )"
+                             VALUES( :vehicle_id, :maker, :model, \
+                             :year, :color, :type_id )"
         primary_owner_statement = "INSERT INTO owner \
                                    VALUES( :a, :b, 'y' )"
         secondary_owner_statement = "INSERT INTO owner \
@@ -152,25 +159,30 @@ class App1( Toplevel ):
             error, = exc.args
             if error.code == 1: #Vehicle must already exist
                 tm.showerror( error_type, "Vehicle ID '" + \
-                    self.entries["vehicle_id"] + "' is already in the database\nErr 0xa1-9" )
+                    self.entries["vehicle_id"] + \
+                    "' is already in the database\nErr 0xa1-9" )
             elif error.code == 2291: #type_id does not exist
                 tm.showerror( error_type, "Type ID '" + \
-                    str( self.entries["type_id"] ) + "' does not exist\nErr 0xa1-10" )
+                    str( self.entries["type_id"] ) + \
+                    "' does not exist\nErr 0xa1-10" )
             else: #Unknown error
                 tm.showerror( error_type, error.message + "\nErr 0xa1-11" )
             return
 
         #Try to insert Primary Owner
         try:
-            cursor.execute( primary_owner_statement, a=self.primary_owner_id, b=self.entries["vehicle_id"] )
+            cursor.execute( primary_owner_statement, a=self.primary_owner_id, \
+                                                 b=self.entries["vehicle_id"] )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute("ROLLBACK to App1Save" )
             cursor.close()
             error, = exc.args
             if error.code == 2291: #Owner ID does not exist
-                tm.showerror( error_type, "Owner ID '" + self.primary_owner_id + "' does not exist\nErr 0xa1-12" )
-            elif error.code == 1400: #Primary_owner_id was empty string (read as NULL)
-                tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa1-13" )
+                tm.showerror( error_type, "Owner ID '" + \
+                        self.primary_owner_id + "' does not exist\nErr 0xa1-12")
+            elif error.code == 1400: #Primary_owner_id was empty string
+                tm.showerror( error_type, "You must have exactly one " + \
+                                          "primary owner\nErr 0xa1-13" )
             else: #Unknown error
                 tm.showerror( error_type, error.message + "\nErr 0xa1-14" )
             return
@@ -178,15 +190,18 @@ class App1( Toplevel ):
         #Try to insert other owners
         for owner_id in self.owner_id_list:
             try:
-                cursor.execute( secondary_owner_statement, a=owner_id, b=self.entries["vehicle_id"] )
+                cursor.execute( secondary_owner_statement, a=owner_id, \
+                                b=self.entries["vehicle_id"] )
             except cx_Oracle.DatabaseError as exc:
                 cursor.execute("ROLLBACK to App1Save" )
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
-                    tm.showerror( error_type, "Owner ID '" + owner_id + "' entered more than once\nErr 0xa1-15" )
+                    tm.showerror( error_type, "Owner ID '" + owner_id + \
+                                  "' entered more than once\nErr 0xa1-15" )
                 elif error.code == 2291: #Owner ID does not exist
-                    tm.showerror( error_type, "Owner ID '" + owner_id + "' does not exist\nErr 0xa1-16" )
+                    tm.showerror( error_type, "Owner ID '" + owner_id + \
+                                  "' does not exist\nErr 0xa1-16" )
                 else: #Unknown error
                     tm.showerror( error_type, error.message + "\nErr 0xa1-17" )
                 return
@@ -196,7 +211,8 @@ class App1( Toplevel ):
         self.userCx.commit()
 
         #Success message
-        successInfo = "Vehicle '" + self.entries["vehicle_id"] + "' had been created\n" + \
+        successInfo = "Vehicle '" + self.entries["vehicle_id"] + \
+                      "' had been created\n" + \
                       "Primary Owner ID: " + self.primary_owner_id + "\n" + \
                       "Other Owner IDs: " + ", ".join(self.owner_id_list)
         tm.showinfo( "Success!", successInfo )  
@@ -208,20 +224,24 @@ class App1( Toplevel ):
         error_type = "Input Error"
 
         #vehicle_id validation
-        if self.entries["vehicle_id"] == '' or len( self.entries["vehicle_id"] ) > 15:
-            msg = "Invalid Vehicle ID: Must not be blank and no longer than 15 characters\nErr 0xa1-2" 
+        if self.entries["vehicle_id"] == '' \
+            or len( self.entries["vehicle_id"] ) > 15:
+            msg = "Invalid Vehicle ID: Must not be blank and no longer " + \
+                  "than 15 characters\nErr 0xa1-2" 
             tm.showerror( error_type, msg )
             return
 
         #maker validation
         if self.entries["maker"] == '' or len( self.entries["maker"] ) > 20:
-            msg = "Invalid Maker: Must not be blank and no longer than 20 characters\nErr 0xa1-3" 
+            msg = "Invalid Maker: Must not be blank and no longer than 20 " + \
+                  "characters\nErr 0xa1-3" 
             tm.showerror( error_type, msg )
             return
             
         #model validation
         if self.entries["model"] == '' or len( self.entries["model"] ) > 20:
-            msg = "Invalid Model: Must not be blank and no longer than 20 characters\nErr 0xa1-4" 
+            msg = "Invalid Model: Must not be blank and no longer than 20 " + \
+                  "characters\nErr 0xa1-4" 
             tm.showerror( error_type, msg )
             return
 
@@ -231,13 +251,15 @@ class App1( Toplevel ):
             if not ( 0 <= self.entries["year"] < 10000 ):
                 raise
         except:
-            msg = "Invalid Year: Must be an integer between 0 and 9999\nErr 0xa1-5" 
+            msg = "Invalid Year: Must be an integer between 0 and 9999" + \
+                  "\nErr 0xa1-5" 
             tm.showerror( error_type, msg )
             return
 
         #color validation
         if self.entries["color"] == '' or len( self.entries["color"] ) > 10:
-            msg = "Invalid Color: Must not be blank and no longer than 10 characters\nErr 0xa1-6" 
+            msg = "Invalid Color: Must not be blank and no longer than 10 " + \
+                  "characters\nErr 0xa1-6" 
             tm.showerror( error_type, msg )
             return
 
@@ -247,7 +269,8 @@ class App1( Toplevel ):
             if not ( -2147483648 <= self.entries["type_id"] < 2147483648 ):
                 raise
         except:
-            msg = "Invalid Type ID: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa1-7" 
+            msg = "Invalid Type ID: Must be an integer between " + \
+                  "-(2^31)-1 and (2^31)-1\nErr 0xa1-7" 
             tm.showerror( error_type, msg )
             return
 
@@ -256,7 +279,8 @@ class App1( Toplevel ):
         #owner_id validation
         for owner_id in self.owner_id_list + [self.primary_owner_id]:
             if owner_id == '' or len( owner_id ) > 15:
-                msg = "Invalid Owner ID '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa1-8"
+                msg = "Invalid Owner ID '" + owner_id + "': Must not be " + \
+                      "blank or longer than 15 characters\nErr 0xa1-8"
                 tm.showerror( error_type, msg )
                 return
 
@@ -267,7 +291,8 @@ class App1( Toplevel ):
 def run( userCx ):
     #Prevents use of app if user hasn't logged in.
     if userCx == None:
-        tm.showerror( "Error", "You need to login before using this app.\nErr 0xa1-1" )
+        msg = "You need to login before using this app.\nErr 0xa1-1"
+        tm.showerror( "Error", msg )
         return
     App1( userCx )
     return
