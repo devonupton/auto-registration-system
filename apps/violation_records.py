@@ -66,21 +66,22 @@ class app4( Toplevel ):
                                   command=lambda: self.addTextWidget() )
         self.descButton.grid( column=1, row=6, sticky=EW )
         
+        # violator_id label/entry (spaces in label neccessary for style)
+        violator_label = Label( self, text="  Violator SIN*:" )
+        violator_label.grid( column=3, row=1, sticky=E )
+        self.violator_entry = Entry( self )
+        self.violator_entry.grid( column=4, row=1 )
+        
         # vehicle_id (VIN) label/entry
         vin_label = Label( self, text="Vehicle ID:" )
-        vin_label.grid( column=3, row=1, sticky=E )
+        vin_label.grid( column=3, row=2, sticky=E )
         self.vin_entry = Entry( self )
-        self.vin_entry.grid( column=4, row=1 )
+        self.vin_entry.grid( column=4, row=2 )
         
         # Optional Label 
-        optional_label = Label( self, text="Optional Information" )
+        option_text = "*Leave blank to ticket primary owner"
+        optional_label = Label( self, text=option_text )
         optional_label.grid( column=3, row=3, columnspan=2 )
-        
-        # violator_id label/entry (spaces in label neccessary for style)
-        violator_label = Label( self, text="   Violator SIN:" )
-        violator_label.grid( column=3, row=4, sticky=E )
-        self.violator_entry = Entry( self )
-        self.violator_entry.grid( column=4, row=4 )
         
         # submit violation button
         submit_button = Button( self, text="Submit Record",\
