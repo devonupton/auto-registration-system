@@ -40,7 +40,7 @@ class App3( Toplevel ):
         self.issuing_date_entry = Entry( self )
         issuing_date_label.grid( row=3, sticky=E )
         self.issuing_date_entry.grid( row=3, column=1 )
-        self.issuing_date_entry.insert( 0, datetime.now().strftime("%d-%b-%Y") )
+        self.issuing_date_entry.insert( 0, datetime.now().strftime("%d-%b-%Y"))
 
         expiring_date_label = Label( self, text="Expiring Date" )
         self.expiring_date_entry = Entry( self )
@@ -126,13 +126,14 @@ class App3( Toplevel ):
         
         cursor = self.userCx.cursor()
         
-        statement = "SELECT UNIQUE * FROM driving_condition"
+        statement = "SELECT UNIQUE * FROM driving_condition \
+                     ORDER BY c_id"
         cursor.execute( statement )
         
         rows = cursor.fetchall()
         if len( rows ) == 0:
             tm.showerror( "No Driving Conditions!", \
-                "There are no Driving Conditions in the database.\nErr 0xa3-4" )
+                "There are no Driving Conditions in the database.\nErr 0xa3-4")
             
         tW.buildSuperTable( cursor.description, rows, "Driving Conditions" )
         
@@ -142,15 +143,15 @@ class App3( Toplevel ):
     def submit_form( self ):
 
         #Get each input value
-        self.entries = {"licence_no":    self.licence_no_entry.get().strip(),
-                        "class":         self.class_entry.get().strip(),
-                        "issuing_date":  self.issuing_date_entry.get().strip(),
-                        "expiring_date": self.expiring_date_entry.get().strip(),
-                        "sin":           self.sin_entry.get().strip(),
-                        "photo":         self.photo_entry.get() }
+        self.entries = {"licence_no":   self.licence_no_entry.get().strip(),
+                        "class":        self.class_entry.get().strip(),
+                        "issuing_date": self.issuing_date_entry.get().strip(),
+                        "expiring_date":self.expiring_date_entry.get().strip(),
+                        "sin":          self.sin_entry.get().strip(),
+                        "photo":        self.photo_entry.get() }
 
         #Get the Condition IDs
-        self.condition_id_list = self.condition_id_list_entry.get().split( "," )
+        self.condition_id_list = self.condition_id_list_entry.get().split(",")
 
         #Check if input is valid
         if not self.validate_input():
@@ -200,7 +201,7 @@ class App3( Toplevel ):
 
             elif error.code == 2291: #sin does not exist
                 tm.showerror( error_type, "SIN '" + \
-                    str(self.entries["sin"]) + "' does not exist\nErr 0xa3-17" )
+                    str(self.entries["sin"]) + "' does not exist\nErr 0xa3-17")
             else: #Unknown error
                 tm.showerror( error_type, error.message + "\nErr 0xa3-18" )
             cursor.close()
@@ -220,7 +221,7 @@ class App3( Toplevel ):
                     tm.showerror( error_type, "Condition ID '" + \
                                   str(condition_id) + \
                                   "' entered more than once\nErr 0x3-19" )
-                elif error.code == 2291: #Licence exists -> Condition ID doesn't
+                elif error.code == 2291: #Licence exists -> ConditionID doesn't
                     tm.showerror( error_type, "Condition ID '" + \
                         str( condition_id ) + "' does not exist\nErr 0xa3-20" )
                 else: #Unknown error
@@ -275,13 +276,13 @@ class App3( Toplevel ):
             tm.showerror( error_type, msg )
             return
         elif date1.date() < datetime.now().date():
-            msg = "The Issuing Date is listed as before today. Is that correct?"
+            msg="The Issuing Date is listed as before today. Is that correct?"
             if not tm.askyesno( "Input Confirmation", msg ):
                 return
 
         #expiring_date validation
         try:
-            date2 = datetime.strptime(self.entries["expiring_date"], "%d-%b-%Y")
+            date2 = datetime.strptime(self.entries["expiring_date"],"%d-%b-%Y")
         except:
             msg = "Invalid Expiring Date: Format must be DD-MMM-YYYY\n" + \
                   "Ex: 04-OCT-2015\nErr 0xa3-9"
@@ -294,6 +295,23 @@ class App3( Toplevel ):
                   "Err 0xa3-10"
             tm.showerror( error_type, msg )
             return
+
+        if self.condition_id_list[0].strip() == '' \
+            and len(self.condition_id_list) == 1:
+            self.condition_id_list = []
+
+        #condition_id validation and conversion to integers
+        for i in range(len(self.condition_id_list)):
+            try:
+                self.condition_id_list[i] = int( self.condition_id_list[i] )
+                if not (-2147483648 <= self.condition_id_list[i] < 2147483648):
+                    raise
+            except:
+                msg = "Invalid Condition ID '" + \
+                      self.condition_id_list[i] + "': Must be an " + \
+                      "integer between -(2^31)-1 and (2^31)-1\nErr 0xa3-13"
+                tm.showerror( error_type, msg )
+                return
 
         #sin validation
         if self.entries["sin"] == '' or len( self.entries["sin"] ) > 15:
@@ -311,22 +329,7 @@ class App3( Toplevel ):
             tm.showerror( error_type, msg )
             return
 
-        if self.condition_id_list[0].strip() == '' \
-            and len(self.condition_id_list) == 1:
-            self.condition_id_list = []
 
-        #condition_id validation and conversion to integers
-        for i in range(len(self.condition_id_list)):
-            try:
-                self.condition_id_list[i] = int( self.condition_id_list[i] )
-                if not (-2147483648 <= self.condition_id_list[i] < 2147483648):
-                    raise
-            except:
-                msg = "Invalid Condition ID '" + \
-                      self.condition_id_list[element] + "': Must be an " + \
-                      "integer between -(2^31)-1 and (2^31)-1\nErr 0xa3-13"
-                tm.showerror( error_type, msg )
-                return
                         
         #No errors encountered
         return True
