@@ -6,6 +6,7 @@ import cx_Oracle
 from datetime import datetime
 from apps.new_persons_application import NewPerson
 
+#The application object for Auto Transaction
 class App2( Toplevel ):
     def __init__( self, userCx ):
         Toplevel.__init__( self )
@@ -14,7 +15,8 @@ class App2( Toplevel ):
         self.resizable( width=FALSE, height=FALSE )
 
         #Create and add widgets for Sale Info
-        msg1 = Message( self, text="Sale Information", padx=5, pady=5, width=200 )
+        msgtext = "Sale Information"
+        msg1 = Message( self, text=msgtext , padx=5, pady=5, width=200 )
         msg1.grid( row=0, sticky=N, columnspan=2 )
 
         seller_id_label= Label( self, text="Seller ID" )
@@ -47,7 +49,8 @@ class App2( Toplevel ):
         row_expander.grid( row=6 )
 
         #Create and add widgets for Buyer info
-        msg2 = Message( self, text="Buyer Information", padx=5, pady=5, width=200 )
+        msgtext = "Buyer Information"
+        msg2 = Message( self, text=msgtext , padx=5, pady=5, width=200 )
         msg2.grid( row=0, column=2, sticky=N, columnspan=2 )
 
         buyer_id_label = Label( self, text="Buyer ID" )
@@ -60,15 +63,16 @@ class App2( Toplevel ):
         owner_list_label.grid( row=2, column=2, sticky=E )
         self.owner_list_entry.grid( row=2, column=3 )
 
-        owner_list_label2 = Label( self, text="(comma separated list of sin #'s)" )
+        owner_list_label2 = Label(self,text="(comma separated list of sin #'s)")
         owner_list_label2.grid( row=3, column=2, columnspan=2, )
 
         #Buttons
         new_person_button = Button( self, text="Add new Person", \
-                                    command=lambda: NewPerson( self, self.autofill ) )
+                            command=lambda: NewPerson( self, self.autofill ) )
         new_person_button.grid( row=3, column=2, rowspan=3, columnspan=2, )
 
-        submit_button = Button( self, text="Submit", command=lambda: self.submit_form() )
+        submit_button = Button( self, text="Submit", \
+                            command=lambda: self.submit_form() )
         submit_button.grid( row=5, column=2, rowspan=2, columnspan=2, )
 
     #Used to fill the sin # upon returning from NewPerson app
@@ -94,24 +98,28 @@ class App2( Toplevel ):
         for element in range(len(self.owner_id_list)):
             self.owner_id_list[element] = self.owner_id_list[element].strip()
 
+        #Check if input is valid
         if not self.validate_input():
             return
 
         #####################################################
-
-        if not tm.askyesno( "Submit Confirmation", "Are you sure you want to submit?" ):
+        msg = "Are you sure you want to submit?"
+        if not tm.askyesno( "Submit Confirmation", msg ):
             return
 
         cursor = self.userCx.cursor()
         error_type = "Submit Failure"
+        #Create Savepoint here
         cursor.execute( "SAVEPOINT App2Save" )
         
         #####################################################
-
         #Make sure seller is primary owner of the vehicle
+
         statement = "SELECT owner_id FROM owner \
-                     WHERE owner_id=:a and vehicle_id=:b and is_primary_owner='y'" 
-        cursor.execute( statement, a=self.seller_id.ljust(15), b=self.vehicle_id.ljust(15) )
+                     WHERE owner_id=:a and vehicle_id=:b \
+                     and is_primary_owner='y'" 
+        cursor.execute( statement, a=self.seller_id.ljust(15), \
+                                   b=self.vehicle_id.ljust(15) )
         if len( cursor.fetchall() ) == 0: #Not in system
 
             #Check if sin exists
@@ -123,7 +131,8 @@ class App2( Toplevel ):
                 return
 
             if len( cursor.fetchall() ) == 0:
-                tm.showerror( error_type, "Seller ID '" + self.seller_id + "' does not exist\nErr 0xa2-12" )
+                tm.showerror( error_type, "Seller ID '" + self.seller_id + \
+                                          "' does not exist\nErr 0xa2-12" )
                 cursor.close()
                 return
 
@@ -136,30 +145,34 @@ class App2( Toplevel ):
                 return
 
             if len( cursor.fetchall() ) == 0:
-                tm.showerror( error_type, "Vehicle ID '" + self.vehicle_id + "' does not exist\nErr 0xa2-14" )
+                tm.showerror( error_type, "Vehicle ID '" + self.vehicle_id + \
+                                          "' does not exist\nErr 0xa2-14" )
 
             #Else, seller not prmiary owner
             else:
-                tm.showerror( error_type, "The seller does not have permission to sell this vehicle:\
-                                           Must be Primary Owner\nErr 0xa2-15" )
+                msg = "The seller does not have permission to sell " + \
+                      "this vehicle:\nMust be Primary Owner\nErr 0xa2-15"
+                tm.showerror( error_type, msg )
             cursor.close()
             return
 
         #####################################################
+        #Try to create the auto_sale
 
-        #Create the auto_sale
-        sale_statement = "INSERT INTO auto_sale VALUES( :a, :b, :c, :d, :e, :f )"
+        sale_statement = "INSERT INTO auto_sale VALUES(:a,:b,:c,:d,:e,:f)"
         try:
-            cursor.execute( sale_statement, a=self.transaction_id, b=self.seller_id, \
-                            c=self.buyer_id, d=self.vehicle_id, e=self.sale_date, f=self.price )
+            cursor.execute( sale_statement, a=self.transaction_id, \
+                            b=self.seller_id, c=self.buyer_id, \
+                            d=self.vehicle_id, e=self.sale_date, f=self.price )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute( "ROLLBACK to App2Save" )
             cursor.close()
             error, = exc.args
             if error.code == 1: #Transaction ID already exists
                 tm.showerror( error_type, "Transaction ID '" + \
-                    str(self.transaction_id) + "' is already in the database\nErr 0xa2-16" )
-            elif error.code == 2291: #Seller and vehicle already verified -> Buyer does not exist
+                    str(self.transaction_id) + \
+                    "' is already in the database\nErr 0xa2-16" )
+            elif error.code == 2291: #Seller/vehicle verified->Buyer isn't
                 tm.showerror( error_type, "Buyer ID '" + \
                     self.buyer_id + "' does not exist\nErr 0xa2-17" )
             else: #Unknown error
@@ -167,10 +180,11 @@ class App2( Toplevel ):
             return
                 
         #####################################################
-
         #Delete old owners
+
         try:
-            cursor.execute( "DELETE FROM owner WHERE vehicle_id=:a", a=self.vehicle_id.ljust(15) )
+            cursor.execute( "DELETE FROM owner WHERE vehicle_id=:a", \
+                            a=self.vehicle_id.ljust(15) )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute( "ROLLBACK to App2Save" )
             cursor.close()
@@ -180,45 +194,51 @@ class App2( Toplevel ):
             return
 
         #####################################################
+        #Try to insert new Primary owner
 
-        #Try to insert Primary owner
         primary_owner_statement = "INSERT INTO owner VALUES( :a, :b, 'y' )"
         try:
-            cursor.execute( primary_owner_statement, a=self.buyer_id, b=self.vehicle_id )
+            cursor.execute( primary_owner_statement, a=self.buyer_id, \
+                                                     b=self.vehicle_id )
         except cx_Oracle.DatabaseError as exc:
             cursor.execute("ROLLBACK to App2Save" )
             cursor.close()
             error, = exc.args
             if error.code == 2291: #Buyer ID does not exist
-                tm.showerror( error_type, "Buyer ID '" + self.seller_id + "' does not exist\nErr 0xa2-20" )
-            elif error.code == 1400: #Primary_owner_id was empty string (read as NULL)
-                tm.showerror( error_type, "You must have exactly one primary owner\nErr 0xa2-21" )
+                tm.showerror( error_type, "Buyer ID '" + self.seller_id + \
+                                          "' does not exist\nErr 0xa2-20" )
+            elif error.code == 1400: #Primary_owner_id was empty string
+                tm.showerror( error_type, "You must have exactly one " + \
+                                          "primary owner\nErr 0xa2-21" )
             else: #Unknown error
                 tm.showerror( error_type, error.message + "\nErr 0xa2-22" )
             return
 
         #####################################################
+        #Try to insert other new owners
 
-        #Try to insert other owners
         secondary_owner_statement = "INSERT INTO owner VALUES( :a, :b, 'n' )"
         for owner_id in self.owner_id_list:
             try:
-                cursor.execute( secondary_owner_statement, a=owner_id, b=self.vehicle_id )
+                cursor.execute( secondary_owner_statement, 
+                                a=owner_id, b=self.vehicle_id )
             except cx_Oracle.DatabaseError as exc:
                 cursor.execute("ROLLBACK to App2Save" )
                 cursor.close()
                 error, = exc.args
                 if error.code == 1: #Duplicate owner_id
-                    tm.showerror( error_type, "Owner ID '" + owner_id + "' entered more than once\nErr 0xa2-23" )
+                    tm.showerror( error_type, "Owner ID '" + owner_id + \
+                                  "' entered more than once\nErr 0xa2-23" )
                 elif error.code == 2291: #Owner ID does not exist
-                    tm.showerror( error_type, "Owner ID '" + owner_id + "' does not exist\nErr 0xa2-24" )
+                    tm.showerror( error_type, "Owner ID '" + owner_id + \
+                                  "' does not exist\nErr 0xa2-24" )
                 else: #Unknown error
                     tm.showerror( error_type, error.message + "\nErr 0xa2-25" )
                 return
 
         #####################################################
-
         #SQL statements executed successfully
+
         cursor.close()
         self.userCx.commit()
 
@@ -235,7 +255,8 @@ class App2( Toplevel ):
 
         #seller_id validation 
         if self.seller_id == '' or len( self.seller_id ) > 15:
-            msg = "Invalid Seller ID: Must not be blank or longer than 15 character\nErr 0xa2-2"
+            msg = "Invalid Seller ID: Must not be blank or longer " + \
+                  "than 15 character\nErr 0xa2-2"
             tm.showerror( error_type, msg )
             return
 
@@ -245,13 +266,15 @@ class App2( Toplevel ):
             if not ( -2147483648 <= self.transaction_id < 2147483648 ):
                 raise
         except:
-            msg = "Invalid Transaction ID: Must be an integer between -(2^31)-1 and (2^31)-1\nErr 0xa2-3"
+            msg = "Invalid Transaction ID: Must be an integer between " + \
+                  "-(2^31)-1 and (2^31)-1\nErr 0xa2-3"
             tm.showerror( error_type, msg )
             return
 
         #vehicle_id validation
         if self.vehicle_id == '' or len( self.vehicle_id ) > 15:
-            msg = "Invalid Vehicle ID: Must not be blank or longer than 15 characters\nErr 0xa2-4"
+            msg = "Invalid Vehicle ID: Must not be blank or longer " + \
+                  "than 15 characters\nErr 0xa2-4"
             tm.showerror( error_type, msg )
             return
 
@@ -259,15 +282,18 @@ class App2( Toplevel ):
         try:
             date = datetime.strptime( self.sale_date, "%d-%b-%Y" )
         except:
-            msg = "Invalid Sale Date: Format must be DD-MMM-YYYY\nEx: 04-OCT-2015\nErr 0xa2-5"
+            msg = "Invalid Sale Date: Format must be DD-MMM-YYYY\n" + \
+                  "Ex: 04-OCT-2015\nErr 0xa2-5"
             tm.showerror( error_type, msg )
             return
         if date > datetime.now():
-            msg = "Invalid Sale Date: Sale cannot occur in the future\nErr 0xa2-6"
+            msg = "Invalid Sale Date: Sale cannot occur in the future" + \
+                  "\nErr 0xa2-6"
             tm.showerror( error_type, msg )
             return
         elif date.date() < datetime.now().date():
-            if not tm.askyesno( "Input Confirmation", "The sale date is listed as before today. Is that correct?" ):
+            msg = "The sale date is listed as before today. Is that correct?"
+            if not tm.askyesno( "Input Confirmation", msg ):
                 return
 
         #price validation
@@ -276,19 +302,22 @@ class App2( Toplevel ):
             if not ( 0 <= self.price < 10000000 ):
                 raise
         except:
-            msg = "Invalid Price: Must be a number between 0 and 9999999\nErr 0xa2-7"
+            msg = "Invalid Price: Must be a number between 0 and 9999999" + \
+                  "\nErr 0xa2-7"
             tm.showerror( error_type, msg )
             return
 
         #buyer_id validation
         if self.buyer_id == '' or len( self.buyer_id ) > 15:
-            msg = "Invalid Buyer ID: Must not be blank or longer than 15 characters\nErr 0xa2-8"
+            msg = "Invalid Buyer ID: Must not be blank or longer than 15 " + \
+                  "characters\nErr 0xa2-8"
             tm.showerror( error_type, msg )
             return
 
         #buyer != seller
         if self.buyer_id == self.seller_id:
-            msg = "Invalid Buyer ID: The seller cannot sell to themself\nErr 0xa2-9"
+            msg = "Invalid Buyer ID: The seller cannot sell to themself" + \
+                  "\nErr 0xa2-9"
             tm.showerror( error_type, msg )
             return
 
@@ -297,17 +326,20 @@ class App2( Toplevel ):
         #owner_id validation
         for owner_id in self.owner_id_list:
             if owner_id == '' or len( owner_id ) > 15:
-                msg = "Invalid Owner ID '" + owner_id + "': Must not be blank or longer than 15 characters\nErr 0xa2-10"
+                msg = "Invalid Owner ID '" + owner_id + "': Must not be " + \
+                      "blank or longer than 15 characters\nErr 0xa2-10"
                 tm.showerror( error_type, msg )
                 return
 
         #No errors encountered
         return True
 
+#This function starts App2 if user is logged in
 def run( userCx ):
     #Prevents use of app if user hasn't logged in.
     if userCx == None:
-        tm.showerror( "Error", "You need to login before using this app.\nErr 0xa2-1" )
+        msg = "You need to login before using this app.\nErr 0xa2-1"
+        tm.showerror( "Error", msg )
         return
     App2( userCx )
     return

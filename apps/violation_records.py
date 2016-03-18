@@ -189,10 +189,13 @@ class app4( Toplevel ):
             self.recoverError( error )
             return
             
+        cursor.close()
         infoMsg = "Ticket Number " + str( self.entries["ticketNo"] ) +\
                   " has been recorded."
+                  
         tm.showinfo( "Success!", infoMsg )
-        cursor.close()
+        self.destroy()
+
      
     # If an error is encountered, we check the error and print a message
     # basically checks the error code, and searches each table to check
