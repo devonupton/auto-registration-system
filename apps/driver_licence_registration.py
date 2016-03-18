@@ -212,6 +212,7 @@ class App3( Toplevel ):
                 return
             
         #SQL statements executed successfully
+        cursor.close()
         self.userCx.commit()
 
         #Success message
