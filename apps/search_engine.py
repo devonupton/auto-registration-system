@@ -94,7 +94,7 @@ def searchOne( userCx, strVar, isLicNo ):
         # If there was no results, it means 
         # the person wasn't in the database (LEFT JOIN)
         if len( rows ) == 0:
-            infoMsg = title + " had no results! Check " +\
+            infoMsg = title + " not found in database! Check " +\
                       "spelling and try again.\nErr 0xa5-11"
             tm.showerror( "No results!", infoMsg )
             return
@@ -210,7 +210,7 @@ def searchTwo( userCx, strVar, isLicNo ):
     if len( rows ) == 0:
         if checkSIN( strVar, userCx ):
             if isLicNo:
-                infoMsg = "The LicNo '" + LicNo +\
+                infoMsg = "The LicNo '" + licNo +\
                           "' has no recorded violations."
             else:
                 infoMsg = "The SIN '" + strVar +\
@@ -220,7 +220,7 @@ def searchTwo( userCx, strVar, isLicNo ):
         else:
             if isLicNo:
                 # This case will never occur (?)
-                errMsg = "The LicNo '" + LicNo +\
+                errMsg = "The LicNo '" + licNo +\
                          "' was not found in the database. Maybe check " +\
                          "your spelling.\nErr 0xa5-8"
             else:

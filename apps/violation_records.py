@@ -319,7 +319,7 @@ class app4( Toplevel ):
         if len( rows ) == 0:
             cursor.close()
             errMsg = "The VIN '" + self.entries["vehicle_id"] +\
-                     "' is not in the database. Please double check" +\
+                     "' is not in the database. Please double check " +\
                      "the VIN and try again.\nErr 0xa4-25"
             tm.showerror( "Invalid VIN", errMsg )
             return False
@@ -453,15 +453,6 @@ class app4( Toplevel ):
                          "characters.\nErr 0xa4-11"
                 tm.showerror( "Description Too Long", errMsg )
                 return False 
-                
-        # vehicle_id validation
-        # THIS MUST BE DONE BEFORE GETTING THE PRIMARY OWNER IF NEEDED
-        if self.entries["vehicle_id"] == '' \
-        or len( self.entries["vehicle_id"] ) > 15:
-            errMsg = "VIN must not be blank and no longer " +\
-                     "than 15 characters.\nErr 0xa4-13"
-            tm.showerror( "VIN Error", errMsg )
-            return False
             
         # violator_no validation
         if self.entries["violatorNo"] == '':
@@ -472,6 +463,15 @@ class app4( Toplevel ):
             errMsg = "Violator No must not be blank and no " +\
                      "longer than 15 characters.\nErr 0xa4-12"
             tm.showerror( "Violator SIN Error", errMsg )
+            return False
+
+        # vehicle_id validation
+        # THIS MUST BE DONE BEFORE GETTING THE PRIMARY OWNER IF NEEDED
+        if self.entries["vehicle_id"] == '' \
+        or len( self.entries["vehicle_id"] ) > 15:
+            errMsg = "VIN must not be blank and no longer " +\
+                     "than 15 characters.\nErr 0xa4-13"
+            tm.showerror( "VIN Error", errMsg )
             return False
 
         # Officer should not be Violator
