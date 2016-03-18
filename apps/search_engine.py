@@ -62,12 +62,16 @@ def searchOne( userCx, strVar, isLicNo ):
         
         # build the SQL statement based on if it's a LicNo or a Name
         if isLicNo:
-            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
-                        "FROM People P LEFT JOIN drive_Licence L ON P.sin = L.sin "+\
+            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, " +\
+                        "L.class, L.expiring_date " +\
+                        "FROM People P LEFT JOIN drive_Licence L " +\
+                        "ON P.sin = L.sin "+\
                         "WHERE LOWER(L.licence_no) = :a"
         else:
-            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, L.class, L.expiring_date " +\
-                        "FROM People P LEFT JOIN drive_Licence L ON P.sin = L.sin "+\
+            statement = "SELECT P.name, L.licence_no, P.addr, P.birthday, " +\
+                        "L.class, L.expiring_date " +\
+                        "FROM People P LEFT JOIN drive_Licence L " +\
+                        "ON P.sin = L.sin "+\
                         "WHERE LOWER(P.name) = :a"
             
         # open a cursor for database usage
@@ -80,14 +84,18 @@ def searchOne( userCx, strVar, isLicNo ):
             else:
                 thisCursor.execute( statement, a=strVar.lower() )
         except:
-            tm.showerror( "Invalid Input", "There is a problem with the search, please try again.\nErr 0xa5-3" )
+            errMsg = "There is a problem with the search, " +\
+                     "please try again.\nErr 0xa5-3"
+            tm.showerror( "Invalid Input", errMsg )
             return
          
         rows = thisCursor.fetchall()
         
-        # If there was no results, it means the person wasn't in the database (LEFT JOIN)
+        # If there was no results, it means 
+        # the person wasn't in the database (LEFT JOIN)
         if len( rows ) == 0:
-            infoMsg = title + " had no results! Check spelling and try again.\nErr 0xa5-11"
+            infoMsg = title + " had no results! Check " +\
+                      "spelling and try again.\nErr 0xa5-11"
             tm.showerror( "No results!", infoMsg )
             return
     
@@ -115,7 +123,8 @@ def searchOne( userCx, strVar, isLicNo ):
                     tempRow.append( "N/A" )
                 else:
                     tempRow.append( entry )
-            # When a temporary row is complete, search for the conditions on that result
+            # When a temporary row is complete, search for the 
+            # conditions on that result.
             # Because of the LEFT JOIN, some licence may be NoneType
             if tempRow[1] == "N/A":
                 tempRow.append( "N/A" )
@@ -124,7 +133,8 @@ def searchOne( userCx, strVar, isLicNo ):
             statement = "SELECT DC.description " +\
                         "FROM restriction R, driving_condition DC " +\
                         "WHERE R.r_id = DC.c_id AND LOWER(R.licence_no) = :a"
-            thisCursor.execute( statement, a=tempRow[1].strip().lower().ljust(15) )  
+            thisCursor.execute( statement, \
+                                a=tempRow[1].strip().lower().ljust(15) )  
             conditions = thisCursor.fetchall()
             if len( rows ) == 0:
                 # if no conditions found for the licence, append N/A value
@@ -176,7 +186,8 @@ def searchTwo( userCx, strVar, isLicNo ):
         thisCursor.execute( statement, a=strVar.ljust(15) )
         rows = thisCursor.fetchall()
         if len( rows ) == 0:
-            errMsg = "The licence_no '" + strVar + "' was not found in the database.\nErr 0xa5-6"
+            errMsg = "The licence_no '" + strVar +\
+                     "' was not found in the database.\nErr 0xa5-6"
             tm.showerror( "No result!", errMsg )
             return
         
@@ -185,7 +196,9 @@ def searchTwo( userCx, strVar, isLicNo ):
         strVar = strVar.strip().lower()
 
     # search for tickets on the SIN (strVar)
-    statement = "SELECT violator_no AS violatior_SIN, ticket_no, vehicle_id, office_no AS officer_ID, vdate, place, TT.vtype, TT.fine, descriptions " +\
+    statement = "SELECT violator_no AS violatior_SIN, " +\
+                "ticket_no, vehicle_id, office_no AS officer_ID, " +\
+                "vdate, place, TT.vtype, TT.fine, descriptions " +\
                 "FROM ticket, ticket_type TT " +\
                 "WHERE ticket.vtype = TT.vtype AND LOWER( violator_no ) = :a"
 
@@ -197,25 +210,32 @@ def searchTwo( userCx, strVar, isLicNo ):
     if len( rows ) == 0:
         if checkSIN( strVar, userCx ):
             if isLicNo:
-                infoMsg = "The LicNo '" + LicNo + "' has no recorded violations."
+                infoMsg = "The LicNo '" + LicNo +\
+                          "' has no recorded violations."
             else:
-                infoMsg = "The SIN '" + strVar + "' has no recorded violations."
+                infoMsg = "The SIN '" + strVar +\
+                          "' has no recorded violations."
             tm.showinfo( "No Violations!", infoMsg )
             return
         else:
             if isLicNo:
                 # This case will never occur (?)
-                errMsg = "The LicNo '" + LicNo + "' was not found in the database. Maybe check your spelling.\nErr 0xa5-8"
+                errMsg = "The LicNo '" + LicNo +\
+                         "' was not found in the database. Maybe check " +\
+                         "your spelling.\nErr 0xa5-8"
             else:
-                errMsg = "The SIN '" + strVar + "' was not found in the database. Maybe check your spelling.\nErr 0xa5-10"     
+                errMsg = "The SIN '" + strVar +\
+                         "' was not found in the database. Maybe check " +\
+                         "your spelling.\nErr 0xa5-10"     
             tm.showerror( "Entry Not Found", errMsg )
             return
         
-
+    # Build the header table 
     headerList = []
     for object in thisCursor.description:
         headerList.append( object[0] )
-
+    
+    # Build the tableSpace
     tableRows = [headerList]
     for x in range( len( rows ) ):
         tempRow = []
@@ -241,7 +261,8 @@ def checkSIN( strVar, userCx ):
         thisCursor.execute( statement, a=strVar.ljust(15) )
     except:
         thisCursor.close()
-        tm.showerror( "Unexpected Error", "An unexpected error occured.\nErr 0xa5-9")
+        tm.showerror( "Unexpected Error", "An unexpected " +\
+                      "error occured.\nErr 0xa5-9")
         
     rows = thisCursor.fetchall()
    
@@ -288,7 +309,8 @@ def searchThree( userCx, vinVar ):
     numViolations = rows[0][0]
     
     # get avg( sale ) and count( sale )
-    statement = "SELECT AVG( price ), COUNT( * ) FROM auto_sale WHERE LOWER( vehicle_id ) = :a"
+    statement = "SELECT AVG( price ), COUNT( * ) FROM auto_sale " +\
+                "WHERE LOWER( vehicle_id ) = :a"
     thisCursor.execute( statement, a=vinVar.ljust(15) )
     rows = thisCursor.fetchall()
     avgPrice = rows[0][0]
@@ -296,7 +318,8 @@ def searchThree( userCx, vinVar ):
     
     title = "History For VIN=" + vinVar 
     headerList = [ 'VIN', 'VIOLATIONS', 'AVG SALE PRICE', 'SALES' ]
-    valueList = [ vinVar, str( numViolations ), str( avgPrice ), str( numSales ) ]
+    valueList = [ vinVar, str( numViolations ),\
+                  str( avgPrice ), str( numSales ) ]
 
     thisCursor.close()
     tW.buildCxTable( [headerList, valueList], title )
@@ -309,7 +332,8 @@ def searchThree( userCx, vinVar ):
 def run( userCx ):
     # prevents use of app if user hasn't logged in.
     if userCx == None:
-        tm.showerror( "Error", "You need to login before using this app.\nErr 0xa5-1" )
+        errMsg = "You need to login before using this app.\nErr 0xa5-1"
+        tm.showerror( "Error", errMsg )
         return
     
     top = Tk()
@@ -330,10 +354,16 @@ def run( userCx ):
     licNo_entry.grid( row=1, column=1, sticky=EW )
     licNo_entry.insert( 0, "Enter a licence_no here" )
     
-    search1Name_button = Button( top, text="Search By Name", command=lambda: searchOne( userCx, name_entry.get(), False ) )
+    search1Name_button = Button( top, text="Search By Name", \
+                                 command=lambda: searchOne( userCx, \
+                                                            name_entry.get(), \
+                                                            False ) )
     search1Name_button.grid( row=2, column=0, sticky=EW )
     
-    search1LicNo_button = Button( top, text="Search By licence_no", command=lambda: searchOne( userCx, licNo_entry.get(), True ) )
+    search1LicNo_button = Button( top, text="Search By licence_no", \
+                                  command=lambda: searchOne( userCx, \
+                                                             licNo_entry.get(),\
+                                                             True ) )
     search1LicNo_button.grid( row=2, column=1, sticky=EW )
 
     
@@ -351,10 +381,16 @@ def run( userCx ):
     lic_entry.grid( row=4, column=1, sticky=EW )
     lic_entry.insert( 0, "Enter a licence_no here" )
 
-    search2Name_button = Button( top, text="Search By SIN", command=lambda: searchTwo( userCx, sin_entry.get(), False ) )
+    search2Name_button = Button( top, text="Search By SIN", \
+                                 command=lambda: searchTwo( userCx, \
+                                                            sin_entry.get(), \
+                                                            False ) )
     search2Name_button.grid( row=5, column=0, sticky=EW )
     
-    search2LicNo_button = Button( top, text="Search By licence_no", command=lambda: searchTwo( userCx, lic_entry.get(), True ) )
+    search2LicNo_button = Button( top, text="Search By licence_no", \
+                                  command=lambda: searchTwo( userCx, \
+                                                             lic_entry.get(), \
+                                                             True ) )
     search2LicNo_button.grid( row=5, column=1, sticky=EW )
 
     # LIST3 ====================================================================
@@ -366,7 +402,9 @@ def run( userCx ):
     vin_entry.grid( row=7, columnspan=2, sticky=EW )
     vin_entry.insert( 0, "Enter a VIN here" )
 
-    searchVIN_button = Button( top, text="Search By VIN", command=lambda: searchThree( userCx, vin_entry.get() ) )
+    searchVIN_button = Button( top, text="Search By VIN", \
+                               command=lambda: searchThree( userCx, \
+                                                            vin_entry.get() ) )
     searchVIN_button.grid( row=8, columnspan=2, sticky=EW )
 
     #mainloop
