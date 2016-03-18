@@ -115,7 +115,7 @@ class app4( Toplevel ):
             self.descButton.configure( text="<< Close Description" )
             self.descOpen = True
          
-            self.descBox = Text( self, relief=SUNKEN, width=70, height=20 )
+            self.descBox = Text( self, relief=SUNKEN, width=70, height=15 )
             self.descBox.grid( column=0, row=7, columnspan=5, sticky=NSEW )
             
         return

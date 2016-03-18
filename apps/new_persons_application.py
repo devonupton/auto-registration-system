@@ -106,7 +106,7 @@ class NewPerson( Toplevel ):
         except cx_Oracle.DatabaseError as exc:
             error, = exc.args
             if error.code == 1:
-                tm.showerror( "Submit Failure", "sin '" + self.entries["sin"] + "' is already in the database\nErr 0xs1-11" )
+                tm.showerror( "Submit Failure", "SIN '" + self.entries["sin"] + "' is already in the database\nErr 0xs1-11" )
             else:
                 tm.showerror( "Submit Failure", error.message + "\nErr 0xs1-12" )
             return

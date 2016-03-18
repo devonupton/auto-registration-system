@@ -55,7 +55,7 @@ class App2( Toplevel ):
         buyer_id_label.grid( row=1, column=2, sticky=E )
         self.buyer_id_entry.grid( row=1, column=3 )
 
-        owner_list_label = Label( self, text="Other Owner ID's" )
+        owner_list_label = Label( self, text="Other Owner IDs" )
         self.owner_list_entry = Entry( self )
         owner_list_label.grid( row=2, column=2, sticky=E )
         self.owner_list_entry.grid( row=2, column=3 )
@@ -225,7 +225,7 @@ class App2( Toplevel ):
         #Success message
         successInfo = "Vehicle '" + self.vehicle_id + "' has been sold\n" + \
                       "New Primary Owner ID: " + self.buyer_id + "\n" + \
-                      "Other new Owner ID's: " + ", ".join(self.owner_id_list)
+                      "Other new Owner IDs: " + ", ".join(self.owner_id_list)
         tm.showinfo( "Success!", successInfo )  
         self.destroy()
             

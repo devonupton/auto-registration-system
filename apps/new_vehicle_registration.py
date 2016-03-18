@@ -1,8 +1,8 @@
 ''' New Vehicle Registration Application '''
 
 from tkinter import *
-import tkinter.messagebox as tm
 import cx_Oracle
+import tkinter.messagebox as tm
 import apps.tableWidget as tW
 from apps.new_persons_application import NewPerson
 
@@ -56,7 +56,7 @@ class App1( Toplevel ):
         primary_owner_id_label.grid( row=1, column=2, sticky=E )
         self.primary_owner_id_entry.grid( row=1, column=3 )
 
-        owner_id_label = Label( self, text="Other Owner ID's" )
+        owner_id_label = Label( self, text="Other Owner IDs" )
         self.owner_id_entry = Entry( self )
         owner_id_label.grid( row=2, column=2, sticky=E )
         self.owner_id_entry.grid( row=2, column=3 )
@@ -86,7 +86,7 @@ class App1( Toplevel ):
 
     #Returns a super table of vehicle types for the user
     def findVehicleTypes( self ):
-        askMsg = "Do you wish to bring up a table of the possible Vehicle Types and their Type ID's?"
+        askMsg = "Do you wish to bring up a table of the possible Vehicle Types and their Type IDs?"
         if not tm.askyesno( "Type ID Help", askMsg ):
             return
         
@@ -195,7 +195,7 @@ class App1( Toplevel ):
         #Success message
         successInfo = "Vehicle '" + self.entries["vehicle_id"] + "' had been created\n" + \
                       "Primary Owner ID: " + self.primary_owner_id + "\n" + \
-                      "Other Owner ID's: " + ", ".join(self.owner_id_list)
+                      "Other Owner IDs: " + ", ".join(self.owner_id_list)
         tm.showinfo( "Success!", successInfo )  
         self.destroy()
             
